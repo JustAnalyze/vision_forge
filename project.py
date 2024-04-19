@@ -4,6 +4,7 @@ import customtkinter
 
 class ModelBuilder:
     def __init__(self):
+        # Set up the main window and the theme
         customtkinter.set_default_color_theme('dark-blue')
         customtkinter.set_appearance_mode("dark")
         self.root = customtkinter.CTk()
@@ -22,6 +23,7 @@ class ModelBuilder:
         self.train_button.pack(pady=10)
         
     # TODO: Create a CreateTabs Method for creating the widgets for customizing the model and the data
+    
     def CreateTabs(self):
         # add tabs for Data loading, and Model Customization
         self.tabview = customtkinter.CTkTabview(self.root)
@@ -35,6 +37,7 @@ class ModelBuilder:
         
     #========================= MODEL TAB WIDGETS =========================#
     def CreateModelTabWidgets(self):
+        # TODO: Add variable for each input to store model configurations data
         model_tab = self.tabview.tab('Model')
         
         # Add a ComboBox for choosing the type of task
@@ -57,13 +60,40 @@ class ModelBuilder:
                                                    width=200,
                                                    justify='center')
         
-        # pack widgets
-        task_type_label.pack(pady=5)
-        task_type.pack()
+        # Add entry box for setting the number of units/neurons in the hidden layer
+        num_hidden_units_label = customtkinter.CTkLabel(master=model_tab, text="Hidden Units/Neurons")
         
-        optimizer_label.pack(pady=5)
-        optimizer.pack()
+        num_hidden_units = customtkinter.CTkEntry(model_tab,
+                                                  placeholder_text='64',
+                                                  width=200,
+                                                  justify='center')
         
+        # Add Combobox for choosing a pretrained model for transfer learning
+        pretrained_model_label = customtkinter.CTkLabel(master=model_tab, text="Pretrained Model")
+        
+        pretrained_model_list = []
+        
+        pretrained_model = customtkinter.CTkComboBox(master=model_tab,
+                                                     values=pretrained_model_list,
+                                                     width=200,
+                                                     justify='center')
+        
+        # TODO: Add a learning rate gui
+        
+        # TODO: FIX WIDGET GRID POSITIONS
+        # use grid layout manager
+        task_type_label.grid(row=0, column=0, padx=30)
+        task_type.grid(row=1, column=0, pady=5, padx=30)
+      
+        optimizer_label.grid(row=2, column=0, padx=30)
+        optimizer.grid(row=3, column=0, pady=5, padx=30)
+        '''
+        num_hidden_units_label.grid(row=2, column=0)
+        num_hidden_units.grid(row=2, column=1)
+        
+        pretrained_model_label.grid(row=3, column=0)
+        pretrained_model.grid(row=3, column=1)
+        '''
     def run(self):
         self.root.mainloop()
     
