@@ -13,10 +13,13 @@ class ModelBuilder:
         # Create tabs widgets for customizing the model and the data
         self.CreateTabs()
 
+        # Create model tab widgets
+        self.CreateModelTabWidgets()
+        
         # Add Train Button for starting training
         # TODO: Add button command for training
-        self.button = customtkinter.CTkButton(master=self.root, text="Train", command=None)
-        self.button.pack(pady=10)
+        self.train_button = customtkinter.CTkButton(master=self.root, text="Train", command=None)
+        self.train_button.pack(pady=10)
         
     # TODO: Create a CreateTabs Method for creating the widgets for customizing the model and the data
     def CreateTabs(self):
@@ -28,26 +31,45 @@ class ModelBuilder:
         self.tabview.add('Data')
         self.tabview.set('Model') 
 
-        #========================= MODEL TAB WIDGETS =========================#
+        
+        
+    #========================= MODEL TAB WIDGETS =========================#
+    def CreateModelTabWidgets(self):
         model_tab = self.tabview.tab('Model')
-        label = customtkinter.CTkLabel(master=model_tab, text="Task")
-        # Add a ComboBox for choosing the loss function
+        
+        # Add a ComboBox for choosing the type of task
+        task_type_label = customtkinter.CTkLabel(master=model_tab, text="Task")
+        
         type_list = ['Binary Classification', 'Multiclass Classification']
-        self.task_type = customtkinter.CTkComboBox(master=model_tab,
+        task_type = customtkinter.CTkComboBox(master=model_tab,
                                                    values=type_list,
                                                    width=200,
                                                    justify='center')
         
+        # Add ComboBox for choosing the optimizer
+        optimizer_label = customtkinter.CTkLabel(master=model_tab, text="Optimizer")
         
-        label.pack(pady=5)
-        self.task_type.pack()
+        # list of available optimizers in pytorch
+        optimizer_list =['SGD', 'Adam', 'AdamW', 'RMSProp', 'AdaGrad', 'Adadelta', 'Adamax', 'Nadam']
+
+        optimizer = customtkinter.CTkComboBox(master=model_tab,
+                                                   values=optimizer_list,
+                                                   width=200,
+                                                   justify='center')
         
-    def Run(self):
+        # pack widgets
+        task_type_label.pack(pady=5)
+        task_type.pack()
+        
+        optimizer_label.pack(pady=5)
+        optimizer.pack()
+        
+    def run(self):
         self.root.mainloop()
     
 def main():
     gui = ModelBuilder()
-    gui.Run()
+    gui.run()
 
 if __name__ == "__main__":
     main()
