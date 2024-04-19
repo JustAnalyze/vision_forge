@@ -17,6 +17,7 @@ class ModelBuilder:
         # TODO: Add button command for training
         self.button = customtkinter.CTkButton(master=self.root, text="Train", command=None)
         self.button.pack(pady=10)
+        
     # TODO: Create a CreateTabs Method for creating the widgets for customizing the model and the data
     def CreateTabs(self):
         # add tabs for Data loading, and Model Customization
@@ -27,15 +28,19 @@ class ModelBuilder:
         self.tabview.add('Data')
         self.tabview.set('Model') 
 
-        # add widgets in the Model tab for customizing model architecture.
+        #========================= MODEL TAB WIDGETS =========================#
         model_tab = self.tabview.tab('Model')
         label = customtkinter.CTkLabel(master=model_tab, text="Task")
-        label.pack(pady=5)
         # Add a ComboBox for choosing the loss function
-        classification_type_list = ['Binary Classification', 'Multiclass Classification']
-        self.classification_type = customtkinter.CTkComboBox(master=model_tab,
-                                                             values=classification_type_list)
-        self.classification_type.pack()
+        type_list = ['Binary Classification', 'Multiclass Classification']
+        self.task_type = customtkinter.CTkComboBox(master=model_tab,
+                                                   values=type_list,
+                                                   width=200,
+                                                   justify='center')
+        
+        
+        label.pack(pady=5)
+        self.task_type.pack()
         
     def Run(self):
         self.root.mainloop()
