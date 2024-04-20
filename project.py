@@ -7,7 +7,7 @@ class ModelBuilderGUI:
 
     def __init__(self):
         """
-        Initialize the GUI.
+        Initialize the GUI and the Dictionary of settings.
         """
         # Set up the main window and the theme
         customtkinter.set_default_color_theme('dark-blue')
@@ -15,6 +15,9 @@ class ModelBuilderGUI:
         self.root = customtkinter.CTk()
         self.root.title("Vision Forge")
         self.root.geometry("535x370")
+        
+        # Set up the dictionary of settings
+        self._settings_dict = {}
         
         # Create tabs widgets for customizing the model and the data
         self._create_tabs()
@@ -25,7 +28,18 @@ class ModelBuilderGUI:
         # Create Train Button for starting training
         self._create_train_button()
 
-        
+    # create a get_settings for getting the model settings.
+    @property
+    def settings_dict(self):
+        return self._settings_dict
+
+    @settings_dict.setter
+    def settings_dict(self, new_settings):
+        if isinstance(new_settings, dict):
+            self._settings_dict = new_settings
+        else:
+            raise ValueError("Settings must be a dictionary.")
+    
     def _create_tabs(self):
         """
         Create tabs for customizing the model and the data.
@@ -94,7 +108,7 @@ class ModelBuilderGUI:
         
         # Add save button for saving the inputted values
         def save_button_event():
-            print('button pressed')
+            print(self.settings_dict)
         
         save_button = customtkinter.CTkButton(model_tab,
                                               text='Save',
@@ -134,6 +148,6 @@ def main():
     """
     gui = ModelBuilderGUI()
     gui.run()
-
+    gui.settings_dict
 if __name__ == "__main__":
     main()
