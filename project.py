@@ -14,7 +14,7 @@ class ModelBuilderGUI:
         customtkinter.set_appearance_mode("dark")
         self.root = customtkinter.CTk()
         self.root.title("Vision Forge")
-        self.root.geometry("535x300")
+        self.root.geometry("535x370")
         
         # Create tabs widgets for customizing the model and the data
         self._create_tabs()
@@ -47,38 +47,60 @@ class ModelBuilderGUI:
         # Add a ComboBox for choosing the type of task
         task_type_label = customtkinter.CTkLabel(master=model_tab, text="Task")
         type_list = ['Binary Classification', 'Multiclass Classification']
+        task_type_var = customtkinter.StringVar()
         task_type = customtkinter.CTkComboBox(master=model_tab,
                                               values=type_list, width=200,
-                                              justify='center')
+                                              justify='center',
+                                              variable=task_type_var)
+        
         
         # Add ComboBox for choosing the optimizer
         optimizer_label = customtkinter.CTkLabel(master=model_tab, text="Optimizer")
         optimizer_list =['SGD', 'Adam', 'AdamW', 'RMSProp', 'AdaGrad', 'Adadelta', 'Adamax', 'Nadam']
+        optimizer_var = customtkinter.StringVar()
         optimizer = customtkinter.CTkComboBox(master=model_tab,
                                               values=optimizer_list,
                                               width=200,
-                                              justify='center')
+                                              justify='center',
+                                              variable=optimizer_var)
         
         # Add entry box for setting the number of units/neurons in the hidden layer
         num_hidden_units_label = customtkinter.CTkLabel(master=model_tab, text="Hidden Units/Neurons")
+        num_hidden_units_var = customtkinter.IntVar(value=64)
         num_hidden_units = customtkinter.CTkEntry(model_tab, 
                                                   placeholder_text='64',
                                                   width=200, 
-                                                  justify='center')
+                                                  justify='center',
+                                                  textvariable=num_hidden_units_var)
         
         # Add Combobox for choosing a pretrained model for transfer learning
         pretrained_model_label = customtkinter.CTkLabel(master=model_tab, text="Pretrained Model")
-        pretrained_model_list = []
+        pretrained_model_list = ["EfficientNetV2","EfficientNet","MobileNet V2","MobileNet V3","ResNet","Inception V3"]
+        pretrained_model_var = customtkinter.StringVar()
         pretrained_model = customtkinter.CTkComboBox(master=model_tab, 
                                                      values=pretrained_model_list, 
-                                                     width=200, justify='center')
+                                                     width=200,
+                                                     justify='center',
+                                                     variable=pretrained_model_var)
         
         # Add entry box for setting the value of learning rate
         learning_rate_label = customtkinter.CTkLabel(master=model_tab, text='Learning Rate')
+        learning_rate_var = customtkinter.Variable(value=0.001)
         learning_rate = customtkinter.CTkEntry(master=model_tab, 
                                                placeholder_text='0.001',
                                                width=200, 
-                                               justify='center')
+                                               justify='center',
+                                               textvariable=learning_rate_var)
+        
+        # Add save button for saving the inputted values
+        def save_button_event():
+            print('button pressed')
+        
+        save_button = customtkinter.CTkButton(model_tab,
+                                              text='Save',
+                                              width=90,
+                                              height=28,
+                                              command=save_button_event)
         
         # Grid layout manager
         task_type_label.grid(row=0, column=0, padx=30)
@@ -91,8 +113,12 @@ class ModelBuilderGUI:
         pretrained_model.grid(row=3, column=1)
         learning_rate_label.grid(row=4, column=0, padx=30)
         learning_rate.grid(row=5, column=0, padx=30)
-
+        save_button.place(x=215, y=230)
+    
     def _create_train_button(self):
+        """
+        Create a button for starting the training.
+        """
         self.train_button = customtkinter.CTkButton(master=self.root, text="Train", command=None)
         self.train_button.pack(pady=10)
         
