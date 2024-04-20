@@ -58,7 +58,7 @@ class ModelBuilderGUI:
         """
         Create widgets for the Model tab.
         """
-        # TODO: Add variable for each input to store model configurations data
+
         model_tab = self.tabview.tab('Model')
         
         # Add a ComboBox for choosing the type of task
@@ -110,6 +110,7 @@ class ModelBuilderGUI:
                                                textvariable=learning_rate_var)
         
         # Add save button for saving the inputted values and handle invalid inputs
+        # TODO: the save button event should also handle invalid inputs
         def save_button_event():
             try:
                 self.model_settings_dict = {'task_type': task_type_var.get(),
@@ -117,12 +118,20 @@ class ModelBuilderGUI:
                                         'num_hidden_units': num_hidden_units_var.get(),
                                         'pretrained_model': pretrained_model_var.get(),
                                         'learning_rate': learning_rate_var.get()}
+                
+                # show a label when the inputs are valid
+                save_info_label.configure(text='Model settings successfully saved',
+                                          text_color='green',
+                                          justify='center')
+                save_info_label.place(x=170, y=200)
                 print(self.model_settings_dict)
                 
             except ValueError:
-                save_info_label.configure(text='Please Fill all Settings.',
+                # show a label about the blank input error
+                save_info_label.configure(text='Please Fill all Fields.',
                                           text_color='red',
                                           justify='center')
+                save_info_label.place(x=200, y=200)
                 print(f"Please Fill all settings.")
                 
         save_info_label = customtkinter.CTkLabel(master=model_tab, text='', justify='center')
@@ -143,9 +152,9 @@ class ModelBuilderGUI:
         pretrained_model.grid(row=3, column=1)
         learning_rate_label.grid(row=4, column=0, padx=30)
         learning_rate.grid(row=5, column=0, padx=30)
-        save_info_label.place(x=200, y=200)
         save_button.place(x=215, y=230)
     
+    # TODO: Create data tab widgets method.
     def _create_train_button(self):
         """
         Create a button for starting the training.
