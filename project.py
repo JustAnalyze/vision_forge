@@ -1,3 +1,4 @@
+from doctest import master
 import customtkinter
 
 class ModelBuilderGUI:
@@ -17,7 +18,7 @@ class ModelBuilderGUI:
         self.root.geometry("535x370")
         
         # Set up the dictionary of settings
-        self._settings_dict = {}
+        self._model_settings_dict = {}
         
         # Create tabs widgets for customizing the model and the data
         self._create_tabs()
@@ -30,13 +31,15 @@ class ModelBuilderGUI:
 
     # create a get_settings for getting the model settings.
     @property
-    def settings_dict(self):
-        return self._settings_dict
+    def model_settings_dict(self):
+        return self._model_settings_dict
 
-    @settings_dict.setter
-    def settings_dict(self, new_settings):
+    @model_settings_dict.setter
+    def model_settings_dict(self, new_settings):
         if isinstance(new_settings, dict):
-            self._settings_dict = new_settings
+            if '' in new_settings.values():
+                raise ValueError("Settings must not contain empty strings.")
+            self._model_settings_dict = new_settings
         else:
             raise ValueError("Settings must be a dictionary.")
     
@@ -106,10 +109,23 @@ class ModelBuilderGUI:
                                                justify='center',
                                                textvariable=learning_rate_var)
         
-        # Add save button for saving the inputted values
+        # Add save button for saving the inputted values and handle invalid inputs
         def save_button_event():
-            print(self.settings_dict)
-        
+            try:
+                self.model_settings_dict = {'task_type': task_type_var.get(),
+                                        'optimizer': optimizer_var.get(),
+                                        'num_hidden_units': num_hidden_units_var.get(),
+                                        'pretrained_model': pretrained_model_var.get(),
+                                        'learning_rate': learning_rate_var.get()}
+                print(self.model_settings_dict)
+                
+            except ValueError:
+                save_info_label.configure(text='Please Fill all Settings.',
+                                          text_color='red',
+                                          justify='center')
+                print(f"Please Fill all settings.")
+                
+        save_info_label = customtkinter.CTkLabel(master=model_tab, text='', justify='center')
         save_button = customtkinter.CTkButton(model_tab,
                                               text='Save',
                                               width=90,
@@ -127,6 +143,7 @@ class ModelBuilderGUI:
         pretrained_model.grid(row=3, column=1)
         learning_rate_label.grid(row=4, column=0, padx=30)
         learning_rate.grid(row=5, column=0, padx=30)
+        save_info_label.place(x=200, y=200)
         save_button.place(x=215, y=230)
     
     def _create_train_button(self):
@@ -148,6 +165,6 @@ def main():
     """
     gui = ModelBuilderGUI()
     gui.run()
-    gui.settings_dict
+    gui.model_settings_dict
 if __name__ == "__main__":
     main()
