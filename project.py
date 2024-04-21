@@ -120,7 +120,7 @@ class ModelBuilderGUI:
                            'learning_rate': learning_rate_var.get()}
             
             if '' not in user_inputs.values():
-                self._settings_dict['data_settings'] = {'task_type': task_type_var.get(),
+                self._settings_dict['model_settings'] = {'task_type': task_type_var.get(),
                                                          'pretrained_model': pretrained_model_var.get(),
                                                          'optimizer': optimizer_var.get(),
                                                          'epochs': epochs_var.get(),
@@ -228,7 +228,7 @@ class ModelBuilderGUI:
                 save_info_label.place(x=205, y=200)
             
             elif '' not in user_inputs.values():
-                self._settings_dict['model_settings'] = {'data_path': data_path_var.get(),
+                self._settings_dict['data_settings'] = {'data_path': data_path_var.get(),
                                                          'batch_size': batch_size_var.get()}
                 
                 # show a label when the inputs are valid
