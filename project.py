@@ -18,9 +18,9 @@ class ModelBuilderGUI:
         self.root.title("Vision Forge")
         self.root.geometry("535x370")
         
-        # Set up the dictionary of model settings
-        self._settings_dict: dict[dict[str, Union[str, int, float]]] = {'model_settings': {},
-                                                                        'data_settings': {}}
+        # Set up the dictionary of model and data settings
+        self._settings_dict: dict[str, dict[str, Union[str, int, float]]] = {'model_settings': {},
+                                                                             'data_settings': {}}
         
         # Create tabs widgets for customizing the model and the data
         self._create_tabs()
