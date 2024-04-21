@@ -120,7 +120,7 @@ class ModelBuilderGUI:
                            'learning_rate': learning_rate_var.get()}
             
             if '' not in user_inputs.values():
-                self._settings_dict['model_settings'] = {'task_type': task_type_var.get(),
+                self._settings_dict['data_settings'] = {'task_type': task_type_var.get(),
                                                          'pretrained_model': pretrained_model_var.get(),
                                                          'optimizer': optimizer_var.get(),
                                                          'epochs': epochs_var.get(),
@@ -175,7 +175,6 @@ class ModelBuilderGUI:
 
         save_button.place(x=215, y=230)
     
-    # TODO: Create data tab widgets method.
     def _create_data_tab_widgets(self):
         """
         Create widgets for the Data tab.
