@@ -34,7 +34,7 @@ class ModelBuilderGUI:
         # Create Train Button for starting training
         self._create_train_button()
 
-    def _create_tabs(self):
+    def _create_tabs(self) -> None:
         """
         Create tabs for customizing the model and the data.
         """
@@ -45,7 +45,7 @@ class ModelBuilderGUI:
         self.tabview.add('Data')
         self.tabview.set('Model') 
 
-    def _create_model_tab_widgets(self):
+    def _create_model_tab_widgets(self) -> None:
         """
         Create widgets for the Model tab.
         """
@@ -110,7 +110,7 @@ class ModelBuilderGUI:
         
         # Add save button for saving the inputted values and handle invalid inputs
         # TODO: the save button event should also handle invalid inputs (very high lr, negative hidden units etc)
-        def save_button_event():
+        def save_button_event() -> None:
             # list of user inputs
             user_inputs = {'task_type': task_type_var.get(),
                            'pretrained_model': pretrained_model_var.get(),
@@ -175,7 +175,7 @@ class ModelBuilderGUI:
 
         save_button.place(x=215, y=230)
     
-    def _create_data_tab_widgets(self):
+    def _create_data_tab_widgets(self) -> None:
         """
         Create widgets for the Data tab.
         """
@@ -183,7 +183,11 @@ class ModelBuilderGUI:
         data_tab = self.tabview.tab('Data')
         
         # Function to handle button click event
-        def browse_data():
+        def browse_data() -> None:
+            '''
+            This function opens a file dialog and gets the selected directory.
+            If a directory is selected, sets the value of the 'data_path_var' variable to the selected directory.
+            '''
             dir = filedialog.askdirectory() # Open file dialog and get selected directory
             if dir:
                 print(f'Data Directory: {dir}')
@@ -214,7 +218,7 @@ class ModelBuilderGUI:
         # TODO: the save button event should also handle invalid inputs
         # TODO: When the data directory has been set and has valid folder structure (with test and train folder) the number of classes and amount of data should be detected and the entry box for the classes should be occupied and disabled so its not allowed to be editted
         
-        def save_button_event():
+        def save_button_event() -> None:
             # list of user inputs
             user_inputs = {'data_path': data_path_var.get(),
                            'batch_size': batch_size_var.get()}
@@ -280,7 +284,7 @@ class ModelBuilderGUI:
         self.train_button = customtkinter.CTkButton(master=self.root, text="Train", command=None)
         self.train_button.pack(pady=10)
         
-    def run(self):
+    def run(self) -> None:
         """
         Run the GUI.
         """
@@ -292,6 +296,6 @@ def main():
     """
     gui = ModelBuilderGUI()
     gui.run()
-    gui.model_settings_dict
+
 if __name__ == "__main__":
     main()
