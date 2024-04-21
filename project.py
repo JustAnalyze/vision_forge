@@ -221,7 +221,7 @@ class ModelBuilderGUI:
             
             if 'C:/path/to/data/directory' == data_path_var.get():
                 # show a label when the inputs are valid
-                save_info_label.configure(text='Change Data Path',
+                save_info_label.configure(text='Invalid Data Directory',
                                           text_color='red',
                                           justify='center')
                 
@@ -264,7 +264,15 @@ class ModelBuilderGUI:
         batch_size.grid(row=3, column=0)
         
         save_button.place(x=215, y=230)
-        
+    
+    # TODO: Create a validate _settings_dict method
+    def _validate_settings_dict():
+        """
+        Validate the settings dictionary.
+        """
+        # this will also be used inside the train_buttn_event
+        # to make sure the user inputs does not cause errors in the training process
+        pass
     def _create_train_button(self):
         """
         Create a button for starting the training.
