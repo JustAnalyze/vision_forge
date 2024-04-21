@@ -109,21 +109,33 @@ class ModelBuilderGUI:
                                                justify='center',
                                                textvariable=learning_rate_var)
         
+        # Add entry box for setting the number of epochs
+        epochs_label = customtkinter.CTkLabel(master=model_tab, text='Epochs')
+        epochs_var = customtkinter.Variable(value=16)
+        epochs = customtkinter.CTkEntry(master=model_tab, 
+                                          placeholder_text='16',
+                                          width=200, 
+                                          justify='center',
+                                          textvariable=epochs_var)
+        
         # Add save button for saving the inputted values and handle invalid inputs
         # TODO: the save button event should also handle invalid inputs
         def save_button_event():
             try:
                 self.model_settings_dict = {'task_type': task_type_var.get(),
-                                        'optimizer': optimizer_var.get(),
-                                        'num_hidden_units': num_hidden_units_var.get(),
-                                        'pretrained_model': pretrained_model_var.get(),
-                                        'learning_rate': learning_rate_var.get()}
+                                            'pretrained_model': pretrained_model_var.get(),
+                                            'optimizer': optimizer_var.get(),
+                                            'epochs': epochs_var.get(),
+                                            'num_hidden_units': num_hidden_units_var.get(),
+                                            'learning_rate': learning_rate_var.get()}
                 
                 # show a label when the inputs are valid
                 save_info_label.configure(text='Model settings successfully saved',
                                           text_color='green',
                                           justify='center')
+                
                 save_info_label.place(x=170, y=200)
+                
                 print(self.model_settings_dict)
                 
             except ValueError:
@@ -131,7 +143,9 @@ class ModelBuilderGUI:
                 save_info_label.configure(text='Please Fill all Fields.',
                                           text_color='red',
                                           justify='center')
+                
                 save_info_label.place(x=200, y=200)
+                
                 print(f"Please Fill all settings.")
                 
         save_info_label = customtkinter.CTkLabel(master=model_tab, text='', justify='center')
@@ -141,20 +155,35 @@ class ModelBuilderGUI:
                                               height=28,
                                               command=save_button_event)
         
+        
         # Grid layout manager
         task_type_label.grid(row=0, column=0, padx=30)
         task_type.grid(row=1, column=0, pady=5, padx=30)
-        optimizer_label.grid(row=2, column=0, padx=30)
-        optimizer.grid(row=3, column=0, pady=5, padx=30)
-        num_hidden_units_label.grid(row=0, column=1, padx=30)
-        num_hidden_units.grid(row=1, column=1, padx=30)
-        pretrained_model_label.grid(row=2, column=1)
-        pretrained_model.grid(row=3, column=1)
-        learning_rate_label.grid(row=4, column=0, padx=30)
-        learning_rate.grid(row=5, column=0, padx=30)
+        
+        pretrained_model_label.grid(row=2, column=0, padx=30)
+        pretrained_model.grid(row=3, column=0, pady=5, padx=30)
+        
+        optimizer_label.grid(row=4, column=0, padx=30)
+        optimizer.grid(row=5, column=0, padx=30)
+        
+        epochs_label.grid(row=0, column=1, padx=30)
+        epochs.grid(row=1, column=1, padx=30)
+        
+        num_hidden_units_label.grid(row=2, column=1, padx=30)
+        num_hidden_units.grid(row=3, column=1, padx=30)
+        
+        learning_rate_label.grid(row=4, column=1, padx=30)
+        learning_rate.grid(row=5, column=1, padx=30)
+
         save_button.place(x=215, y=230)
     
     # TODO: Create data tab widgets method.
+    def _create_data_tab_widgets(self):
+        data_tab = self.tabview.tab('Data')
+        
+        # Add a way to browse for the dataset
+        
+
     def _create_train_button(self):
         """
         Create a button for starting the training.
