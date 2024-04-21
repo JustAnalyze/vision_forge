@@ -1,4 +1,5 @@
 from doctest import master
+from tkinter import filedialog
 import customtkinter
 
 class ModelBuilderGUI:
@@ -25,6 +26,9 @@ class ModelBuilderGUI:
         
         # Create model tab widgets
         self._create_model_tab_widgets()
+        
+        # Create data tab widgets
+        self._create_data_tab_widgets()
         
         # Create Train Button for starting training
         self._create_train_button()
@@ -179,10 +183,44 @@ class ModelBuilderGUI:
     
     # TODO: Create data tab widgets method.
     def _create_data_tab_widgets(self):
+        """
+        Create widgets for the Data tab.
+        """
+        # set data tab
         data_tab = self.tabview.tab('Data')
         
-        # Add a way to browse for the dataset
+        # Function to handle button click event
+        def browse_data():
+            dir = filedialog.askdirectory() # Open file dialog and get selected directory
+            if dir:
+                print(f'Data Directory: {dir}')
+                data_path_var.set(dir)
+                
+        # Entry box for setting the direvtory of the data
+        data_path_var = customtkinter.StringVar(value='C:/path/to/data/directory')
+        data_path = customtkinter.CTkEntry(master=data_tab, 
+                                          width=383, 
+                                          justify='center',
+                                          textvariable=data_path_var)
         
+        # Button to browse directory
+        browse_data_button = customtkinter.CTkButton(data_tab,
+                                                     width=90,
+                                                     height=28,
+                                                     text="Browse",
+                                                     command=browse_data)
+        
+        # Entry box for setting value of Batch Size
+        batch_size_label = customtkinter.CTkLabel(data_tab, text='Batch Size')
+        batch_size_var = customtkinter.IntVar(value=32)
+        batch_size = customtkinter.CTkEntry(data_tab,
+                                            justify='center',
+                                            textvariable=batch_size_var)
+        
+        data_path.grid(row=1, column=0, padx=10, pady=15)
+        browse_data_button.grid(row=1, column=1, padx=10)
+        batch_size_label.grid(row=2, column=0)
+        batch_size.grid(row=3, column=0)
 
     def _create_train_button(self):
         """
