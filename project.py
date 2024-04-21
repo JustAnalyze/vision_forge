@@ -211,11 +211,61 @@ class ModelBuilderGUI:
                                             justify='center',
                                             textvariable=batch_size_var)
         
+        # Add save button for saving the inputted values and handle invalid inputs
+        # TODO: the save button event should also handle invalid inputs
+        # TODO: When the data directory has been set and has valid folder structure (with test and train folder) the number of classes and amount of data should be detected and the entry box for the classes should be occupied and disabled so its not allowed to be editted
+        
+        def save_button_event():
+            # list of user inputs
+            user_inputs = {'data_path': data_path_var.get(),
+                           'batch_size': batch_size_var.get()}
+            
+            if 'C:/path/to/data/directory' == data_path_var.get():
+                # show a label when the inputs are valid
+                save_info_label.configure(text='Change Data Path',
+                                          text_color='red',
+                                          justify='center')
+                
+                save_info_label.place(x=205, y=200)
+            
+            elif '' not in user_inputs.values():
+                self._settings_dict['model_settings'] = {'data_path': data_path_var.get(),
+                                                         'batch_size': batch_size_var.get()}
+                
+                # show a label when the inputs are valid
+                save_info_label.configure(text='Data settings successfully saved',
+                                          text_color='green',
+                                          justify='center')
+                
+                save_info_label.place(x=170, y=200)
+                
+                print(self._settings_dict)
+                
+            else:
+                # show a label about the blank input error
+                save_info_label.configure(text='Please Fill all Fields.',
+                                          text_color='red',
+                                          justify='center')
+                
+                save_info_label.place(x=200, y=200)
+                
+                print(f"Please Fill all Fields.")
+                
+        save_info_label = customtkinter.CTkLabel(master=data_tab, text='', justify='center')
+        save_button = customtkinter.CTkButton(data_tab,
+                                              text='Save',
+                                              width=90,
+                                              height=28,
+                                              command=save_button_event)
+        
         data_path.grid(row=1, column=0, padx=10, pady=15)
         browse_data_button.grid(row=1, column=1, padx=10)
+        
         batch_size_label.grid(row=2, column=0)
         batch_size.grid(row=3, column=0)
-
+        
+        save_button.place(x=215, y=230)
+        
     def _create_train_button(self):
         """
         Create a button for starting the training.
