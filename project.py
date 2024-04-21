@@ -1,5 +1,5 @@
-from doctest import master
 from tkinter import filedialog
+from typing import Union
 import customtkinter
 
 class ModelBuilderGUI:
@@ -19,10 +19,8 @@ class ModelBuilderGUI:
         self.root.geometry("535x370")
         
         # Set up the dictionary of model settings
-        self._model_settings_dict = {}
-        
-        # Set up the dictionary of data settings
-        self._data_settings_dict = {}
+        self._settings_dict: dict[dict[str, Union[str, int, float]]] = {'model_settings': {},
+                                                                        'data_settings': {}}
         
         # Create tabs widgets for customizing the model and the data
         self._create_tabs()
@@ -36,20 +34,6 @@ class ModelBuilderGUI:
         # Create Train Button for starting training
         self._create_train_button()
 
-    # create a get_settings for getting the model settings.
-    @property
-    def model_settings_dict(self):
-        return self._model_settings_dict
-
-    @model_settings_dict.setter
-    def model_settings_dict(self, new_settings):
-        if isinstance(new_settings, dict):
-            if '' in new_settings.values():
-                raise ValueError("Settings must not contain empty strings.")
-            self._model_settings_dict = new_settings
-        else:
-            raise ValueError("Settings must be a dictionary.")
-    
     def _create_tabs(self):
         """
         Create tabs for customizing the model and the data.
@@ -125,15 +109,23 @@ class ModelBuilderGUI:
                                           textvariable=epochs_var)
         
         # Add save button for saving the inputted values and handle invalid inputs
-        # TODO: the save button event should also handle invalid inputs
+        # TODO: the save button event should also handle invalid inputs (very high lr, negative hidden units etc)
         def save_button_event():
-            try:
-                self.model_settings_dict = {'task_type': task_type_var.get(),
-                                            'pretrained_model': pretrained_model_var.get(),
-                                            'optimizer': optimizer_var.get(),
-                                            'epochs': epochs_var.get(),
-                                            'num_hidden_units': num_hidden_units_var.get(),
-                                            'learning_rate': learning_rate_var.get()}
+            # list of user inputs
+            user_inputs = {'task_type': task_type_var.get(),
+                           'pretrained_model': pretrained_model_var.get(),
+                           'optimizer': optimizer_var.get(),
+                           'epochs': epochs_var.get(),
+                           'num_hidden_units': num_hidden_units_var.get(),
+                           'learning_rate': learning_rate_var.get()}
+            
+            if '' not in user_inputs.values():
+                self._settings_dict['model_settings'] = {'task_type': task_type_var.get(),
+                                                         'pretrained_model': pretrained_model_var.get(),
+                                                         'optimizer': optimizer_var.get(),
+                                                         'epochs': epochs_var.get(),
+                                                         'num_hidden_units': num_hidden_units_var.get(),
+                                                         'learning_rate': learning_rate_var.get()}
                 
                 # show a label when the inputs are valid
                 save_info_label.configure(text='Model settings successfully saved',
@@ -142,9 +134,9 @@ class ModelBuilderGUI:
                 
                 save_info_label.place(x=170, y=200)
                 
-                print(self.model_settings_dict)
+                print(self._settings_dict)
                 
-            except ValueError:
+            else:
                 # show a label about the blank input error
                 save_info_label.configure(text='Please Fill all Fields.',
                                           text_color='red',
@@ -152,7 +144,7 @@ class ModelBuilderGUI:
                 
                 save_info_label.place(x=200, y=200)
                 
-                print(f"Please Fill all settings.")
+                print(f"Please Fill all Fields.")
                 
         save_info_label = customtkinter.CTkLabel(master=model_tab, text='', justify='center')
         save_button = customtkinter.CTkButton(model_tab,
