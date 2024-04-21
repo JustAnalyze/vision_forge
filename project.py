@@ -18,8 +18,11 @@ class ModelBuilderGUI:
         self.root.title("Vision Forge")
         self.root.geometry("535x370")
         
-        # Set up the dictionary of settings
+        # Set up the dictionary of model settings
         self._model_settings_dict = {}
+        
+        # Set up the dictionary of data settings
+        self._data_settings_dict = {}
         
         # Create tabs widgets for customizing the model and the data
         self._create_tabs()
@@ -73,7 +76,6 @@ class ModelBuilderGUI:
                                               values=type_list, width=200,
                                               justify='center',
                                               variable=task_type_var)
-        
         
         # Add ComboBox for choosing the optimizer
         optimizer_label = customtkinter.CTkLabel(master=model_tab, text="Optimizer")
