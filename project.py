@@ -199,8 +199,8 @@ class ModelBuilderGUI:
                 
                 # check if the directory has a test and train folder inside it
                 if 'train' in files_and_folders and 'test' in files_and_folders:
-                    # set the number of classes variable to the number of classes found inside the train folder
-                    
+                    #TODO: set the number of classes variable to the number of classes found inside the train folder and show it on the widget
+                    #TODO: Do the same for the train data percentage. set it to 100% if there is no test data/ no test folder and inform the user that test data is necessary
                     print(f'Files and Folders: {files_and_folders}')
                     
                     classes = [path.name for path in train_folder_path[0].glob('*')]
