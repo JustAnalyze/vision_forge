@@ -109,7 +109,7 @@ class ModelBuilderGUI:
                                           textvariable=epochs_var)
         
         # Add save button for saving the inputted values and handle invalid inputs
-        # TODO: the save button event should also handle invalid inputs (very high lr, negative hidden units etc)
+        # FIXME: the save button event should also handle invalid inputs (very high lr, negative hidden units etc)
         def save_button_event() -> None:
             # list of user inputs
             user_inputs = {'task_type': task_type_var.get(),
@@ -209,13 +209,26 @@ class ModelBuilderGUI:
                     
                     data_path_var.set(dir)
                     
-                # else if no train and no test folder inform user about the missing folders
+                # else if there is train and no test folder inform user about the missing folder
+                elif 'train' in files_and_folders and 'test' not in files_and_folders:
+                    
+                    print(f'Files and Folders: {files_and_folders}')
+                    
+                    print('[INFO] test folder not found!')
+                
+                # else if there is no train and there is test folder inform user about the missing folder
+                elif 'train' not in files_and_folders and 'test' in files_and_folders:
+                    
+                    print(f'Files and Folders: {files_and_folders}')
+                    
+                    print('[INFO] train folder not found!')
+                
+                # else both folder missing
                 else:
                     
                     print(f'Files and Folders: {files_and_folders}')
                     
-                    print('train and test folder not found')
-                    
+                    print('[INFO] train and test folder not found!')
                           
         # Entry box for setting the direvtory of the data
         data_path_var = customtkinter.StringVar(value='C:/path/to/data/directory')
@@ -242,7 +255,8 @@ class ModelBuilderGUI:
         
         # TODO: Create Train data percentage widget 
         # Add save button for saving the inputted values and handle invalid inputs
-        # TODO: the save button event should also handle invalid inputs
+        # FIXME: the save button event should also handle invalid inputs
+        
         # TODO: When the data directory has been set and has valid folder structure (with test and train folder) the number of classes and amount of data should be detected and the entry box for the classes should be occupied and disabled so its not allowed to be editted
         
         def save_button_event() -> None:
