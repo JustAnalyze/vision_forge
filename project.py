@@ -183,6 +183,7 @@ class ModelBuilderGUI:
         data_tab = self.tabview.tab('Data')
         
         # Function to handle button click event
+        # TODO: When the data directory has been set and has valid folder structure (with test and train folder) the number of classes and amount of data should be detected and the entry box for the classes should be occupied and disabled so its not allowed to be editted
         def browse_data() -> None:
             '''
             This function opens a file dialog and gets the selected directory.
@@ -196,16 +197,29 @@ class ModelBuilderGUI:
                 # get the file and folder names from the selected directory
                 files_and_folders = [path.name for path in Path(dir).glob('*')]
                 train_folder_path = [path for path in Path(dir).glob('*') if path.name == 'train']
-                
+                test_folder_path = [path for path in Path(dir).glob('*') if path.name == 'test']
                 # check if the directory has a test and train folder inside it
                 if 'train' in files_and_folders and 'test' in files_and_folders:
                     #TODO: set the number of classes variable to the number of classes found inside the train folder and show it on the widget
                     #TODO: Do the same for the train data percentage. set it to 100% if there is no test data/ no test folder and inform the user that test data is necessary
+                    print('\n[INFO] train and test folders found!')
                     print(f'Files and Folders: {files_and_folders}')
                     
+                    # get total number of training data.
                     classes = [path.name for path in train_folder_path[0].glob('*')]
-                    
                     print(f'Classes: {classes}\nNumber of Classes: {len(classes)}')
+                    
+                    # get total number of training data.
+                    num_of_train_data = len([path.name for path in train_folder_path[0].glob('**/*')]) - len(classes)
+                    print(f'\nTotal Train Data: {num_of_train_data}')
+
+                    # get total number of test data.
+                    num_of_test_data = len([path.name for path in test_folder_path[0].glob('**/*')]) - len(classes)
+                    print(f'Total Test Data: {num_of_test_data}\n')
+
+                    # Get percentage of training data
+                    percent_train_data = (num_of_train_data / (num_of_test_data + num_of_train_data)) * 100
+                    print(f'Percentage of Train Data: {percent_train_data}%')
                     
                     data_path_var.set(dir)
                     
@@ -256,8 +270,6 @@ class ModelBuilderGUI:
         # TODO: Create Train data percentage widget 
         # Add save button for saving the inputted values and handle invalid inputs
         # FIXME: the save button event should also handle invalid inputs
-        
-        # TODO: When the data directory has been set and has valid folder structure (with test and train folder) the number of classes and amount of data should be detected and the entry box for the classes should be occupied and disabled so its not allowed to be editted
         
         def save_button_event() -> None:
             # list of user inputs
