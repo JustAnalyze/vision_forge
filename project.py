@@ -1,3 +1,4 @@
+from pathlib import Path
 from tkinter import filedialog
 from typing import Union
 import customtkinter
@@ -6,7 +7,6 @@ class ModelBuilderGUI:
     """
     A class representing the GUI for training and predicting using an image classifier model.
     """
-
     def __init__(self):
         """
         Initialize the GUI and the Dictionary of settings.
@@ -190,9 +190,33 @@ class ModelBuilderGUI:
             '''
             dir = filedialog.askdirectory() # Open file dialog and get selected directory
             if dir:
+                # TODO: this function should also show if the selected directory has the valid folder structure (train and test inside)
                 print(f'Data Directory: {dir}')
-                data_path_var.set(dir)
                 
+                # get the file and folder names from the selected directory
+                files_and_folders = [path.name for path in Path(dir).glob('*')]
+                train_folder_path = [path for path in Path(dir).glob('*') if path.name == 'train']
+                
+                # check if the directory has a test and train folder inside it
+                if 'train' in files_and_folders and 'test' in files_and_folders:
+                    # set the number of classes variable to the number of classes found inside the train folder
+                    
+                    print(f'Files and Folders: {files_and_folders}')
+                    
+                    classes = [path.name for path in train_folder_path[0].glob('*')]
+                    
+                    print(f'Classes: {classes}\nNumber of Classes: {len(classes)}')
+                    
+                    data_path_var.set(dir)
+                    
+                # else if no train and no test folder inform user about the missing folders
+                else:
+                    
+                    print(f'Files and Folders: {files_and_folders}')
+                    
+                    print('train and test folder not found')
+                    
+                          
         # Entry box for setting the direvtory of the data
         data_path_var = customtkinter.StringVar(value='C:/path/to/data/directory')
         data_path = customtkinter.CTkEntry(master=data_tab, 
@@ -214,6 +238,9 @@ class ModelBuilderGUI:
                                             justify='center',
                                             textvariable=batch_size_var)
         
+        # TODO: Create number of classes widget
+        
+        # TODO: Create Train data percentage widget 
         # Add save button for saving the inputted values and handle invalid inputs
         # TODO: the save button event should also handle invalid inputs
         # TODO: When the data directory has been set and has valid folder structure (with test and train folder) the number of classes and amount of data should be detected and the entry box for the classes should be occupied and disabled so its not allowed to be editted
