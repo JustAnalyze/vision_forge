@@ -16,7 +16,7 @@ class ModelBuilderGUI:
         customtkinter.set_appearance_mode("dark")
         self.root = customtkinter.CTk()
         self.root.title("Vision Forge")
-        self.root.geometry("535x370")
+        self.root.geometry("550x370")
         
         # Set up the dictionary of model and data settings
         self._settings_dict: dict[str, dict[str, Union[str, int, float]]] = {'model_settings': {},
@@ -243,7 +243,7 @@ class ModelBuilderGUI:
                     print(f'Files and Folders: {files_and_folders}')
                     
                     print('[INFO] train and test folder not found!')
-                          
+        
         # Entry box for setting the direvtory of the data
         data_path_var = customtkinter.StringVar(value='C:/path/to/data/directory')
         data_path = customtkinter.CTkEntry(master=data_tab, 
@@ -266,8 +266,18 @@ class ModelBuilderGUI:
                                             textvariable=batch_size_var)
         
         # TODO: Create number of classes widget
+        num_classes_label = customtkinter.CTkLabel(data_tab, text='Number of Classes')
+        num_classes_var = customtkinter.Variable()
+        num_classes = customtkinter.CTkEntry(data_tab,
+                                             width=140,
+                                             height=28,
+                                             textvariable=num_classes_var)
         
         # TODO: Create Train data percentage widget 
+        data_split_label = customtkinter.CTkLabel(data_tab, text='Train/Test Split')
+        data_split_var = customtkinter.Variable()
+        data_split = customtkinter.CTkEntry(data_tab, width=140, height=28)
+        
         # Add save button for saving the inputted values and handle invalid inputs
         # FIXME: the save button event should also handle invalid inputs
         
@@ -314,11 +324,17 @@ class ModelBuilderGUI:
                                               height=28,
                                               command=save_button_event)
         
-        data_path.grid(row=1, column=0, padx=10, pady=15)
-        browse_data_button.grid(row=1, column=1, padx=10)
+        data_path.grid(row=0, column=0, columnspan=2, padx=15, pady=20)
+        browse_data_button.grid(row=0, column=2, padx=5, pady=20)
         
-        batch_size_label.grid(row=2, column=0)
-        batch_size.grid(row=3, column=0)
+        num_classes_label.place(x=50, y=60)
+        num_classes.place(x=32, y=90)
+
+        data_split_label.place(x=224, y=60)
+        data_split.place(x=202, y=90)
+        
+        batch_size_label.place(x=410, y=60)
+        batch_size.place(x=372, y=90)
         
         save_button.place(x=215, y=230)
     
