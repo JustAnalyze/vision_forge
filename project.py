@@ -204,7 +204,7 @@ class ModelBuilderGUI:
                     print(f'Files and Folders: {files_and_folders}')
                     
                     # Inform the user that the data is found
-                    show_info(message='Data Found, Num of Classes and Train/Test Split Populated!', text_color='green')
+                    show_info(message='Data Found!', text_color='green')
 
                     # get total number of training data.
                     classes = [path.name for path in train_folder_path[0].glob('*')]
