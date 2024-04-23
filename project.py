@@ -21,7 +21,7 @@ class ModelBuilderGUI:
         # Set up the dictionary of model and data settings
         self._settings_dict: dict[str, dict[str, Union[str, int, float]]] = {'model_settings': {},
                                                                              'data_settings': {}}
-        
+        # TODO: Add side bar where train and predict button is located so users can choose to train a new model or use a existing model to do some inferences/predictions
         # Create tabs widgets for customizing the model and the data
         self._create_tabs()
         
@@ -237,21 +237,25 @@ class ModelBuilderGUI:
                     print(f'Files and Folders: {files_and_folders}')
                     
                     print('[INFO] test folder not found!')
-                
+                    #TODO: Inform the user that the test folder is not found
+
                 # else if there is no train and there is test folder inform user about the missing folder
                 elif 'train' not in files_and_folders and 'test' in files_and_folders:
                     
                     print(f'Files and Folders: {files_and_folders}')
                     
                     print('[INFO] train folder not found!')
-                
+                    #TODO: Inform the user that the train folder is not found
+                    
                 # else both folder missing
                 else:
                     
                     print(f'Files and Folders: {files_and_folders}')
                     
                     print('[INFO] train and test folder not found!')
-        
+                    #TODO: Inform the user that the train and test folders are not found
+                    
+                    
         # Entry box for setting the direvtory of the data
         data_path_var = customtkinter.StringVar(value='C:/path/to/data/directory')
         data_path = customtkinter.CTkEntry(master=data_tab, 
