@@ -182,8 +182,7 @@ class ModelBuilderGUI:
         # set data tab
         data_tab = self.tabview.tab('Data')
         
-        # Function to handle button click event
-        # TODO: When the data directory has been set and has valid folder structure (with test and train folder) the number of classes and amount of data should be detected and the entry box for the classes should be occupied and disabled so its not allowed to be editted
+        # Function for browsing data directory
         def browse_data() -> None:
             '''
             This function opens a file dialog and gets the selected directory.
@@ -191,20 +190,24 @@ class ModelBuilderGUI:
             '''
             dir = filedialog.askdirectory() # Open file dialog and get selected directory
             if dir:
-                # TODO: this function should also show if the selected directory has the valid folder structure (train and test inside)
                 print(f'Data Directory: {dir}')
                 
                 # get the file and folder names from the selected directory
                 files_and_folders = [path.name for path in Path(dir).glob('*')]
                 train_folder_path = [path for path in Path(dir).glob('*') if path.name == 'train']
                 test_folder_path = [path for path in Path(dir).glob('*') if path.name == 'test']
+                
                 # check if the directory has a test and train folder inside it
                 if 'train' in files_and_folders and 'test' in files_and_folders:
-                    #TODO: set the number of classes variable to the number of classes found inside the train folder and show it on the widget
-                    #TODO: Do the same for the train data percentage. set it to 100% if there is no test data/ no test folder and inform the user that test data is necessary
                     print('\n[INFO] train and test folders found!')
                     print(f'Files and Folders: {files_and_folders}')
                     
+                    # Inform the user that the data is found
+                    save_info_label.configure(text='Data Found!',
+                                              text_color='green',
+                                              justify='center')
+                    save_info_label.place(x=226, y=200)
+                            
                     # get total number of training data.
                     classes = [path.name for path in train_folder_path[0].glob('*')]
                     print(f'Classes: {classes}\nNumber of Classes: {len(classes)}')
@@ -217,11 +220,16 @@ class ModelBuilderGUI:
                     num_of_test_data = len([path.name for path in test_folder_path[0].glob('**/*')]) - len(classes)
                     print(f'Total Test Data: {num_of_test_data}\n')
 
-                    # Get percentage of training data
+                    # Get percentage of training and testing data
                     percent_train_data = (num_of_train_data / (num_of_test_data + num_of_train_data)) * 100
+                    percent_test_data = 100 - percent_train_data
                     print(f'Percentage of Train Data: {percent_train_data}%')
+                    print(f'Percentage of Test Data: {percent_test_data}%')
                     
+                    # set the variables to the values we got from the Dataset
                     data_path_var.set(dir)
+                    num_classes_var.set(len(classes))
+                    data_split_var.set(f'{round(percent_train_data, 2)}/{round(percent_test_data, 2)}')
                     
                 # else if there is train and no test folder inform user about the missing folder
                 elif 'train' in files_and_folders and 'test' not in files_and_folders:
@@ -253,7 +261,7 @@ class ModelBuilderGUI:
         
         # Button to browse directory
         browse_data_button = customtkinter.CTkButton(data_tab,
-                                                     width=90,
+                                                     width=105,
                                                      height=28,
                                                      text="Browse",
                                                      command=browse_data)
@@ -269,13 +277,15 @@ class ModelBuilderGUI:
         num_classes_label = customtkinter.CTkLabel(data_tab, text='Number of Classes')
         num_classes_var = customtkinter.Variable()
         num_classes = customtkinter.CTkEntry(data_tab,
-                                             textvariable=num_classes_var)
+                                             textvariable=num_classes_var,
+                                             justify='center')
         
         # Entry box for the value of Train data percentage widget 
         data_split_label = customtkinter.CTkLabel(data_tab, text='Train/Test Split')
         data_split_var = customtkinter.Variable()
         data_split = customtkinter.CTkEntry(data_tab,
-                                            textvariable=data_split_var)
+                                            textvariable=data_split_var,
+                                            justify='center')
         
         # Add save button for saving the inputted values and handle invalid inputs
         # FIXME: the save button event should also handle invalid inputs
