@@ -265,18 +265,17 @@ class ModelBuilderGUI:
                                             justify='center',
                                             textvariable=batch_size_var)
         
-        # TODO: Create number of classes widget
+        # Entry box for number of classes widget
         num_classes_label = customtkinter.CTkLabel(data_tab, text='Number of Classes')
         num_classes_var = customtkinter.Variable()
         num_classes = customtkinter.CTkEntry(data_tab,
-                                             width=140,
-                                             height=28,
                                              textvariable=num_classes_var)
         
-        # TODO: Create Train data percentage widget 
+        # Entry box for the value of Train data percentage widget 
         data_split_label = customtkinter.CTkLabel(data_tab, text='Train/Test Split')
         data_split_var = customtkinter.Variable()
-        data_split = customtkinter.CTkEntry(data_tab, width=140, height=28)
+        data_split = customtkinter.CTkEntry(data_tab,
+                                            textvariable=data_split_var)
         
         # Add save button for saving the inputted values and handle invalid inputs
         # FIXME: the save button event should also handle invalid inputs
