@@ -1,5 +1,6 @@
 from pathlib import Path
 from tkinter import filedialog
+from turtle import width
 from typing import Union
 import customtkinter
 
@@ -203,11 +204,8 @@ class ModelBuilderGUI:
                     print(f'Files and Folders: {files_and_folders}')
                     
                     # Inform the user that the data is found
-                    save_info_label.configure(text='Data Found!',
-                                              text_color='green',
-                                              justify='center')
-                    save_info_label.place(x=226, y=200)
-                            
+                    show_info(message='Data Found, Num of Classes and Train/Test Split Populated!', text_color='green')
+
                     # get total number of training data.
                     classes = [path.name for path in train_folder_path[0].glob('*')]
                     print(f'Classes: {classes}\nNumber of Classes: {len(classes)}')
@@ -272,7 +270,7 @@ class ModelBuilderGUI:
         
         # Entry box for setting value of Batch Size
         batch_size_label = customtkinter.CTkLabel(data_tab, text='Batch Size')
-        batch_size_var = customtkinter.IntVar(value=32)
+        batch_size_var = customtkinter.Variable(value=32)
         batch_size = customtkinter.CTkEntry(data_tab,
                                             justify='center',
                                             textvariable=batch_size_var)
@@ -301,36 +299,33 @@ class ModelBuilderGUI:
             
             if 'C:/path/to/data/directory' == data_path_var.get():
                 # show a label when the inputs are valid
-                save_info_label.configure(text='Invalid Data Directory',
-                                          text_color='red',
-                                          justify='center')
-                
-                save_info_label.place(x=205, y=200)
+                show_info('Invalid Data Directory', text_color='red')
             
             elif '' not in user_inputs.values():
                 self._settings_dict['data_settings'] = {'data_path': data_path_var.get(),
                                                          'batch_size': batch_size_var.get()}
                 
                 # show a label when the inputs are valid
-                save_info_label.configure(text='Data settings successfully saved',
-                                          text_color='green',
-                                          justify='center')
-                
-                save_info_label.place(x=170, y=200)
-                
+                show_info('Data settings successfully saved', text_color='green')
                 print(self._settings_dict)
                 
             else:
                 # show a label about the blank input error
-                save_info_label.configure(text='Please Fill all Fields.',
-                                          text_color='red',
-                                          justify='center')
-                
-                save_info_label.place(x=200, y=200)
-                
+                show_info("Please Fill all Fields.", text_color='red')
                 print(f"Please Fill all Fields.")
+
+        def show_info(message: str, text_color: str) -> None:
+            """
+            This function configures the 'save_info_label' with the provided message, text color, and justification,
+            then places it at the specified coordinates.
+            """
+            info_label.configure(text=message,
+                                      text_color=text_color,
+                                      justify='center')
                 
-        save_info_label = customtkinter.CTkLabel(master=data_tab, text='', justify='center')
+            info_label.place(x=0, y=200)
+                
+        info_label = customtkinter.CTkLabel(master=data_tab, text='', justify='center', width=550)
         save_button = customtkinter.CTkButton(data_tab,
                                               text='Save',
                                               width=90,
@@ -349,7 +344,7 @@ class ModelBuilderGUI:
         batch_size_label.place(x=410, y=60)
         batch_size.place(x=372, y=90)
         
-        save_button.place(x=215, y=230)
+        save_button.place(x=225, y=230)
     
     # TODO: Create a validate _settings_dict method
     def _validate_settings_dict():
