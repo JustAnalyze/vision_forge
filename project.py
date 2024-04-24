@@ -129,25 +129,28 @@ class ModelBuilderGUI:
                                                          'learning_rate': learning_rate_var.get()}
                 
                 # show a label when the inputs are valid
-                save_info_label.configure(text='Model settings successfully saved',
-                                          text_color='green',
-                                          justify='center')
-                
-                save_info_label.place(x=170, y=200)
+                show_info(message='Model settings successfully saved',
+                          text_color='green')
                 
                 print(self._settings_dict)
                 
             else:
                 # show a label about the blank input error
-                save_info_label.configure(text='Please Fill all Fields.',
-                                          text_color='red',
-                                          justify='center')
-                
-                save_info_label.place(x=200, y=200)
+                show_info(message='Please Fill all Fields.',
+                          text_color='red')
                 
                 print(f"Please Fill all Fields.")
+
+        def show_info(message: str, text_color: str) -> None:
+            save_info_label.configure(text=message,
+                                      text_color=text_color,
+                                      justify='center')
                 
-        save_info_label = customtkinter.CTkLabel(master=model_tab, text='', justify='center')
+            save_info_label.place(x=0, y=200)
+                
+        save_info_label = customtkinter.CTkLabel(master=model_tab, 
+                                                 justify='center',
+                                                 width=550)
         save_button = customtkinter.CTkButton(model_tab,
                                               text='Save',
                                               width=90,
@@ -174,7 +177,7 @@ class ModelBuilderGUI:
         learning_rate_label.grid(row=4, column=1, padx=30)
         learning_rate.grid(row=5, column=1, padx=30)
 
-        save_button.place(x=215, y=230)
+        save_button.place(x=225, y=230)
     
     def _create_data_tab_widgets(self) -> None:
         """
