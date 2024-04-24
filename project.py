@@ -1,6 +1,6 @@
 from pathlib import Path
 from tkinter import filedialog
-from turtle import width
+from CTkMessagebox import CTkMessagebox
 from typing import Union
 import customtkinter
 
@@ -55,7 +55,7 @@ class ModelBuilderGUI:
         
         # Add a ComboBox for choosing the type of task
         task_type_label = customtkinter.CTkLabel(master=model_tab, text="Task")
-        type_list = ['Binary Classification', 'Multiclass Classification']
+        type_list = ['Binary Classification'] # add multiclass classification task
         task_type_var = customtkinter.StringVar()
         task_type = customtkinter.CTkComboBox(master=model_tab,
                                               values=type_list, width=200,
@@ -64,7 +64,7 @@ class ModelBuilderGUI:
         
         # Add ComboBox for choosing the optimizer
         optimizer_label = customtkinter.CTkLabel(master=model_tab, text="Optimizer")
-        optimizer_list =['SGD', 'Adam', 'AdamW', 'RMSProp', 'AdaGrad', 'Adadelta', 'Adamax', 'Nadam']
+        optimizer_list =['SGD', 'Adam', 'AdamW', 'RMSProp']
         optimizer_var = customtkinter.StringVar()
         optimizer = customtkinter.CTkComboBox(master=model_tab,
                                               values=optimizer_list,
@@ -351,18 +351,54 @@ class ModelBuilderGUI:
         save_button.place(x=225, y=230)
     
     # TODO: Create a validate _settings_dict method
-    def _validate_settings_dict():
+    def _validate_settings_dict(self):
         """
-        Validate the settings dictionary.
+        Validate the settings dictionary. make sures the user inputs does not cause errors in the training process.
         """
-        # this will also be used inside the train_buttn_event
-        # to make sure the user inputs does not cause errors in the training process
+        # These are the valid values in the settings dictionary for the mean time.
+        valid_values_dict = {'task_type':['Binary Classification'],
+                             'pretrained_model':['EfficientNet'], # TODO: Choose easy to fine tune pre-trained models
+                             'optimizer':['SGD', 'Adam', 'AdamW', 'RMSProp'],}
+        
+        model_setttings = self._settings_dict['model_settings']
+        
+        # If the user did not saved the model settings
+        if not model_setttings:
+            CTkMessagebox(title="Error", message="Please Save the model settings.", icon="cancel")
+            return False
+        
+        # If the user did not saved the Data settings
+        if not self._settings_dict['data_settings']:
+            CTkMessagebox(title="Error", message="Please Save the Data settings.", icon="cancel")
+            return False
+        
+        # Task type is not valid
+        if model_setttings['task_type'] not in valid_values_dict['task_type']:
+            CTkMessagebox(title="Error", message="Please select a Valid task type", icon="cancel")
+            return False # return false prevent errors in the training process
+            
+        # pretrained model is not valid
+        if model_setttings['pretrained_model'] not in valid_values_dict['pretrained_model']:
+            CTkMessagebox(title="Error", message="Please select a Valid Pre-trained Model", icon="cancel")
+            return False
+        
+        # Optimizer is not valid
+        if model_setttings['optimizer'] not in valid_values_dict['optimizer']:
+            CTkMessagebox(title="Error", message="Please select a Valid Optimizer", icon="cancel")
+            return False
         
     def _create_train_button(self):
         """
         Create a button for starting the training.
         """
-        self.train_button = customtkinter.CTkButton(master=self.root, text="Train", command=None)
+        def train_button_event():
+            # Validate the settings dictionary
+            self._validate_settings_dict()
+            
+            # Start the training process
+            #self._start_training() # TODO: Create a start training function
+        
+        self.train_button = customtkinter.CTkButton(master=self.root, text="Train", command=train_button_event)
         self.train_button.pack(pady=10)
         
     def run(self) -> None:
