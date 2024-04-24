@@ -158,7 +158,7 @@ class ModelBuilderGUI:
                                               command=save_button_event)
         
         
-        # Grid layout manager
+        # Grid layout management
         task_type_label.grid(row=0, column=0, padx=30)
         task_type.grid(row=1, column=0, pady=5, padx=30)
         
@@ -281,14 +281,16 @@ class ModelBuilderGUI:
         num_classes_var = customtkinter.Variable()
         num_classes = customtkinter.CTkEntry(data_tab,
                                              textvariable=num_classes_var,
-                                             justify='center')
+                                             justify='center',
+                                             state='disabled')
         
         # Entry box for the value of Train data percentage widget 
         data_split_label = customtkinter.CTkLabel(data_tab, text='Train/Test Split')
         data_split_var = customtkinter.Variable()
         data_split = customtkinter.CTkEntry(data_tab,
                                             textvariable=data_split_var,
-                                            justify='center')
+                                            justify='center',
+                                            state='disabled')
         
         # Add save button for saving the inputted values and handle invalid inputs
         # FIXME: the save button event should also handle invalid inputs
@@ -333,6 +335,7 @@ class ModelBuilderGUI:
                                               height=28,
                                               command=save_button_event)
         
+        # Layout Management
         data_path.grid(row=0, column=0, columnspan=2, padx=15, pady=20)
         browse_data_button.grid(row=0, column=2, padx=5, pady=20)
         
@@ -354,7 +357,7 @@ class ModelBuilderGUI:
         """
         # this will also be used inside the train_buttn_event
         # to make sure the user inputs does not cause errors in the training process
-        pass
+        
     def _create_train_button(self):
         """
         Create a button for starting the training.
