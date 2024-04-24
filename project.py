@@ -1,5 +1,6 @@
 from pathlib import Path
 from tkinter import filedialog
+from xmlrpc.client import Boolean
 from CTkMessagebox import CTkMessagebox
 from typing import Union
 import customtkinter
@@ -298,16 +299,19 @@ class ModelBuilderGUI:
         def save_button_event() -> None:
             # list of user inputs
             user_inputs = {'data_path': data_path_var.get(),
-                           'batch_size': batch_size_var.get()}
-            
+                           'batch_size': batch_size_var.get(),
+                           'num_classes': num_classes_var.get(),
+                           'data_split': data_split_var.get(),}
+
             if 'C:/path/to/data/directory' == data_path_var.get():
                 # show a label when the inputs are valid
                 show_info('Invalid Data Directory', text_color='red')
             
             elif '' not in user_inputs.values():
                 self._settings_dict['data_settings'] = {'data_path': data_path_var.get(),
-                                                         'batch_size': batch_size_var.get()}
-                
+                                                        'batch_size': batch_size_var.get(),
+                                                        'num_classes': num_classes_var.get(),
+                                                        'data_split': data_split_var.get(),}
                 # show a label when the inputs are valid
                 show_info('Data settings successfully saved', text_color='green')
                 print(self._settings_dict)
@@ -351,7 +355,7 @@ class ModelBuilderGUI:
         save_button.place(x=225, y=230)
     
     # TODO: Create a validate _settings_dict method
-    def _validate_settings_dict(self):
+    def _validate_settings_dict(self) -> Boolean:
         """
         Validate the settings dictionary. make sures the user inputs does not cause errors in the training process.
         """
@@ -387,6 +391,7 @@ class ModelBuilderGUI:
             CTkMessagebox(title="Error", message="Please select a Valid Optimizer", icon="cancel")
             return False
         
+    # Create method for creating Train button widget.
     def _create_train_button(self):
         """
         Create a button for starting the training.
