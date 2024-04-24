@@ -365,6 +365,7 @@ class ModelBuilderGUI:
                              'optimizer':['SGD', 'Adam', 'AdamW', 'RMSProp'],}
         
         model_setttings = self._settings_dict['model_settings']
+        data_settings = self._settings_dict['data_settings']
         
         # If the user did not saved the model settings
         if not model_setttings:
@@ -372,7 +373,7 @@ class ModelBuilderGUI:
             return False
         
         # If the user did not saved the Data settings
-        if not self._settings_dict['data_settings']:
+        if not data_settings:
             CTkMessagebox(title="Error", message="Please Save the Data settings.", icon="cancel")
             return False
         
@@ -391,17 +392,28 @@ class ModelBuilderGUI:
             CTkMessagebox(title="Error", message="Please select a Valid Optimizer", icon="cancel")
             return False
         
+        # If number of classes and train test split percentage are not detected in the data directory
+        if not data_settings['num_classes'] and not data_settings['data_split']:
+            CTkMessagebox(title="Error", message="Please select a Valid Data Directory", icon="cancel")
+            return False
+        
+        # If all settings are valid return True
+        return True
+    
     # Create method for creating Train button widget.
     def _create_train_button(self):
         """
         Create a button for starting the training.
         """
         def train_button_event():
-            # Validate the settings dictionary
-            self._validate_settings_dict()
-            
-            # Start the training process
-            #self._start_training() # TODO: Create a start training function
+            # if settings are valid continue to training
+            if self._validate_settings_dict():
+                CTkMessagebox(message="Training Will Start Now!",
+                              icon="check",
+                              option_1="Thanks")
+                # Start the training process
+                #self._start_training() # TODO: Create a start training function
+
         
         self.train_button = customtkinter.CTkButton(master=self.root, text="Train", command=train_button_event)
         self.train_button.pack(pady=10)
