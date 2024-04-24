@@ -110,7 +110,6 @@ class ModelBuilderGUI:
                                           textvariable=epochs_var)
         
         # Add save button for saving the inputted values and handle invalid inputs
-        # FIXME: the save button event should also handle invalid inputs (very high lr, negative hidden units etc)
         def save_button_event() -> None:
             # list of user inputs
             user_inputs = {'task_type': task_type_var.get(),
@@ -293,8 +292,6 @@ class ModelBuilderGUI:
                                             state='disabled')
         
         # Add save button for saving the inputted values and handle invalid inputs
-        # FIXME: the save button event should also handle invalid inputs
-        
         def save_button_event() -> None:
             # list of user inputs
             user_inputs = {'data_path': data_path_var.get(),
@@ -353,7 +350,6 @@ class ModelBuilderGUI:
         
         save_button.place(x=225, y=230)
     
-    # TODO: Create a validate _settings_dict method
     def _validate_settings_dict(self) -> bool:
         """
         Validate the settings dictionary. makes sure the user inputs does not cause errors in the training process.
@@ -395,7 +391,7 @@ class ModelBuilderGUI:
         if not data_settings['num_classes'] and not data_settings['data_split']:
             CTkMessagebox(title="Error", message="Please select a Valid Data Directory", icon="cancel")
             return False
-        
+        # FIXME: should also handle invalid continous inputs (very high lr, negative hidden units etc)
         # If all settings are valid return True
         return True
     
