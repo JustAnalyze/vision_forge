@@ -1,6 +1,5 @@
 from pathlib import Path
 from tkinter import filedialog
-from xmlrpc.client import Boolean
 from CTkMessagebox import CTkMessagebox
 from typing import Union
 import customtkinter
@@ -355,9 +354,9 @@ class ModelBuilderGUI:
         save_button.place(x=225, y=230)
     
     # TODO: Create a validate _settings_dict method
-    def _validate_settings_dict(self) -> Boolean:
+    def _validate_settings_dict(self) -> bool:
         """
-        Validate the settings dictionary. make sures the user inputs does not cause errors in the training process.
+        Validate the settings dictionary. makes sure the user inputs does not cause errors in the training process.
         """
         # These are the valid values in the settings dictionary for the mean time.
         valid_values_dict = {'task_type':['Binary Classification'],
