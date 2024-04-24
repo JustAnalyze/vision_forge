@@ -83,7 +83,7 @@ class ModelBuilderGUI:
         
         # Add Combobox for choosing a pretrained model for transfer learning
         pretrained_model_label = customtkinter.CTkLabel(master=model_tab, text="Pretrained Model")
-        pretrained_model_list = ["EfficientNetV2","EfficientNet","MobileNet V2","MobileNet V3","ResNet","Inception V3"]
+        pretrained_model_list = ["EfficientNet"] # TODO: add more pre-trained model choices "EfficientNetV2",,"MobileNet V2","MobileNet V3","ResNet","Inception V3"
         pretrained_model_var = customtkinter.StringVar()
         pretrained_model = customtkinter.CTkComboBox(master=model_tab, 
                                                      values=pretrained_model_list, 
