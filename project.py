@@ -232,26 +232,24 @@ class ModelBuilderGUI:
                 # else if there is train and no test folder inform user about the missing folder
                 elif 'train' in files_and_folders and 'test' not in files_and_folders:
                     
-                    print(f'Files and Folders: {files_and_folders}')
-                    
                     print('[INFO] test folder not found!')
-                    #TODO: Inform the user that the test folder is not found
-
+                    # Inform the user that the test folder is not found
+                    show_info(message='Test folder not found!', text_color='red')
+                    
                 # else if there is no train and there is test folder inform user about the missing folder
                 elif 'train' not in files_and_folders and 'test' in files_and_folders:
                     
-                    print(f'Files and Folders: {files_and_folders}')
-                    
                     print('[INFO] train folder not found!')
-                    #TODO: Inform the user that the train folder is not found
+                    # Inform the user that the train folder is not found
+                    show_info(message='Train folder not found!', text_color='red')
                     
                 # else both folder missing
                 else:
                     
-                    print(f'Files and Folders: {files_and_folders}')
-                    
                     print('[INFO] train and test folder not found!')
-                    #TODO: Inform the user that the train and test folders are not found
+                    
+                    # Inform the user that the train and test folders are not found
+                    show_info(message='Train and test folder not found!', text_color='red')
                     
                     
         # Entry box for setting the direvtory of the data
