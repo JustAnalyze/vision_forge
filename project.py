@@ -468,6 +468,7 @@ class ModelBuilderGUI:
         """
         Create a button for starting the training.
         """
+        
         def train_button_event():
             # if settings are valid continue to training
             if self._validate_settings_dict():
@@ -481,8 +482,12 @@ class ModelBuilderGUI:
         self.train_button.pack(pady=10)
     
     def _load_data_start_training(self):
-        device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        """
+        Load the data and start the training process.
+        """
         
+        # check if a CUDA-capable GPU is available and sets the default device to 'cuda' if it is. If not, set the default device to 'cpu'. 
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
         torch.set_default_device(device)
         
         train_dataloader, test_dataloader, classes = data_setup(data_path=self._settings_dict['data_settings']['data_path'],
