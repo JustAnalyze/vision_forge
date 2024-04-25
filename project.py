@@ -8,6 +8,7 @@ from tkinter import filedialog
 from CTkMessagebox import CTkMessagebox
 from typing import Union
 import customtkinter
+from icecream import ic
 
 
 def main():
@@ -40,7 +41,7 @@ def data_setup(data_path: str,
         classes: List[str], List of class labels.
     '''
 
-
+    # FIXME: the transform should follow the same transform used on the training dataset of the pretrained model. 
     # if there is no given transform
     if not transform:
     # set sequence of simple transforms using compose.
@@ -199,7 +200,7 @@ class ModelBuilderGUI:
                 show_info(message='Model settings successfully saved',
                           text_color='green')
                 
-                print(self._settings_dict)
+                ic(self._settings_dict)
                 
             else:
                 # show a label about the blank input error
@@ -378,7 +379,7 @@ class ModelBuilderGUI:
                                                         'data_split': data_split_var.get(),}
                 # show a label when the inputs are valid
                 show_info('Data settings successfully saved', text_color='green')
-                print(self._settings_dict)
+                ic(self._settings_dict)
                 
             else:
                 # show a label about the blank input error
@@ -476,11 +477,12 @@ class ModelBuilderGUI:
                               icon="check",
                               option_1="Thanks")
                 # Start the training process
-                self._load_data_start_training() # TODO: Create a start training function
+                self._load_data_start_training() 
         
         self.train_button = customtkinter.CTkButton(master=self.root, text="Train", command=train_button_event)
         self.train_button.pack(pady=10)
     
+    # TODO: Continue Creating the start training function
     def _load_data_start_training(self):
         """
         Load the data and start the training process.
@@ -490,12 +492,14 @@ class ModelBuilderGUI:
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
         torch.set_default_device(device)
         
+        # Load and preprocess the training and testing datasets.
         train_dataloader, test_dataloader, classes = data_setup(data_path=self._settings_dict['data_settings']['data_path'],
                                                                 batch_size=self._settings_dict['data_settings']['batch_size'],
                                                                 device=device,
                                                                 normalize=True)
         
-        print(train_dataloader, test_dataloader, classes)
+        ic(train_dataloader, test_dataloader, classes)
+        
         
     def run(self) -> None:
         """
