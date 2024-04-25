@@ -1,8 +1,76 @@
+import torch
+from torchvision.datasets import ImageFolder
+from torchvision.transforms import v2 as T
+from torch.utils.data import DataLoader
+from typing import Tuple, List
 from pathlib import Path
 from tkinter import filedialog
 from CTkMessagebox import CTkMessagebox
 from typing import Union
 import customtkinter
+
+
+def main():
+    """
+    Main function to instantiate and run the GUI.
+    """
+    gui = ModelBuilderGUI()
+    gui.run()
+
+
+def data_setup(data_path: str,
+               batch_size: int,
+               device: torch.device,
+               normalize: bool,
+               transform: T.Compose = None) -> Tuple[DataLoader, DataLoader, List[str]]:
+    
+    '''
+    Set up the data using torchvision.transforms.Compose, torch.utils.data.DataLoader,
+    and torchvision.datasets.ImageFolder.
+
+    Args:
+        data_path: Union[str, PosixPath], Path to the data directory with train and test folders.
+        transform: Compose, A composition of transformations to apply to the data.
+        batch_size: int, Batch size for the data loaders.
+        device: torch.device, Device to load the data onto.
+
+    Returns:
+        train_dataloader: DataLoader, Data loader for the training dataset.
+        test_dataloader: DataLoader, Data loader for the testing dataset.
+        classes: List[str], List of class labels.
+    '''
+
+
+    # if there is no given transform
+    if not transform:
+    # set sequence of simple transforms using compose.
+        transform = T.Compose([T.Resize((64,64)),
+                                T.ToImage(),
+                                T.ToDtype(dtype=torch.float32, scale=normalize)])
+        
+    # set train data
+    train_data = ImageFolder(root=data_path + '/train',
+                             transform=transform,
+                             target_transform=None)
+
+    # set test data
+    test_data = ImageFolder(root=data_path + '/test',
+                            transform=T.Compose([T.Resize((64,64)),
+                                                T.ToImage(),
+                                                T.ToDtype(dtype=torch.float32, scale=normalize)]))
+
+    # set train data loader
+    train_dataloader = DataLoader(dataset=train_data,
+                                  batch_size=batch_size,
+                                  shuffle=True,
+                                  generator=torch.Generator(device))
+
+    # set train data loader
+    test_dataloader = DataLoader(dataset=test_data,
+                                 batch_size=batch_size)
+
+    return train_dataloader, test_dataloader, train_data.classes
+
 
 class ModelBuilderGUI:
     """
@@ -407,24 +475,29 @@ class ModelBuilderGUI:
                               icon="check",
                               option_1="Thanks")
                 # Start the training process
-                #self._start_training() # TODO: Create a start training function
-
+                self._load_data_start_training() # TODO: Create a start training function
         
         self.train_button = customtkinter.CTkButton(master=self.root, text="Train", command=train_button_event)
         self.train_button.pack(pady=10)
+    
+    def _load_data_start_training(self):
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        
+        torch.set_default_device(device)
+        
+        train_dataloader, test_dataloader, classes = data_setup(data_path=self._settings_dict['data_settings']['data_path'],
+                                                                batch_size=self._settings_dict['data_settings']['batch_size'],
+                                                                device=device,
+                                                                normalize=True)
+        
+        print(train_dataloader, test_dataloader, classes)
         
     def run(self) -> None:
         """
         Run the GUI.
         """
         self.root.mainloop()
-        
-def main():
-    """
-    Main function to instantiate and run the GUI.
-    """
-    gui = ModelBuilderGUI()
-    gui.run()
+
 
 if __name__ == "__main__":
     main()
