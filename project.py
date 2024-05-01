@@ -124,7 +124,7 @@ class ModelBuilderGUI:
         
         # Add a ComboBox for choosing the type of task
         task_type_label = customtkinter.CTkLabel(master=model_tab, text="Task")
-        type_list = ['Binary Classification'] # add multiclass classification task
+        type_list = ['Multiclass Classification'] # add multiclass classification task
         task_type_var = customtkinter.StringVar()
         task_type = customtkinter.CTkComboBox(master=model_tab,
                                               values=type_list, width=200,
@@ -424,7 +424,7 @@ class ModelBuilderGUI:
         Validate the settings dictionary. makes sure the user inputs does not cause errors in the training process.
         """
         # These are the valid values in the settings dictionary for the mean time.
-        valid_values_dict = {'task_type':['Binary Classification'],
+        valid_values_dict = {'task_type':['Multiclass Classification'],
                              'pretrained_model':['EfficientNet'], # TODO: Choose easy to fine tune pre-trained models
                              'optimizer':['SGD', 'Adam', 'AdamW', 'RMSProp'],}
         
@@ -510,3 +510,4 @@ class ModelBuilderGUI:
 
 if __name__ == "__main__":
     main()
+    print('try commit')
