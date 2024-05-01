@@ -21,9 +21,9 @@ def build_model(pretrained_model: str,
     """
     
     # Dictionary mapping model names to their corresponding torchvision models and weights
-    pretrained_models = {
+    pretrained_models: dict[str, dict] = {
         'EfficientNet': {
-            'model': torchvision.models.efficientnet_b3,\
+            'model': torchvision.models.efficientnet_b3,
             'weights': torchvision.models.EfficientNet_B3_Weights.DEFAULT
         }
     }
