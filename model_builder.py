@@ -1,11 +1,13 @@
-from typing import Callable, Tuple
+from typing import Tuple
 import torchvision
 import torch
+from icecream import ic
+
 
 def build_model(pretrained_model: str,
                 num_hidden_units: int,
                 output_shape: int,
-                device: str) -> Tuple[Callable, torch.nn.Module]:
+                device: str) -> Tuple[torchvision.transforms.Compose, torch.nn.Module]:
     """
     Build a neural network model using a pretrained model as a feature extractor.
     
@@ -55,4 +57,4 @@ def build_model(pretrained_model: str,
 
 # Example usage:
 model, transforms = build_model('EfficientNet', num_hidden_units=64, output_shape=3, device='cpu')
-type(model)
+ic(type(model), type(transforms))
