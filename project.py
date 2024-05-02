@@ -466,7 +466,7 @@ class ModelBuilderGUI:
         """
         # These are the valid values in the settings dictionary for the mean time.
         valid_values_dict = {'task_type':['Multiclass Classification'],
-                             'pretrained_model':['EfficientNet'], # TODO: Choose easy to fine tune pre-trained models
+                             'pretrained_model':['EfficientNet'],
                              'optimizer':['SGD', 'Adam', 'AdamW', 'RMSProp'],}
         
         model_setttings = self._settings_dict['model_settings']
@@ -523,7 +523,6 @@ class ModelBuilderGUI:
         self.train_button = customtkinter.CTkButton(master=self.root, text="Train", command=train_button_event)
         self.train_button.pack(pady=10)
     
-    # TODO: Continue Creating the start training function
     def _load_data_start_training(self):
         """
         Load the data and start the training process.
@@ -545,9 +544,11 @@ class ModelBuilderGUI:
                                                                 device=device,
                                                                 transform=transforms)  # use transforms used from training the pretrained model
         
-        # train model
-        ic(train_dataloader, test_dataloader, classes)
+        #TODO: Train Model
         
+        
+        ic(train_dataloader, test_dataloader, classes)
+        ic(model, transforms)
         
     def run(self) -> None:
         """
@@ -558,4 +559,3 @@ class ModelBuilderGUI:
 
 if __name__ == "__main__":
     main()
-    print('try commit')
