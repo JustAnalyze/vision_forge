@@ -235,7 +235,7 @@ class ModelBuilderGUI:
                                                          'optimizer': optimizer_var.get(),
                                                          'epochs': epochs_var.get(),
                                                          'num_hidden_units': num_hidden_units_var.get(),
-                                                         'learning_rate': learning_rate_var.get()}
+                                                         'learning_rate': float(learning_rate_var.get())}
                 
                 # show a label when the inputs are valid
                 show_info(message='Model settings successfully saved',
@@ -501,7 +501,15 @@ class ModelBuilderGUI:
         if not data_settings['num_classes'] and not data_settings['data_split']:
             CTkMessagebox(title="Error", message="Please select a Valid Data Directory", icon="cancel")
             return False
-        # FIXME: should also handle invalid continous inputs (very high lr, negative hidden units etc)
+        
+        if model_setttings['learning_rate'] >= 1 or model_setttings['learning_rate'] < 0.000001:
+            CTkMessagebox(title="Error", message="Make sure that the learning rate is between 1 and 0.000001", icon="cancel")
+            return False
+        
+        if model_setttings['num_hidden_units'] < 1 and isinstance(model_setttings['num_hidden_units'], int):
+            CTkMessagebox(title="Error", message="Make sure that the number of hidden units is a positive whole number", icon="cancel")
+            return False
+        # FIXME: should also handle invalid continous inputs (negative hidden units etc)
         # If all settings are valid return True
         return True
     
