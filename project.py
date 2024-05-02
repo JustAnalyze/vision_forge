@@ -502,14 +502,16 @@ class ModelBuilderGUI:
             CTkMessagebox(title="Error", message="Please select a Valid Data Directory", icon="cancel")
             return False
         
+        # Check if the learning rate is within a reasonable range
         if model_setttings['learning_rate'] >= 1 or model_setttings['learning_rate'] < 0.000001:
             CTkMessagebox(title="Error", message="Make sure that the learning rate is between 1 and 0.000001", icon="cancel")
             return False
         
+        # Check if the number of hidden units is valid
         if model_setttings['num_hidden_units'] < 1 and isinstance(model_setttings['num_hidden_units'], int):
             CTkMessagebox(title="Error", message="Make sure that the number of hidden units is a positive whole number", icon="cancel")
             return False
-        # FIXME: should also handle invalid continous inputs (negative hidden units etc)
+        
         # If all settings are valid return True
         return True
     
