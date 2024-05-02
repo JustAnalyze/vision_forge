@@ -23,7 +23,6 @@ def main():
 def data_setup(data_path: str,
                batch_size: int,
                device: torch.device,
-               normalize: bool,
                transform: T.Compose = None) -> Tuple[DataLoader, DataLoader, List[str]]:
     
     '''
@@ -41,25 +40,14 @@ def data_setup(data_path: str,
         test_dataloader: DataLoader, Data loader for the testing dataset.
         classes: List[str], List of class labels.
     '''
-
-    # FIXME: the transform should follow the same transform used on the training dataset of the pretrained model. 
-    # if there is no given transform
-    if not transform:
-    # set sequence of simple transforms using compose.
-        transform = T.Compose([T.Resize((64,64)),
-                                T.ToImage(),
-                                T.ToDtype(dtype=torch.float32, scale=normalize)])
         
     # set train data
     train_data = ImageFolder(root=data_path + '/train',
-                             transform=transform,
-                             target_transform=None)
+                             transform=transform)
 
     # set test data
     test_data = ImageFolder(root=data_path + '/test',
-                            transform=T.Compose([T.Resize((64,64)),
-                                                T.ToImage(),
-                                                T.ToDtype(dtype=torch.float32, scale=normalize)]))
+                            transform=transform)
 
     # set train data loader
     train_dataloader = DataLoader(dataset=train_data,
@@ -555,8 +543,7 @@ class ModelBuilderGUI:
         train_dataloader, test_dataloader, classes = data_setup(data_path=self._settings_dict['data_settings']['data_path'],
                                                                 batch_size=self._settings_dict['data_settings']['batch_size'],
                                                                 device=device,
-                                                                transform=transforms,  # use transforms used from training the pretrained model.
-                                                                normalize=True)
+                                                                transform=transforms)  # use transforms used from training the pretrained model
         
         # train model
         ic(train_dataloader, test_dataloader, classes)

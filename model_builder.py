@@ -57,4 +57,4 @@ def build_model(pretrained_model: str,
 
 # Example usage:
 model, transforms = build_model('EfficientNet', num_hidden_units=64, output_shape=3, device='cpu')
-ic(type(model), type(transforms))
+ic(type(model), type(transforms), transforms)
