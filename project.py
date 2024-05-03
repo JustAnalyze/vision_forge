@@ -67,7 +67,7 @@ def data_setup(data_path: str,
 def build_model(pretrained_model: str,
                 num_hidden_units: int,
                 output_shape: int,
-                device: str) -> Tuple[torchvision.transforms.Compose, torch.nn.Module]:
+                device: str) -> Tuple[torch.nn.Module, torchvision.transforms.Compose]:
     """
     Build a neural network model using a pretrained model as a feature extractor.
     
