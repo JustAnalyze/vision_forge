@@ -114,6 +114,55 @@ def build_model(pretrained_model: str,
     return  model, transforms
 
 
+# train step function
+def train_step(model: torch.nn.Module,
+               dataloader: torch.utils.data.DataLoader,
+               loss_fn: torch.nn.Module,
+               accuracy_fn,
+               optimizer: torch.optim.Optimizer,
+               device):
+
+  # Put the model in train mode
+  model.train()
+
+  # Setup train loss and train accuracy values
+  train_loss, train_acc = 0.0, 0.0
+
+  # Loop through data loader and data batches
+  for batch, (X, y) in enumerate(dataloader):
+    # Send data to target device
+    X, y = X.to(device), y.to(device)
+
+    # 1. Forward pass
+    preds_logits = model(X)
+
+    # 2. Calculate and accumulate loss
+    loss = loss_fn(preds_logits, y)
+    train_loss += loss
+
+    # 3. label predictions
+    preds_labels = torch.argmax(preds_logits, dim=1)
+
+    # 3.1 Calculate and accumualte accuracy metric across all batches
+    acc = accuracy_fn(preds_labels, y)
+    train_acc += acc
+
+    # 4. Optimizer zero grad
+    optimizer.zero_grad()
+
+    # 5. Loss backward
+    loss.backward()
+
+    # 6. Optimizer step
+    optimizer.step()
+
+  # Adjust metrics to get average loss and average accuracy per batch
+  train_loss /= len(dataloader)
+  train_acc /= len(dataloader)
+
+  return train_loss, train_acc
+
+
 class ModelBuilderGUI:
     """
     A class representing the GUI for training and predicting using an image classifier model.

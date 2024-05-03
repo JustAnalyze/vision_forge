@@ -1,7 +1,7 @@
-
 import torch
 import torch.nn as nn
 from tqdm.auto import tqdm
+
 
 # train step function
 def train_step(model: torch.nn.Module,
@@ -51,6 +51,7 @@ def train_step(model: torch.nn.Module,
 
   return train_loss, train_acc
 
+
 # test step function
 def test_step(model: torch.nn.Module,
               dataloader: torch.utils.data.DataLoader,
@@ -90,6 +91,7 @@ def test_step(model: torch.nn.Module,
   test_acc /= len(dataloader)
 
   return test_loss, test_acc
+
 
 # Train model for specified epoch using train step and evaluate using test step
 def train(model: torch.nn.Module,
