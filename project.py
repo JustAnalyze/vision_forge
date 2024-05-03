@@ -5,6 +5,7 @@ import tqdm
 from torchvision.datasets import ImageFolder
 from torchvision.transforms import v2 as T
 from torch.utils.data import DataLoader
+from torchmetrics.classification import MulticlassAccuracy
 from typing import Tuple, List
 from pathlib import Path
 from tkinter import filedialog
@@ -107,11 +108,10 @@ def build_model(pretrained_model: str,
         param.requires_grad = False
         
     # Recreate the classifier layer and seed it to the target device
-    model.classifier = torch.nn.Sequential(
-        torch.nn.Dropout(p=0.2, inplace=True,),
-        torch.nn.Linear(in_features=num_hidden_units,
-                        out_features=output_shape,  # use the length of class_names (one output unit for each class)
-                        bias=True)).to(device)
+    model.classifier = torch.nn.Sequential(torch.nn.Dropout(p=0.2, inplace=True,),
+                                           torch.nn.Linear(in_features=num_hidden_units,
+                                                           out_features=output_shape,  # use the length of class_names (one output unit for each class)
+                                                           bias=True)).to(device)
     
     return  model, transforms
 
@@ -213,7 +213,7 @@ def train(model: torch.nn.Module,
           optimizer: torch.optim.Optimizer,
           accuracy_fn,
           device,
-          loss_fn: torch.nn.Module = nn.CrossEntropyLoss(),
+          loss_fn: torch.nn.Module = nn.CrossEntropyLoss(),  # default loss function for multiclass classification
           epochs: int = 5):
 
   """
@@ -718,17 +718,31 @@ class ModelBuilderGUI:
                                                                 transform=transforms)  # use transforms used from training the pretrained model
         
         # Create a dictionary of the available optimizers
-        optimizers = {'SGD': torch.optim.SGD,
-                      'Adam': torch.optim.Adam,
-                      'AdamW': torch.optim.AdamW,
-                      'RMSProp': torch.optim.RMSprop}
+        optimizers: dict[str, torch.optim.Optimizer] = {'SGD': torch.optim.SGD,
+                                                        'Adam': torch.optim.Adam,
+                                                        'AdamW': torch.optim.AdamW,
+                                                        'RMSProp': torch.optim.RMSprop}
         
+        # Setup a variable for the selected optimizer
+        optimizer: torch.optim.Optimizer = optimizers[model_settings['optimizer']](params=model.paramaters(),
+                                                                                   lr=model_settings['learning_rate'])
+        
+        # Setup a variable for the accuracy function
+        
+        accuracy_fn = MulticlassAccuracy(num_classes=data_settings['num_classes'])
         
         #TODO: Train Model
+        train_results = train(model=model,
+                              train_dataloader=train_dataloader,
+                              test_dataloader=test_dataloader,
+                              optimizer=optimizer,
+                              accuracy_fn=accuracy_fn,
+                              device=device,
+                              epochs=model_settings['epochs'])
         
-        
-        ic(train_dataloader, test_dataloader, classes)
-        ic(model, transforms)
+        ic(classes)
+        ic(transforms)
+        ic(train_results)
         
     def run(self) -> None:
         """
