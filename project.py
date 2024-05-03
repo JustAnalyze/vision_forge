@@ -713,6 +713,13 @@ class ModelBuilderGUI:
                                                                 device=device,
                                                                 transform=transforms)  # use transforms used from training the pretrained model
         
+        # Create a dictionary of the available optimizers
+        optimizers = {'SGD': torch.optim.SGD,
+                      'Adam': torch.optim.Adam,
+                      'AdamW': torch.optim.AdamW,
+                      'RMSProp': torch.optim.RMSprop}
+        
+        
         #TODO: Train Model
         
         
