@@ -1,4 +1,5 @@
 import torch
+import torchvision
 from torchvision.datasets import ImageFolder
 from torchvision.transforms import v2 as T
 from torch.utils.data import DataLoader
@@ -22,7 +23,6 @@ def main():
 def data_setup(data_path: str,
                batch_size: int,
                device: torch.device,
-               normalize: bool,
                transform: T.Compose = None) -> Tuple[DataLoader, DataLoader, List[str]]:
     
     '''
@@ -40,25 +40,14 @@ def data_setup(data_path: str,
         test_dataloader: DataLoader, Data loader for the testing dataset.
         classes: List[str], List of class labels.
     '''
-
-    # FIXME: the transform should follow the same transform used on the training dataset of the pretrained model. 
-    # if there is no given transform
-    if not transform:
-    # set sequence of simple transforms using compose.
-        transform = T.Compose([T.Resize((64,64)),
-                                T.ToImage(),
-                                T.ToDtype(dtype=torch.float32, scale=normalize)])
         
     # set train data
     train_data = ImageFolder(root=data_path + '/train',
-                             transform=transform,
-                             target_transform=None)
+                             transform=transform)
 
     # set test data
     test_data = ImageFolder(root=data_path + '/test',
-                            transform=T.Compose([T.Resize((64,64)),
-                                                T.ToImage(),
-                                                T.ToDtype(dtype=torch.float32, scale=normalize)]))
+                            transform=transform)
 
     # set train data loader
     train_dataloader = DataLoader(dataset=train_data,
@@ -71,6 +60,58 @@ def data_setup(data_path: str,
                                  batch_size=batch_size)
 
     return train_dataloader, test_dataloader, train_data.classes
+
+
+def build_model(pretrained_model: str,
+                num_hidden_units: int,
+                output_shape: int,
+                device: str) -> Tuple[torchvision.transforms.Compose, torch.nn.Module]:
+    """
+    Build a neural network model using a pretrained model as a feature extractor.
+    
+    Args:
+        pretrained_model (str): Name of the pretrained model to use.
+        num_hidden_units (int): Number of hidden units in the new classifier layer.
+        output_shape (int): Number of output units in the new classifier layer.
+        device (str): Device where the model will be loaded ('cpu' or 'cuda').
+        
+    Returns:
+        model: Pretrained neural network model.
+        transforms: A callable transformation function that preprocesses input data.
+    """
+    
+    # Dictionary mapping model names to their corresponding torchvision models and weights
+    pretrained_models: dict[str, dict] = {
+        'EfficientNet': {
+            'model': torchvision.models.efficientnet_b3,
+            'weights': torchvision.models.EfficientNet_B3_Weights.DEFAULT
+        }
+    }
+    
+    # Get the weights and transformation function for the specified pretrained model
+    weights = pretrained_models[pretrained_model]['weights']
+    transforms = weights.transforms()  # Extract transformation function
+
+    
+    # Setup the model with pretrained weights and send it to the target device
+    model = pretrained_models[pretrained_model]['model'](weights=weights).to(device)
+
+    # Uncomment the line below to output the model (it's very long)
+    # print(model)
+    
+    # Freeze all base layers in the "features" section of the model (the feature extractor)
+    # by setting requires_grad=False
+    for param in model.features.parameters():
+        param.requires_grad = False
+        
+    # Recreate the classifier layer and seed it to the target device
+    model.classifier = torch.nn.Sequential(
+        torch.nn.Dropout(p=0.2, inplace=True,),
+        torch.nn.Linear(in_features=num_hidden_units,
+                        out_features=output_shape,  # use the length of class_names (one output unit for each class)
+                        bias=True)).to(device)
+    
+    return  model, transforms
 
 
 class ModelBuilderGUI:
@@ -124,7 +165,7 @@ class ModelBuilderGUI:
         
         # Add a ComboBox for choosing the type of task
         task_type_label = customtkinter.CTkLabel(master=model_tab, text="Task")
-        type_list = ['Binary Classification'] # add multiclass classification task
+        type_list = ['Multiclass Classification'] # add multiclass classification task
         task_type_var = customtkinter.StringVar()
         task_type = customtkinter.CTkComboBox(master=model_tab,
                                               values=type_list, width=200,
@@ -194,7 +235,7 @@ class ModelBuilderGUI:
                                                          'optimizer': optimizer_var.get(),
                                                          'epochs': epochs_var.get(),
                                                          'num_hidden_units': num_hidden_units_var.get(),
-                                                         'learning_rate': learning_rate_var.get()}
+                                                         'learning_rate': float(learning_rate_var.get())}
                 
                 # show a label when the inputs are valid
                 show_info(message='Model settings successfully saved',
@@ -424,8 +465,8 @@ class ModelBuilderGUI:
         Validate the settings dictionary. makes sure the user inputs does not cause errors in the training process.
         """
         # These are the valid values in the settings dictionary for the mean time.
-        valid_values_dict = {'task_type':['Binary Classification'],
-                             'pretrained_model':['EfficientNet'], # TODO: Choose easy to fine tune pre-trained models
+        valid_values_dict = {'task_type':['Multiclass Classification'],
+                             'pretrained_model':['EfficientNet'],
                              'optimizer':['SGD', 'Adam', 'AdamW', 'RMSProp'],}
         
         model_setttings = self._settings_dict['model_settings']
@@ -460,7 +501,17 @@ class ModelBuilderGUI:
         if not data_settings['num_classes'] and not data_settings['data_split']:
             CTkMessagebox(title="Error", message="Please select a Valid Data Directory", icon="cancel")
             return False
-        # FIXME: should also handle invalid continous inputs (very high lr, negative hidden units etc)
+        
+        # Check if the learning rate is within a reasonable range
+        if model_setttings['learning_rate'] >= 1 or model_setttings['learning_rate'] < 0.000001:
+            CTkMessagebox(title="Error", message="Make sure that the learning rate is between 1 and 0.000001", icon="cancel")
+            return False
+        
+        # Check if the number of hidden units is valid
+        if model_setttings['num_hidden_units'] < 1 and isinstance(model_setttings['num_hidden_units'], int):
+            CTkMessagebox(title="Error", message="Make sure that the number of hidden units is a positive whole number", icon="cancel")
+            return False
+        
         # If all settings are valid return True
         return True
     
@@ -482,7 +533,6 @@ class ModelBuilderGUI:
         self.train_button = customtkinter.CTkButton(master=self.root, text="Train", command=train_button_event)
         self.train_button.pack(pady=10)
     
-    # TODO: Continue Creating the start training function
     def _load_data_start_training(self):
         """
         Load the data and start the training process.
@@ -492,14 +542,23 @@ class ModelBuilderGUI:
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
         torch.set_default_device(device)
         
+        # Build model
+        model, transforms = build_model(pretrained_model=self._settings_dict['model_settings']['pretrained_model'],
+                                        num_hidden_units=self._settings_dict['model_settings']['num_hidden_units'],
+                                        output_shape=self._settings_dict['data_settings']['num_classes'],
+                                        device=device)
+        
         # Load and preprocess the training and testing datasets.
         train_dataloader, test_dataloader, classes = data_setup(data_path=self._settings_dict['data_settings']['data_path'],
                                                                 batch_size=self._settings_dict['data_settings']['batch_size'],
                                                                 device=device,
-                                                                normalize=True)
+                                                                transform=transforms)  # use transforms used from training the pretrained model
+        
+        #TODO: Train Model
+        
         
         ic(train_dataloader, test_dataloader, classes)
-        # TODO: Setup chosen pre-trained model use a function
+        ic(model, transforms)
         
     def run(self) -> None:
         """

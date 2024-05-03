@@ -1,40 +1,60 @@
-
-'''
-Script for building models
-'''
-
+from typing import Tuple
+import torchvision
 import torch
-import torch.nn as nn
+from icecream import ic
 
-# create our model architecture
-class TinyVGG(nn.Module):
-  def __init__(self, in_filters: int, out_filters: int, output_shape: int):
-    super().__init__()
 
-    self.conv_blk_1 = nn.Sequential(
-        nn.Conv2d(in_channels=in_filters, out_channels=out_filters, kernel_size=(3,3), stride=1),
-        nn.ReLU(),
+def build_model(pretrained_model: str,
+                num_hidden_units: int,
+                output_shape: int,
+                device: str) -> Tuple[torchvision.transforms.Compose, torch.nn.Module]:
+    """
+    Build a neural network model using a pretrained model as a feature extractor.
+    
+    Args:
+        pretrained_model (str): Name of the pretrained model to use.
+        num_hidden_units (int): Number of hidden units in the new classifier layer.
+        output_shape (int): Number of output units in the new classifier layer.
+        device (str): Device where the model will be loaded ('cpu' or 'cuda').
+        
+    Returns:
+        model: Pretrained neural network model.
+        transforms: A callable transformation function that preprocesses input data.
+    """
+    
+    # Dictionary mapping model names to their corresponding torchvision models and weights
+    pretrained_models: dict[str, dict] = {
+        'EfficientNet': {
+            'model': torchvision.models.efficientnet_b3,
+            'weights': torchvision.models.EfficientNet_B3_Weights.DEFAULT
+        }
+    }
+    
+    # Get the weights and transformation function for the specified pretrained model
+    weights = pretrained_models[pretrained_model]['weights']
+    transforms = weights.transforms()  # Extract transformation function
 
-        nn.Conv2d(in_channels=out_filters, out_channels=out_filters, kernel_size=(3,3), stride=1),
-        nn.ReLU(),
-        nn.MaxPool2d(kernel_size=(2,2), stride=2))
+    
+    # Setup the model with pretrained weights and send it to the target device
+    model = pretrained_models[pretrained_model]['model'](weights=weights).to(device)
 
-    self.conv_blk_2 = nn.Sequential(
-        nn.Conv2d(in_channels=out_filters, out_channels=out_filters, kernel_size=(3,3), stride=1),
-        nn.ReLU(),
+    # Uncomment the line below to output the model (it's very long)
+    # print(model)
+    
+    # Freeze all base layers in the "features" section of the model (the feature extractor)
+    # by setting requires_grad=False
+    for param in model.features.parameters():
+        param.requires_grad = False
+        
+    # Recreate the classifier layer and seed it to the target device
+    model.classifier = torch.nn.Sequential(
+        torch.nn.Dropout(p=0.2, inplace=True,),
+        torch.nn.Linear(in_features=num_hidden_units,
+                        out_features=output_shape,  # use the length of class_names (one output unit for each class)
+                        bias=True)).to(device)
+    
+    return  model, transforms
 
-        nn.Conv2d(in_channels=out_filters, out_channels=out_filters, kernel_size=(3,3), stride=1),
-        nn.ReLU(),
-        nn.MaxPool2d(kernel_size=(2,2), stride=2))
-
-    self.fc = nn.Sequential(
-        nn.Flatten(1, -1),
-        nn.Linear(in_features=13*13*out_filters, out_features=output_shape))
-
-  def forward(self, x: torch.Tensor) -> torch.Tensor:
-
-    output = self.conv_blk_1(x)
-    output = self.conv_blk_2(output)
-    output = self.fc(output)
-
-    return output
+# Example usage:
+model, transforms = build_model('EfficientNet', num_hidden_units=64, output_shape=3, device='cpu')
+ic(type(model), type(transforms), transforms)
