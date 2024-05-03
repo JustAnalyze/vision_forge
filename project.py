@@ -701,15 +701,19 @@ class ModelBuilderGUI:
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
         torch.set_default_device(device)
         
+        # setup model_settings dict and data_settings dict
+        model_settings = self._settings_dict['model_settings']
+        data_settings = self._settings_dict['data_settings']
+        
         # Build model
-        model, transforms = build_model(pretrained_model=self._settings_dict['model_settings']['pretrained_model'],
-                                        num_hidden_units=self._settings_dict['model_settings']['num_hidden_units'],
-                                        output_shape=self._settings_dict['data_settings']['num_classes'],
+        model, transforms = build_model(pretrained_model=model_settings['pretrained_model'],
+                                        num_hidden_units=model_settings['num_hidden_units'],
+                                        output_shape=data_settings['num_classes'],
                                         device=device)
         
         # Load and preprocess the training and testing datasets.
-        train_dataloader, test_dataloader, classes = data_setup(data_path=self._settings_dict['data_settings']['data_path'],
-                                                                batch_size=self._settings_dict['data_settings']['batch_size'],
+        train_dataloader, test_dataloader, classes = data_setup(data_path=data_settings['data_path'],
+                                                                batch_size=data_settings['batch_size'],
                                                                 device=device,
                                                                 transform=transforms)  # use transforms used from training the pretrained model
         
