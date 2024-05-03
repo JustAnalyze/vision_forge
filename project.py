@@ -163,6 +163,47 @@ def train_step(model: torch.nn.Module,
   return train_loss, train_acc
 
 
+# test step function
+def test_step(model: torch.nn.Module,
+              dataloader: torch.utils.data.DataLoader,
+              loss_fn: torch.nn.Module,
+              accuracy_fn,
+              device):
+
+  # Put model in eval mode
+  model.eval()
+
+  # Setup the test loss and test accuracy values
+  test_loss, test_acc = 0.0, 0.0
+
+  # Loop through DataLoader batches
+  for batch, (X, y) in enumerate(dataloader):
+    # Send data to target device
+    X, y = X.to(device), y.to(device)
+
+    # 1. Forward pass
+    # Turn on inference context manager
+    with torch.inference_mode():
+      preds_logits = model(X)
+
+    # 2. Calculuate and accumulate loss
+    loss = loss_fn(preds_logits, y)
+    test_loss += loss
+
+    # 3. label predictions
+    preds_labels = torch.argmax(preds_logits, dim=1)
+
+    # Calculate and accumulate accuracy
+    acc = accuracy_fn(preds_labels, y)
+    test_acc += acc
+
+  # Adjust metrics to get average loss and accuracy per batch
+  test_loss /= len(dataloader)
+  test_acc /= len(dataloader)
+
+  return test_loss, test_acc
+
+
 class ModelBuilderGUI:
     """
     A class representing the GUI for training and predicting using an image classifier model.
