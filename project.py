@@ -204,6 +204,73 @@ def test_step(model: torch.nn.Module,
   return test_loss, test_acc
 
 
+# Train model for specified epoch using train step and evaluate using test step
+def train(model: torch.nn.Module,
+          train_dataloader: torch.utils.data.DataLoader,
+          test_dataloader: torch.utils.data.DataLoader,
+          optimizer: torch.optim.Optimizer,
+          accuracy_fn,
+          device,
+          loss_fn: torch.nn.Module = nn.CrossEntropyLoss(),
+          epochs: int = 5):
+
+  """
+  Trains the given model using the provided data loaders.
+
+  Args:
+      model (torch.nn.Module): The model to train.
+      train_dataloader (torch.utils.data.DataLoader): DataLoader for training data.
+      test_dataloader (torch.utils.data.DataLoader): DataLoader for testing/validation data.
+      optimizer (torch.optim.Optimizer): Optimizer to use during training.
+      accuracy_fn (callable): Function to compute accuracy.
+      device: Device to use for training (e.g., 'cuda' for GPU, 'cpu' for CPU).
+      loss_fn (torch.nn.Module, optional): Loss function. Default is nn.CrossEntropyLoss().
+      epochs (int, optional): Number of epochs for training. Default is 5.
+
+  Returns:
+      dict: A dictionary containing training and testing metrics.
+          Keys:
+              - "train_loss": List of training losses for each epoch.
+              - "train_acc": List of training accuracies for each epoch.
+              - "test_loss": List of testing losses for each epoch.
+              - "test_acc": List of testing accuracies for each epoch.
+  """
+
+  # Create results dictionary
+  results = {"train_loss": [],
+             "train_acc": [],
+             "test_loss": [],
+             "test_acc": []}
+
+  # Loop through the training and testing steps for a number of epochs
+  for epoch in tqdm(range(epochs)):
+    # Train step
+    train_loss, train_acc = train_step(model=model,
+                                       dataloader=train_dataloader,
+                                       loss_fn=loss_fn,
+                                       accuracy_fn=accuracy_fn,
+                                       optimizer=optimizer,
+                                       device=device)
+    # Test step
+    test_loss, test_acc = test_step(model=model,
+                                    dataloader=test_dataloader,
+                                    accuracy_fn=accuracy_fn,
+                                    loss_fn=loss_fn,
+                                    device=device)
+
+    # Print out what's happening
+    print(f"Epoch: {epoch+1} | train_loss: {train_loss:.4f} | train_acc: {train_acc:.4f} | test_loss: {test_loss:.4f} | test_acc: {test_acc:.4f}")
+
+    # Update the results dictionary
+    results["train_loss"].append(train_loss.detach() if device == 'cpu' else torch.Tensor.cpu(train_loss.detach()))
+    results["train_acc"].append(train_acc if device == 'cpu' else torch.Tensor.cpu(train_acc))
+    results["test_loss"].append(test_loss if device == 'cpu' else torch.Tensor.cpu(test_loss))
+    results["test_acc"].append(test_acc if device == 'cpu' else torch.Tensor.cpu(test_acc))
+
+  # Return the results dictionary
+  return results
+
+
 class ModelBuilderGUI:
     """
     A class representing the GUI for training and predicting using an image classifier model.
