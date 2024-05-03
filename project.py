@@ -499,7 +499,7 @@ class ModelBuilderGUI:
                                                                 normalize=True)
         
         ic(train_dataloader, test_dataloader, classes)
-        
+        # TODO: Setup chosen pre-trained model use a function
         
     def run(self) -> None:
         """
