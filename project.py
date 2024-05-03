@@ -1,5 +1,7 @@
 import torch
 import torchvision
+import torch.nn as nn
+import tqdm
 from torchvision.datasets import ImageFolder
 from torchvision.transforms import v2 as T
 from torch.utils.data import DataLoader
