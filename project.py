@@ -1,11 +1,11 @@
 import torch
 import torchvision
 import torch.nn as nn
-import tqdm
 from torchvision.datasets import ImageFolder
 from torchvision.transforms import v2 as T
 from torch.utils.data import DataLoader
 from torchmetrics.classification import MulticlassAccuracy
+from tqdm.auto import tqdm
 from typing import Tuple, List
 from pathlib import Path
 from tkinter import filedialog
@@ -710,7 +710,7 @@ class ModelBuilderGUI:
                                         num_hidden_units=model_settings['num_hidden_units'],
                                         output_shape=data_settings['num_classes'],
                                         device=device)
-        
+  
         # Load and preprocess the training and testing datasets.
         train_dataloader, test_dataloader, classes = data_setup(data_path=data_settings['data_path'],
                                                                 batch_size=data_settings['batch_size'],
@@ -724,7 +724,7 @@ class ModelBuilderGUI:
                                                         'RMSProp': torch.optim.RMSprop}
         
         # Setup a variable for the selected optimizer
-        optimizer: torch.optim.Optimizer = optimizers[model_settings['optimizer']](params=model.paramaters(),
+        optimizer: torch.optim.Optimizer = optimizers[model_settings['optimizer']](params=model.parameters(),
                                                                                    lr=model_settings['learning_rate'])
         
         # Setup a variable for the accuracy function
