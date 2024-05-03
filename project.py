@@ -5,6 +5,7 @@ from torchvision.datasets import ImageFolder
 from torchvision.transforms import v2 as T
 from torch.utils.data import DataLoader
 from torchmetrics.classification import MulticlassAccuracy
+from torchsummary import summary
 from tqdm.auto import tqdm
 from typing import Tuple, List
 from pathlib import Path
@@ -108,8 +109,8 @@ def build_model(pretrained_model: str,
         param.requires_grad = False
         
     # Recreate the classifier layer and seed it to the target device
-    model.classifier = torch.nn.Sequential(torch.nn.Dropout(p=0.2, inplace=True,),
-                                           torch.nn.Linear(in_features=num_hidden_units,
+    model.classifier = torch.nn.Sequential(torch.nn.Dropout(p=0.2, inplace=True),
+                                           torch.nn.Linear(in_features=1536, #FIXME: Find a way to automatically handle the flattened features of each pretrained model
                                                            out_features=output_shape,  # use the length of class_names (one output unit for each class)
                                                            bias=True)).to(device)
     
@@ -134,7 +135,7 @@ def train_step(model: torch.nn.Module,
   for batch, (X, y) in enumerate(dataloader):
     # Send data to target device
     X, y = X.to(device), y.to(device)
-
+    
     # 1. Forward pass
     preds_logits = model(X)
 
@@ -710,7 +711,10 @@ class ModelBuilderGUI:
                                         num_hidden_units=model_settings['num_hidden_units'],
                                         output_shape=data_settings['num_classes'],
                                         device=device)
-  
+
+        # Use torch summary to examine the model architecture
+        #ic(summary(model, (3, 300, 300), 1))
+        
         # Load and preprocess the training and testing datasets.
         train_dataloader, test_dataloader, classes = data_setup(data_path=data_settings['data_path'],
                                                                 batch_size=data_settings['batch_size'],
@@ -731,7 +735,11 @@ class ModelBuilderGUI:
         
         accuracy_fn = MulticlassAccuracy(num_classes=data_settings['num_classes'])
         
-        #TODO: Train Model
+        # Debugging
+        ic(classes)
+        ic(transforms)
+        
+        #FIXME: RuntimeError: mat1 and mat2 shapes cannot be multiplied (32x1536 and 64x3) | File "d:\CS50P\vision_forge\project.py", line 139, in train_step preds_logits = model(X)
         train_results = train(model=model,
                               train_dataloader=train_dataloader,
                               test_dataloader=test_dataloader,
@@ -739,9 +747,7 @@ class ModelBuilderGUI:
                               accuracy_fn=accuracy_fn,
                               device=device,
                               epochs=model_settings['epochs'])
-        
-        ic(classes)
-        ic(transforms)
+
         ic(train_results)
         
     def run(self) -> None:
