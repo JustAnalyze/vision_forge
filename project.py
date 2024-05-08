@@ -803,9 +803,6 @@ class ModelBuilderGUI:
         
         # Function to perform training in a separate thread
         def train_model():
-            # Set the generator device to CPU
-            torch.set_rng_state(torch.get_rng_state())  # reset to CPU
-            torch.manual_seed(torch.initial_seed())  # set seed
             # Your existing training code here
             train_results = train(model=model,
                                 train_dataloader=train_dataloader,
