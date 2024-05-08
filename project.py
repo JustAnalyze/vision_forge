@@ -758,11 +758,6 @@ class ModelBuilderGUI:
         """
         Load the data and start the training process.
         """
-        # Include threading to ensure that the GUI remains responsive while the training process is running.
-        training_thread = Thread(target=train)
-
-        # Start the training thread
-        training_thread.start()
         
         # check if a CUDA-capable GPU is available and sets the default device to 'cuda' if it is. If not, set the default device to 'cpu'. 
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -785,7 +780,7 @@ class ModelBuilderGUI:
         # Load and preprocess the training and testing datasets.
         train_dataloader, test_dataloader, classes = data_setup(data_path=data_settings['data_path'],
                                                                 batch_size=data_settings['batch_size'],
-                                                                device=device,
+                                                                device='cpu',
                                                                 transform=transforms)  # use transforms used from training the pretrained model
         
         # Create a dictionary of the available optimizers
@@ -806,16 +801,25 @@ class ModelBuilderGUI:
         ic(classes)
         ic(transforms)
         
-        #FIXME: RuntimeError: mat1 and mat2 shapes cannot be multiplied (32x1536 and 64x3) | File "d:\CS50P\vision_forge\project.py", line 139, in train_step preds_logits = model(X)
-        train_results = train(model=model,
-                              train_dataloader=train_dataloader,
-                              test_dataloader=test_dataloader,
-                              optimizer=optimizer,
-                              accuracy_fn=accuracy_fn,
-                              device=device,
-                              epochs=model_settings['epochs'])
+        # Function to perform training in a separate thread
+        def train_model():
+            # Set the generator device to CPU
+            torch.set_rng_state(torch.get_rng_state())  # reset to CPU
+            torch.manual_seed(torch.initial_seed())  # set seed
+            # Your existing training code here
+            train_results = train(model=model,
+                                train_dataloader=train_dataloader,
+                                test_dataloader=test_dataloader,
+                                optimizer=optimizer,
+                                accuracy_fn=accuracy_fn,
+                                device=device,
+                                epochs=model_settings['epochs'])
+            ic(train_results)
 
-        ic(train_results)
+        # Thread for training
+        train_thread = Thread(target=train_model)
+        train_thread.start()
+
         
     def run(self) -> None:
         """
