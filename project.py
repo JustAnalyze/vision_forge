@@ -748,12 +748,14 @@ class ModelBuilderGUI:
             if self._validate_settings_dict():
                 CTkMessagebox(message="Training Will Start Now!",
                               icon="check",
-                              option_1="Thanks")
+                              option_1="Thanks!")
                 # Start the training process
                 self._load_data_start_training() 
         
         self.train_button = customtkinter.CTkButton(master=self.root, text="Train", command=train_button_event)
         self.train_button.pack(pady=10)
+        
+        # TODO: Create a pop up windows that shows the progress of the training. it should popup after the train button is clicked and the inputs are valid.
     
     def _load_data_start_training(self):
         """
@@ -813,13 +815,11 @@ class ModelBuilderGUI:
                                 accuracy_fn=accuracy_fn,
                                 device=device,
                                 epochs=model_settings['epochs'])
-            ic(train_results)
 
         # Thread for training
         train_thread = Thread(target=train_model)
         train_thread.start()
-
-        
+    
     def run(self) -> None:
         """
         Run the GUI.
