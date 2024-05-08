@@ -140,6 +140,7 @@ def build_model(pretrained_model: str,
     """
     
     # Dictionary mapping model names to their corresponding torchvision models and weights
+    # Add different sizes for the pretrained models for example: efficientnet_b0, efficientnet_b1 etc.
     pretrained_models: dict[str, dict] = {
         'EfficientNet': {
             'model': torchvision.models.efficientnet_b3,
@@ -775,6 +776,7 @@ class ModelBuilderGUI:
 
         # Use torch summary to examine the model architecture
         # exclude the batch_size in the input shape tuple
+        # TODO: Add a way for the user to easily see the architecture of the model.
         ic(summary(model, input_shape[1:], 1))
         
         # Load and preprocess the training and testing datasets.
