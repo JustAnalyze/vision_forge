@@ -773,7 +773,8 @@ class ModelBuilderGUI:
                                         device=device)
 
         # Use torch summary to examine the model architecture
-        ic(summary(model, input_shape, 1))
+        # exclude the batch_size in the input shape tuple
+        ic(summary(model, input_shape[1:], 1))
         
         # Load and preprocess the training and testing datasets.
         train_dataloader, test_dataloader, classes = data_setup(data_path=data_settings['data_path'],
