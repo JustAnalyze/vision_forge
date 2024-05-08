@@ -14,7 +14,7 @@ from CTkMessagebox import CTkMessagebox
 from typing import Union
 import customtkinter
 from icecream import ic
-
+import re
 
 def main():
     """
@@ -135,6 +135,7 @@ def build_model(pretrained_model: str,
     Returns:
         model: Pretrained neural network model.
         transforms: A callable transformation function that preprocesses input data.
+        input_shape: Shape of the input in the convolution neural network.
     """
     
     # Dictionary mapping model names to their corresponding torchvision models and weights
@@ -173,7 +174,7 @@ def build_model(pretrained_model: str,
                                                            out_features=output_shape,  
                                                            bias=True)).to(device)
     
-    return  model, transforms ,input_shape
+    return  model, transforms, input_shape
 
 
 # train step function
@@ -766,13 +767,13 @@ class ModelBuilderGUI:
         data_settings = self._settings_dict['data_settings']
         
         # Build model
-        model, transforms = build_model(pretrained_model=model_settings['pretrained_model'],
+        model, transforms, input_shape = build_model(pretrained_model=model_settings['pretrained_model'],
                                         num_hidden_units=model_settings['num_hidden_units'],
                                         output_shape=data_settings['num_classes'],
                                         device=device)
 
         # Use torch summary to examine the model architecture
-        #ic(summary(model, (3, 300, 300), 1))
+        ic(summary(model, input_shape, 1))
         
         # Load and preprocess the training and testing datasets.
         train_dataloader, test_dataloader, classes = data_setup(data_path=data_settings['data_path'],

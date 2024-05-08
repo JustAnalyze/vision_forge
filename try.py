@@ -15,8 +15,8 @@ weights = torchvision.models.EfficientNet_B3_Weights.DEFAULT
 transforms = weights.transforms
 
 # FIXME: Get convnet input shape.
-input_size = model.input_size
-ic("Input size of the pre-trained ResNet model:", input_size)
+# input_size = model.input_size
+# ic("Input size of the pre-trained ResNet model:", input_size)
 
 # Set the model to evaluation mode
 model.eval()
