@@ -1,3 +1,4 @@
+from threading import Thread
 import torch
 import torchvision
 import torch.nn as nn
@@ -757,6 +758,11 @@ class ModelBuilderGUI:
         """
         Load the data and start the training process.
         """
+        # Include threading to ensure that the GUI remains responsive while the training process is running.
+        training_thread = Thread(target=train)
+
+        # Start the training thread
+        training_thread.start()
         
         # check if a CUDA-capable GPU is available and sets the default device to 'cuda' if it is. If not, set the default device to 'cpu'. 
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
