@@ -1,3 +1,4 @@
+import sys
 from threading import Thread
 import torch
 import torchvision
@@ -16,6 +17,7 @@ from typing import Union
 import customtkinter
 from icecream import ic
 import re
+
 
 def main():
     """
@@ -809,11 +811,24 @@ class ModelBuilderGUI:
         # Function to perform training in a separate thread
         def train_model():
             
+            # Create a pop up window that can take up Text
             popup_window = customtkinter.CTkToplevel(self.root)
-            popup_window.title("Output Window")
+            popup_window.title("Training Performance")
 
             output_text = customtkinter.CTkTextbox(popup_window, wrap='word', height=20, width=50)
             output_text.pack(expand=True, fill='both')
+            
+            # Create a class for redirecting the output to the Text widget.
+            class StdoutRedirector(object):
+                def __init__(self, text_widget):
+                    self.text_space = text_widget
+
+                def write(self, message):
+                    self.text_space.insert(customtkinter.END, message)
+            
+            # Redirect stdout to the Text widget
+            sys.stdout = StdoutRedirector(output_text)
+
             
             # Your existing training code here
             train_results = train(model=model,
@@ -828,13 +843,6 @@ class ModelBuilderGUI:
         # Thread for training
         train_thread = Thread(target=train_model)
         train_thread.start()
-    
-    class StdoutRedirector(object):
-        def __init__(self, text_widget):
-            self.text_space = text_widget
-
-        def write(self, message):
-            self.text_space.insert(customtkinter.END, message)
     
     def run(self) -> None:
         """
