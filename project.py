@@ -279,7 +279,8 @@ def train(model: torch.nn.Module,
           accuracy_fn,
           device,
           loss_fn: torch.nn.Module = nn.CrossEntropyLoss(),  # default loss function for multiclass classification
-          epochs: int = 5):
+          epochs: int = 5,
+          progress_bar_widget: customtkinter.CTkProgressBar = None):
 
   """
   Trains the given model using the provided data loaders.
@@ -325,9 +326,12 @@ def train(model: torch.nn.Module,
                                     loss_fn=loss_fn,
                                     device=device)
 
-    # Print out what's happening 
-    # TODO: Edit this code so that it shows up in the pop up window during training
+    # Print out training results
     print(f"Epoch: {epoch+1} | train_loss: {train_loss:.4f} | train_acc: {train_acc:.4f} | test_loss: {test_loss:.4f} | test_acc: {test_acc:.4f}")
+
+    # TODO: Add a step in the progress bar widget for each epoch
+    if progress_bar_widget:
+        progress_bar_widget.step()
 
     # Update the results dictionary
     results["train_loss"].append(train_loss.detach() if device == 'cpu' else torch.Tensor.cpu(train_loss.detach()))
@@ -771,9 +775,9 @@ class ModelBuilderGUI:
         
         # Build model
         model, transforms, input_shape = build_model(pretrained_model=model_settings['pretrained_model'],
-                                        num_hidden_units=model_settings['num_hidden_units'],
-                                        output_shape=data_settings['num_classes'],
-                                        device=device)
+                                                     num_hidden_units=model_settings['num_hidden_units'],
+                                                     output_shape=data_settings['num_classes'],
+                                                     device=device)
 
         # Use torch summary to examine the model architecture
         # exclude the batch_size in the input shape tuple
@@ -804,7 +808,7 @@ class ModelBuilderGUI:
         ic(classes)
         ic(transforms)
         
-        # Function to perform training in a separate thread
+        # Function to perform training and output training performance metrics in a pop up window (SEPARATE THREAD)
         def train_model():
             
             # Create a pop up window that can take up the text
@@ -812,11 +816,18 @@ class ModelBuilderGUI:
             popup_window.title("Training Performance")
 
             # widget for storing the performance of the training
-            output_text = customtkinter.CTkTextbox(popup_window, wrap='word', height=370, width=550, state="disabled")
+            output_text = customtkinter.CTkTextbox(popup_window,
+                                                   wrap='word',
+                                                   height=370, width=550)
+            
             output_text.pack(expand=True, fill='both')
             
             # Create a progress bar to visualize the progress of training
-            training_progress_bar = customtkinter.CTkProgressBar(popup_window, width=520, height=50)
+            training_progress_bar = customtkinter.CTkProgressBar(popup_window,
+                                                                 width=520, 
+                                                                 height=20, 
+                                                                 determinate_speed=model_settings['epochs'])
+            
             training_progress_bar.pack(side="bottom", anchor="s", padx=20, pady=10)
             
             # Create a class for redirecting the output to the Text widget.
@@ -835,12 +846,13 @@ class ModelBuilderGUI:
 
             # Your existing training code here
             train_results = train(model=model,
-                                train_dataloader=train_dataloader,
-                                test_dataloader=test_dataloader,
-                                optimizer=optimizer,
-                                accuracy_fn=accuracy_fn,
-                                device=device,
-                                epochs=model_settings['epochs'])
+                                  train_dataloader=train_dataloader,
+                                  test_dataloader=test_dataloader,
+                                  optimizer=optimizer,
+                                  accuracy_fn=accuracy_fn,
+                                  device=device,
+                                  epochs=model_settings['epochs'],
+                                  progress_bar_widget=training_progress_bar)
             
 
         # Thread for training
