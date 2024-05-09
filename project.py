@@ -169,7 +169,7 @@ def build_model(pretrained_model: str,
     
     # Recreate the classifier layer and seed it to the target device
     model.classifier = torch.nn.Sequential(torch.nn.Dropout(p=0.2, inplace=True),
-                                           torch.nn.Linear(in_features=feature_vector, #FIXME: Find a way to automatically handle the flattened features of each pretrained model
+                                           torch.nn.Linear(in_features=feature_vector, 
                                                            out_features=num_hidden_units,  # use the length of class_names (one output unit for each class)
                                                            bias=True),
                                            torch.nn.Linear(in_features=num_hidden_units,
@@ -323,7 +323,8 @@ def train(model: torch.nn.Module,
                                     loss_fn=loss_fn,
                                     device=device)
 
-    # Print out what's happening
+    # Print out what's happening 
+    # TODO: Edit this code so that it shows up in the pop up window during training
     print(f"Epoch: {epoch+1} | train_loss: {train_loss:.4f} | train_acc: {train_acc:.4f} | test_loss: {test_loss:.4f} | test_acc: {test_acc:.4f}")
 
     # Update the results dictionary
@@ -807,6 +808,13 @@ class ModelBuilderGUI:
         
         # Function to perform training in a separate thread
         def train_model():
+            
+            popup_window = customtkinter.CTkToplevel(self.root)
+            popup_window.title("Output Window")
+
+            output_text = customtkinter.CTkTextbox(popup_window, wrap='word', height=20, width=50)
+            output_text.pack(expand=True, fill='both')
+            
             # Your existing training code here
             train_results = train(model=model,
                                 train_dataloader=train_dataloader,
@@ -815,10 +823,18 @@ class ModelBuilderGUI:
                                 accuracy_fn=accuracy_fn,
                                 device=device,
                                 epochs=model_settings['epochs'])
+            
 
         # Thread for training
         train_thread = Thread(target=train_model)
         train_thread.start()
+    
+    class StdoutRedirector(object):
+        def __init__(self, text_widget):
+            self.text_space = text_widget
+
+        def write(self, message):
+            self.text_space.insert(customtkinter.END, message)
     
     def run(self) -> None:
         """
