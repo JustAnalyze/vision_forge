@@ -749,16 +749,12 @@ class ModelBuilderGUI:
         def train_button_event():
             # if settings are valid continue to training
             if self._validate_settings_dict():
-                CTkMessagebox(message="Training Will Start Now!",
-                              icon="check",
-                              option_1="Thanks!")
+                
                 # Start the training process
                 self._load_data_start_training() 
         
         self.train_button = customtkinter.CTkButton(master=self.root, text="Train", command=train_button_event)
         self.train_button.pack(pady=10)
-        
-        # TODO: Create a pop up windows that shows the progress of the training. it should popup after the train button is clicked and the inputs are valid.
     
     def _load_data_start_training(self):
         """
@@ -811,12 +807,17 @@ class ModelBuilderGUI:
         # Function to perform training in a separate thread
         def train_model():
             
-            # Create a pop up window that can take up Text
+            # Create a pop up window that can take up the text
             popup_window = customtkinter.CTkToplevel(self.root)
             popup_window.title("Training Performance")
 
-            output_text = customtkinter.CTkTextbox(popup_window, wrap='word', height=20, width=50)
+            # widget for storing the performance of the training
+            output_text = customtkinter.CTkTextbox(popup_window, wrap='word', height=370, width=550, state="disabled")
             output_text.pack(expand=True, fill='both')
+            
+            # Create a progress bar to visualize the progress of training
+            training_progress_bar = customtkinter.CTkProgressBar(popup_window, width=520, height=50)
+            training_progress_bar.pack(side="bottom", anchor="s", padx=20, pady=10)
             
             # Create a class for redirecting the output to the Text widget.
             class StdoutRedirector(object):
@@ -825,11 +826,13 @@ class ModelBuilderGUI:
 
                 def write(self, message):
                     self.text_space.insert(customtkinter.END, message)
+                    
+                def flush(self):
+                    pass
             
             # Redirect stdout to the Text widget
             sys.stdout = StdoutRedirector(output_text)
 
-            
             # Your existing training code here
             train_results = train(model=model,
                                 train_dataloader=train_dataloader,
