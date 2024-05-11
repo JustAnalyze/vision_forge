@@ -329,9 +329,10 @@ def train(model: torch.nn.Module,
     # Print out training results
     print(f"Epoch: {epoch+1} | train_loss: {train_loss:.4f} | train_acc: {train_acc:.4f} | test_loss: {test_loss:.4f} | test_acc: {test_acc:.4f}")
 
-    # TODO: Add a step in the progress bar widget for each epoch
+    # TODO: Add a label in the progress bar representing the percentage (50% or 5/10)
     if progress_bar_widget:
-        progress_bar_widget.step()
+        progress_bar_percentage: float = epoch / epochs
+        progress_bar_widget.set(progress_bar_percentage)
 
     # Update the results dictionary
     results["train_loss"].append(train_loss.detach() if device == 'cpu' else torch.Tensor.cpu(train_loss.detach()))
@@ -826,8 +827,8 @@ class ModelBuilderGUI:
             training_progress_bar = customtkinter.CTkProgressBar(popup_window,
                                                                  width=520, 
                                                                  height=20, 
-                                                                 determinate_speed=model_settings['epochs'])
-            
+                                                                 determinate_speed=model_settings['epochs']) #FIXME: Fix the progress bar progress
+            training_progress_bar.set(0)
             training_progress_bar.pack(side="bottom", anchor="s", padx=20, pady=10)
             
             # Create a class for redirecting the output to the Text widget.
