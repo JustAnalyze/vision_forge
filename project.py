@@ -442,7 +442,7 @@ class ModelBuilderGUI:
         
         # Add entry box for setting the number of epochs
         epochs_label = customtkinter.CTkLabel(master=model_tab, text='Epochs')
-        epochs_var = customtkinter.Variable(value=16)
+        epochs_var = customtkinter.IntVar(value=16)
         epochs = customtkinter.CTkEntry(master=model_tab, 
                                           placeholder_text='16',
                                           width=200, 
@@ -823,11 +823,11 @@ class ModelBuilderGUI:
             
             output_text.pack(expand=True, fill='both')
             
-            # Create a progress bar to visualize the progress of training
+            # Create a progress bar to visualize the progress of training3
             training_progress_bar = customtkinter.CTkProgressBar(popup_window,
                                                                  width=520, 
                                                                  height=20, 
-                                                                 determinate_speed=model_settings['epochs']) #FIXME: Fix the progress bar progress
+                                                                 determinate_speed=model_settings['epochs'])
             training_progress_bar.set(0)
             training_progress_bar.pack(side="bottom", anchor="s", padx=20, pady=10)
             
