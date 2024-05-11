@@ -761,7 +761,6 @@ class ModelBuilderGUI:
         def train_button_event():
             # if settings are valid continue to training
             if self._validate_settings_dict():
-                
                 # Start the training process
                 self._load_data_start_training() 
         
@@ -817,38 +816,44 @@ class ModelBuilderGUI:
         ic(transforms)
         
         # Output training performance metrics in a pop up window    
-        # Create a pop up window that can take up the text
-        popup_window = customtkinter.CTkToplevel(self.root)
-        popup_window.title("Training Performance")
+        # Create a pop up window that can take up the text and has a progress bar
+        def show_training_progress():
+            """Display a popup window showing training progress."""
+            
+            popup_window = customtkinter.CTkToplevel(self.root)
+            popup_window.title("Training Performance")
 
-        # widget for storing the performance of the training
-        output_text = customtkinter.CTkTextbox(popup_window,
-                                                wrap='word',
-                                                height=370, width=550)
-        
-        output_text.pack(expand=True, fill='both')
-        
-        # Create a progress bar to visualize the progress of training3
-        training_progress_bar = customtkinter.CTkProgressBar(popup_window,
-                                                                width=520, 
-                                                                height=20, 
-                                                                determinate_speed=model_settings['epochs'])
-        training_progress_bar.set(0)
-        training_progress_bar.pack(side="bottom", anchor="s", padx=20, pady=10)
-        
-        # Create a class for redirecting the output to the Text widget.
-        class StdoutRedirector(object):
-            def __init__(self, text_widget):
-                self.text_space = text_widget
+            # widget for storing the performance of the training
+            output_text = customtkinter.CTkTextbox(popup_window,
+                                                    wrap='word',
+                                                    height=370, width=550)
+            
+            output_text.pack(expand=True, fill='both')
+            
+            # Create a progress bar to visualize the progress of training3
+            training_progress_bar = customtkinter.CTkProgressBar(popup_window,
+                                                                    width=520, 
+                                                                    height=20, 
+                                                                    determinate_speed=model_settings['epochs'])
+            training_progress_bar.set(0)
+            training_progress_bar.pack(side="bottom", anchor="s", padx=20, pady=10)
+            
+            # Create a class for redirecting the output to the Text widget.
+            class StdoutRedirector(object):
+                def __init__(self, text_widget):
+                    self.text_space = text_widget
 
-            def write(self, message):
-                self.text_space.insert(customtkinter.END, message)
-                
-            def flush(self):
-                pass
+                def write(self, message):
+                    self.text_space.insert(customtkinter.END, message)
+                    
+                def flush(self):
+                    pass
+            
+            # Redirect stdout to the Text widget
+            sys.stdout = StdoutRedirector(output_text)
         
-        # Redirect stdout to the Text widget
-        sys.stdout = StdoutRedirector(output_text)
+        # Show training progress
+        show_training_progress()
         
         # Function to perform training (SEPARATE THREAD) 
         def train_model():
