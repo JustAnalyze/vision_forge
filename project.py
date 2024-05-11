@@ -763,6 +763,9 @@ class ModelBuilderGUI:
             if self._validate_settings_dict():
                 # Start the training process
                 self._load_data_start_training() 
+                # TODO: Create metrics visualizations.
+                
+                # TODO: save the trained model, visualizations, and the model and data settings as a yaml or json file.
         
         self.train_button = customtkinter.CTkButton(master=self.root, text="Train", command=train_button_event)
         self.train_button.pack(pady=10)
@@ -877,7 +880,6 @@ class ModelBuilderGUI:
         train_thread = Thread(target=train_model)
         train_thread.start()
         
-        # TODO: save the trained model, the corresponding loss and accuracy curve visualizations, and the model and data settings used in the training as a yaml or json file.
         
     def run(self) -> None:
         """
