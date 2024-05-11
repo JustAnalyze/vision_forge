@@ -854,7 +854,6 @@ class ModelBuilderGUI:
                                   device=device,
                                   epochs=model_settings['epochs'],
                                   progress_bar_widget=training_progress_bar)
-            
 
         # Thread for training
         train_thread = Thread(target=train_model)
