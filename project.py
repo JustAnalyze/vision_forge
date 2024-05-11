@@ -877,7 +877,7 @@ class ModelBuilderGUI:
         train_thread = Thread(target=train_model)
         train_thread.start()
         
-        # FIXME: The GUI should still be able to start a new training after the first training.
+        # TODO: save the trained model, the corresponding loss and accuracy curve visualizations, and the model and data settings used in the training as a yaml or json file.
         
     def run(self) -> None:
         """
