@@ -789,7 +789,7 @@ class ModelBuilderGUI:
         # Use torch summary to examine the model architecture
         # exclude the batch_size in the input shape tuple
         # TODO: Add a way for the user to easily see the architecture of the model.
-        ic(summary(model, input_shape[1:], 1))
+        # ic(summary(model, input_shape[1:], 1))
         
         # Load and preprocess the training and testing datasets.
         train_dataloader, test_dataloader, classes = data_setup(data_path=data_settings['data_path'],
@@ -851,9 +851,12 @@ class ModelBuilderGUI:
             
             # Redirect stdout to the Text widget
             sys.stdout = StdoutRedirector(output_text)
+
+            # return the trainig_progress_bar to be configured inside the train function
+            return training_progress_bar
         
         # Show training progress
-        show_training_progress()
+        training_progress_bar = show_training_progress()
         
         # Function to perform training (SEPARATE THREAD) 
         def train_model():
@@ -868,7 +871,7 @@ class ModelBuilderGUI:
                                   progress_bar_widget=training_progress_bar)
             
             # inform the user about where the model is gonna be saved
-            print(f"The model has been saved to path")
+            print(f"\nThe model has been saved to path")
             
         # Thread for training
         train_thread = Thread(target=train_model)
