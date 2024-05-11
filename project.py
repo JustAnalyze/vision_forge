@@ -863,7 +863,7 @@ class ModelBuilderGUI:
         
         # Function to perform training (SEPARATE THREAD) 
         def train_model():
-            # Your existing training code here
+            # train model
             train_results = train(model=model,
                                   train_dataloader=train_dataloader,
                                   test_dataloader=test_dataloader,
