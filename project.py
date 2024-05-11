@@ -809,42 +809,42 @@ class ModelBuilderGUI:
         ic(classes)
         ic(transforms)
         
-        # Function to perform training and output training performance metrics in a pop up window (SEPARATE THREAD)
+        # Output training performance metrics in a pop up window    
+        # Create a pop up window that can take up the text
+        popup_window = customtkinter.CTkToplevel(self.root)
+        popup_window.title("Training Performance")
+
+        # widget for storing the performance of the training
+        output_text = customtkinter.CTkTextbox(popup_window,
+                                                wrap='word',
+                                                height=370, width=550)
+        
+        output_text.pack(expand=True, fill='both')
+        
+        # Create a progress bar to visualize the progress of training3
+        training_progress_bar = customtkinter.CTkProgressBar(popup_window,
+                                                                width=520, 
+                                                                height=20, 
+                                                                determinate_speed=model_settings['epochs'])
+        training_progress_bar.set(0)
+        training_progress_bar.pack(side="bottom", anchor="s", padx=20, pady=10)
+        
+        # Create a class for redirecting the output to the Text widget.
+        class StdoutRedirector(object):
+            def __init__(self, text_widget):
+                self.text_space = text_widget
+
+            def write(self, message):
+                self.text_space.insert(customtkinter.END, message)
+                
+            def flush(self):
+                pass
+        
+        # Redirect stdout to the Text widget
+        sys.stdout = StdoutRedirector(output_text)
+        
+        # Function to perform training (SEPARATE THREAD) 
         def train_model():
-            
-            # Create a pop up window that can take up the text
-            popup_window = customtkinter.CTkToplevel(self.root)
-            popup_window.title("Training Performance")
-
-            # widget for storing the performance of the training
-            output_text = customtkinter.CTkTextbox(popup_window,
-                                                   wrap='word',
-                                                   height=370, width=550)
-            
-            output_text.pack(expand=True, fill='both')
-            
-            # Create a progress bar to visualize the progress of training3
-            training_progress_bar = customtkinter.CTkProgressBar(popup_window,
-                                                                 width=520, 
-                                                                 height=20, 
-                                                                 determinate_speed=model_settings['epochs'])
-            training_progress_bar.set(0)
-            training_progress_bar.pack(side="bottom", anchor="s", padx=20, pady=10)
-            
-            # Create a class for redirecting the output to the Text widget.
-            class StdoutRedirector(object):
-                def __init__(self, text_widget):
-                    self.text_space = text_widget
-
-                def write(self, message):
-                    self.text_space.insert(customtkinter.END, message)
-                    
-                def flush(self):
-                    pass
-            
-            # Redirect stdout to the Text widget
-            sys.stdout = StdoutRedirector(output_text)
-
             # Your existing training code here
             train_results = train(model=model,
                                   train_dataloader=train_dataloader,
@@ -854,11 +854,16 @@ class ModelBuilderGUI:
                                   device=device,
                                   epochs=model_settings['epochs'],
                                   progress_bar_widget=training_progress_bar)
-
+            
+            # Refresh the main window
+            self.root.update_idletasks()
+            
         # Thread for training
         train_thread = Thread(target=train_model)
         train_thread.start()
-    
+
+        # FIXME: The GUI should still be able to start a new training after the first training.
+        
     def run(self) -> None:
         """
         Run the GUI.
