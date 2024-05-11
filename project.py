@@ -396,7 +396,7 @@ class ModelBuilderGUI:
         # Add a ComboBox for choosing the type of task
         task_type_label = customtkinter.CTkLabel(master=model_tab, text="Task")
         type_list = ['Multiclass Classification'] # add multiclass classification task
-        task_type_var = customtkinter.StringVar()
+        task_type_var = customtkinter.StringVar(value='Multiclass Classification')
         task_type = customtkinter.CTkComboBox(master=model_tab,
                                               values=type_list, width=200,
                                               justify='center',
@@ -405,7 +405,7 @@ class ModelBuilderGUI:
         # Add ComboBox for choosing the optimizer
         optimizer_label = customtkinter.CTkLabel(master=model_tab, text="Optimizer")
         optimizer_list =['SGD', 'Adam', 'AdamW', 'RMSProp']
-        optimizer_var = customtkinter.StringVar()
+        optimizer_var = customtkinter.StringVar(value='Adam')
         optimizer = customtkinter.CTkComboBox(master=model_tab,
                                               values=optimizer_list,
                                               width=200,
@@ -610,7 +610,7 @@ class ModelBuilderGUI:
         
         # Entry box for setting value of Batch Size
         batch_size_label = customtkinter.CTkLabel(data_tab, text='Batch Size')
-        batch_size_var = customtkinter.Variable(value=32)
+        batch_size_var = customtkinter.IntVar(value=32)
         batch_size = customtkinter.CTkEntry(data_tab,
                                             justify='center',
                                             textvariable=batch_size_var)
