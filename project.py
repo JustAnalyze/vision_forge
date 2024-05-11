@@ -282,66 +282,72 @@ def train(model: torch.nn.Module,
           epochs: int = 5,
           progress_bar_widget: customtkinter.CTkProgressBar = None):
 
-  """
-  Trains the given model using the provided data loaders.
+    """
+    Trains the given model using the provided data loaders.
 
-  Args:
-      model (torch.nn.Module): The model to train.
-      train_dataloader (torch.utils.data.DataLoader): DataLoader for training data.
-      test_dataloader (torch.utils.data.DataLoader): DataLoader for testing/validation data.
-      optimizer (torch.optim.Optimizer): Optimizer to use during training.
-      accuracy_fn (callable): Function to compute accuracy.
-      device: Device to use for training (e.g., 'cuda' for GPU, 'cpu' for CPU).
-      loss_fn (torch.nn.Module, optional): Loss function. Default is nn.CrossEntropyLoss().
-      epochs (int, optional): Number of epochs for training. Default is 5.
+    Args:
+        model (torch.nn.Module): The model to train.
+        train_dataloader (torch.utils.data.DataLoader): DataLoader for training data.
+        test_dataloader (torch.utils.data.DataLoader): DataLoader for testing/validation data.
+        optimizer (torch.optim.Optimizer): Optimizer to use during training.
+        accuracy_fn (callable): Function to compute accuracy.
+        device: Device to use for training (e.g., 'cuda' for GPU, 'cpu' for CPU).
+        loss_fn (torch.nn.Module, optional): Loss function. Default is nn.CrossEntropyLoss().
+        epochs (int, optional): Number of epochs for training. Default is 5.
 
-  Returns:
-      dict: A dictionary containing training and testing metrics.
-          Keys:
-              - "train_loss": List of training losses for each epoch.
-              - "train_acc": List of training accuracies for each epoch.
-              - "test_loss": List of testing losses for each epoch.
-              - "test_acc": List of testing accuracies for each epoch.
-  """
+    Returns:
+        dict: A dictionary containing training and testing metrics.
+            Keys:
+                - "train_loss": List of training losses for each epoch.
+                - "train_acc": List of training accuracies for each epoch.
+                - "test_loss": List of testing losses for each epoch.
+                - "test_acc": List of testing accuracies for each epoch.
+    """
 
-  # Create results dictionary
-  results = {"train_loss": [],
-             "train_acc": [],
-             "test_loss": [],
-             "test_acc": []}
+    # Inform the user that the Training is starting
+    print(f"Starting training for {epochs} epochs...")
+    
+    # Create results dictionary
+    results = {"train_loss": [],
+                "train_acc": [],
+                "test_loss": [],
+                "test_acc": []}
 
-  # Loop through the training and testing steps for a number of epochs
-  for epoch in tqdm(range(epochs)):
-    # Train step
-    train_loss, train_acc = train_step(model=model,
-                                       dataloader=train_dataloader,
-                                       loss_fn=loss_fn,
-                                       accuracy_fn=accuracy_fn,
-                                       optimizer=optimizer,
-                                       device=device)
-    # Test step
-    test_loss, test_acc = test_step(model=model,
-                                    dataloader=test_dataloader,
-                                    accuracy_fn=accuracy_fn,
-                                    loss_fn=loss_fn,
-                                    device=device)
+    # Loop through the training and testing steps for a number of epochs
+    for epoch in tqdm(range(epochs)):
+        # Train step
+        train_loss, train_acc = train_step(model=model,
+                                        dataloader=train_dataloader,
+                                        loss_fn=loss_fn,
+                                        accuracy_fn=accuracy_fn,
+                                        optimizer=optimizer,
+                                        device=device)
+        # Test step
+        test_loss, test_acc = test_step(model=model,
+                                        dataloader=test_dataloader,
+                                        accuracy_fn=accuracy_fn,
+                                        loss_fn=loss_fn,
+                                        device=device)
 
-    # Print out training results
-    print(f"Epoch: {epoch+1} | train_loss: {train_loss:.4f} | train_acc: {train_acc:.4f} | test_loss: {test_loss:.4f} | test_acc: {test_acc:.4f}")
+        # Print out training results
+        print(f"Epoch: {epoch+1} | train_loss: {train_loss:.4f} | train_acc: {train_acc:.4f} | test_loss: {test_loss:.4f} | test_acc: {test_acc:.4f}")
 
-    # TODO: Add a label in the progress bar representing the percentage (50% or 5/10)
-    if progress_bar_widget:
-        progress_bar_percentage: float = (epoch + 1) / epochs
-        progress_bar_widget.set(progress_bar_percentage)
+        # TODO: Add a label in the progress bar representing the percentage (50% or 5/10)
+        if progress_bar_widget:
+            progress_bar_percentage: float = (epoch + 1) / epochs
+            progress_bar_widget.set(progress_bar_percentage)
 
-    # Update the results dictionary
-    results["train_loss"].append(train_loss.detach() if device == 'cpu' else torch.Tensor.cpu(train_loss.detach()))
-    results["train_acc"].append(train_acc if device == 'cpu' else torch.Tensor.cpu(train_acc))
-    results["test_loss"].append(test_loss if device == 'cpu' else torch.Tensor.cpu(test_loss))
-    results["test_acc"].append(test_acc if device == 'cpu' else torch.Tensor.cpu(test_acc))
+        # Update the results dictionary
+        results["train_loss"].append(train_loss.detach() if device == 'cpu' else torch.Tensor.cpu(train_loss.detach()))
+        results["train_acc"].append(train_acc if device == 'cpu' else torch.Tensor.cpu(train_acc))
+        results["test_loss"].append(test_loss if device == 'cpu' else torch.Tensor.cpu(test_loss))
+        results["test_acc"].append(test_acc if device == 'cpu' else torch.Tensor.cpu(test_acc))
 
-  # Return the results dictionary
-  return results
+    # Inform user that the training is done.
+    print("Training is done.")
+    
+    # Return the results dictionary
+    return results
 
 
 class ModelBuilderGUI:
@@ -355,6 +361,7 @@ class ModelBuilderGUI:
         # Set up the main window and the theme
         customtkinter.set_default_color_theme('dark-blue')
         customtkinter.set_appearance_mode("dark")
+        
         self.root = customtkinter.CTk()
         self.root.title("Vision Forge")
         self.root.geometry("550x370")
@@ -855,13 +862,13 @@ class ModelBuilderGUI:
                                   epochs=model_settings['epochs'],
                                   progress_bar_widget=training_progress_bar)
             
-            # Refresh the main window
-            self.root.update_idletasks()
+            # inform the user about where the model is gonna be saved
+            print(f"The model has been saved to path")
             
         # Thread for training
         train_thread = Thread(target=train_model)
         train_thread.start()
-
+        
         # FIXME: The GUI should still be able to start a new training after the first training.
         
     def run(self) -> None:
