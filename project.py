@@ -331,7 +331,7 @@ def train(model: torch.nn.Module,
 
     # TODO: Add a label in the progress bar representing the percentage (50% or 5/10)
     if progress_bar_widget:
-        progress_bar_percentage: float = epoch / epochs
+        progress_bar_percentage: float = (epoch + 1) / epochs
         progress_bar_widget.set(progress_bar_percentage)
 
     # Update the results dictionary
