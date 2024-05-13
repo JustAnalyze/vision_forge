@@ -1,3 +1,4 @@
+from queue import Queue
 import sys
 from threading import Thread
 import torch
@@ -862,7 +863,7 @@ class ModelBuilderGUI:
         training_progress_bar = show_training_progress()
         
         # Function to perform training (SEPARATE THREAD) 
-        def train_model():
+        def train_model(train_result_queue):
             # Your existing training code here
             train_results = train(model=model,
                                   train_dataloader=train_dataloader,
@@ -873,13 +874,26 @@ class ModelBuilderGUI:
                                   epochs=model_settings['epochs'],
                                   progress_bar_widget=training_progress_bar)
             
+            train_result_queue.put(train_results)
+            
             # inform the user about where the model is gonna be saved
             print(f"\nThe model has been saved to path")
-            
+        
+        # Create a queue to store the training results
+        train_result_queue = Queue()
+        
         # Thread for training
-        train_thread = Thread(target=train_model)
+        train_thread = Thread(target=train_model, args=(train_result_queue))
         train_thread.start()
         
+        # Wait for the thread to finish
+        train_thread.join()
+
+        # get train results from the queue
+        train_results = train_result_queue.get()
+        
+        # Now you can access the train_results
+        print("Training results:", train_results)
         
     def run(self) -> None:
         """
