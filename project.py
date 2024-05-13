@@ -863,7 +863,11 @@ class ModelBuilderGUI:
         training_progress_bar = show_training_progress()
         
         # Function to perform training (SEPARATE THREAD) 
+<<<<<<< HEAD
         def train_model(train_result_queue):
+=======
+        def train_model():
+>>>>>>> parent of 172b18d (Update project.py)
             # Your existing training code here
             train_results = train(model=model,
                                   train_dataloader=train_dataloader,
