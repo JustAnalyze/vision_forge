@@ -881,14 +881,6 @@ class ModelBuilderGUI:
         train_thread = Thread(target=train_model)
         train_thread.start()
         
-        # Wait for the thread to finish
-        train_thread.join()
-
-        # get train results from the queue
-        train_results = train_result_queue.get()
-        
-        # Now you can access the train_results
-        print("Training results:", train_results)
         
     def run(self) -> None:
         """
