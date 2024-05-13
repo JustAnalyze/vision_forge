@@ -860,8 +860,8 @@ class ModelBuilderGUI:
         training_progress_bar = show_training_progress()
         
         # Function to perform training (SEPARATE THREAD) 
-        def train_model(train_result_queue):
-            # train model
+        def train_model():
+            # Your existing training code here
             train_results = train(model=model,
                                   train_dataloader=train_dataloader,
                                   test_dataloader=test_dataloader,
@@ -871,13 +871,11 @@ class ModelBuilderGUI:
                                   epochs=model_settings['epochs'],
                                   progress_bar_widget=training_progress_bar)
             
-            train_result_queue.put(train_results)
-        
-        # Create a queue to store the training results
-        train_result_queue = Queue()
-        
+            # inform the user about where the model is gonna be saved
+            print(f"\nThe model has been saved to path")
+            
         # Thread for training
-        train_thread = Thread(target=train_model, args=(train_result_queue,))
+        train_thread = Thread(target=train_model)
         train_thread.start()
         
         # TODO: save the trained model, the corresponding loss and accuracy curve visualizations, and the model and data settings used in the training as a yaml or json file.
