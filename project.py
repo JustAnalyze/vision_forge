@@ -863,12 +863,8 @@ class ModelBuilderGUI:
         training_progress_bar = show_training_progress()
         
         # Function to perform training (SEPARATE THREAD) 
-<<<<<<< HEAD
         def train_model(train_result_queue):
-=======
-        def train_model():
->>>>>>> parent of 172b18d (Update project.py)
-            # Your existing training code here
+            # train model
             train_results = train(model=model,
                                   train_dataloader=train_dataloader,
                                   test_dataloader=test_dataloader,
@@ -879,15 +875,12 @@ class ModelBuilderGUI:
                                   progress_bar_widget=training_progress_bar)
             
             train_result_queue.put(train_results)
-            
-            # inform the user about where the model is gonna be saved
-            print(f"\nThe model has been saved to path")
         
         # Create a queue to store the training results
         train_result_queue = Queue()
         
         # Thread for training
-        train_thread = Thread(target=train_model, args=(train_result_queue))
+        train_thread = Thread(target=train_model, args=(train_result_queue,))
         train_thread.start()
         
         # Wait for the thread to finish
