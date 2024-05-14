@@ -297,7 +297,7 @@ def train(model: torch.nn.Module,
 
 def plot_loss_curves(results: dict[str, list[float]],
                      device,
-                     file_name: str = 'loss_accuracy_plot.jpg',):
+                     save_path: str = None):
     """Plots training curves of a results dictionary.
 
     Args:
@@ -348,9 +348,44 @@ def plot_loss_curves(results: dict[str, list[float]],
     plt.xlabel('Epochs')
     plt.legend()
     
+    # set save path
+    model_save_path = (save_path+'/loss_accuracy_plot.jpg')
     # Save the plot as a JPG file
-    plt.savefig(file_name, format='jpg')
+    plt.savefig(model_save_path, format='jpg')
     plt.close()
+
+
+def save_model_weights(model: torch.nn.Module,
+                       save_path: str,
+                       model_name: str):
+    """
+    Save the trained model weights to a specified directory.
+
+    Args:
+    model (torch.nn.Module): The trained model to save.
+    save_path (str): The directory path where the model weights will be saved.
+    model_name (str): The name of the model file to be saved.
+
+    Returns:
+    None
+    """
+    # set save_path name
+    save_path = Path(save_path)
+
+    # set save path
+    model_save_path = save_path / (model_name+'.pth')
+
+    # create directory if not yet created
+    if save_path.is_dir():
+        print(f'{save_path} Directory already exists')
+    else:
+        save_path.mkdir(parents=True, exist_ok=True)
+
+    # save model on our create directory
+    print(f"Saving model to: {model_save_path}")
+
+    torch.save(obj=model.state_dict(), # only saves the models learned parameters
+                f=model_save_path)
 
 
 class ModelBuilderGUI:
