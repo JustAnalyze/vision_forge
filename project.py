@@ -359,15 +359,13 @@ def plot_loss_curves(results: dict[str, list[float]],
     plt.close()
 
 
-def save_model_weights(model: torch.nn.Module,
-                       save_path: str,
-                       model_name: str):
+def save_model(model: torch.nn.Module, save_path: str, model_name: str):
     """
-    Save the trained model weights to a specified directory.
+    Save the entire trained model to a specified directory.
 
     Args:
     model (torch.nn.Module): The trained model to save.
-    save_path (str): The directory path where the model weights will be saved.
+    save_path (str): The directory path where the model will be saved.
     model_name (str): The name of the model file to be saved.
 
     Returns:
@@ -377,7 +375,7 @@ def save_model_weights(model: torch.nn.Module,
     save_path = Path(save_path)
 
     # set save path
-    model_save_path = save_path / (model_name+'.pth')
+    model_save_path = save_path / (model_name + '.pth')
 
     # create directory if not yet created
     if save_path.is_dir():
@@ -385,11 +383,9 @@ def save_model_weights(model: torch.nn.Module,
     else:
         save_path.mkdir(parents=True, exist_ok=True)
 
-    # save model on our create directory
+    # save the entire model
     print(f"Saving model to: {model_save_path}")
-
-    torch.save(obj=model.state_dict(), # only saves the models learned parameters
-                f=model_save_path)
+    torch.save(obj=model, f=model_save_path)
 
 
 class ModelBuilderGUI:
@@ -916,6 +912,8 @@ class ModelBuilderGUI:
             # Plot loss curves and save the visualization in the current directory
             plot_loss_curves(train_results,
                              device=device,)
+            
+            # Save the model weights
             
             # TODO: save the trained model, visualizations, and the model and data settings as a yaml or json file.
             # inform the user about where the model is gonna be saved
