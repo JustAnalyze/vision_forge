@@ -1,5 +1,6 @@
 import sys
 from threading import Thread
+from matplotlib import pyplot as plt
 import torch
 import torchvision
 import torch.nn as nn
@@ -292,6 +293,59 @@ def train(model: torch.nn.Module,
     
     # Return the results dictionary
     return results
+
+
+def plot_loss_curves(results: dict[str, list[float]],
+                     device):
+    """Plots training curves of a results dictionary.
+
+    Args:
+        results (dict): dictionary containing list of values, e.g.
+            {"train_loss": [...],
+             "train_acc": [...],
+             "test_loss": [...],
+             "test_acc": [...]}
+    """
+    # if Tensors are in cuda transfer them to cpu
+    if device == 'cuda':
+      def to_cpu(x):
+        return torch.Tensor.cpu(x)
+
+      # Get the loss values of the results dictionary (training and test)
+      loss = list(map(to_cpu, results['train_loss']))
+      test_loss = list(map(to_cpu, results['test_loss']))
+
+      # Get the accuracy values of the results dictionary (training and test)
+      accuracy = list(map(to_cpu, results['train_acc']))
+      test_accuracy = list(map(to_cpu, results['test_acc']))
+
+    else:
+      loss = results['train_loss']
+      test_loss = results['test_loss']
+      accuracy = results['train_acc']
+      test_accuracy = results['test_acc']
+
+    # Figure out how many epochs there were
+    epochs = range(len(results['train_loss']))
+
+    # Setup a plot
+    plt.figure(figsize=(15, 7))
+
+    # Plot loss
+    plt.subplot(1, 2, 1)
+    plt.plot(epochs, loss, label='train_loss')
+    plt.plot(epochs, test_loss, label='test_loss')
+    plt.title('Loss')
+    plt.xlabel('Epochs')
+    plt.legend()
+
+    # Plot accuracy
+    plt.subplot(1, 2, 2)
+    plt.plot(epochs, accuracy, label='train_accuracy')
+    plt.plot(epochs, test_accuracy, label='test_accuracy')
+    plt.title('Accuracy')
+    plt.xlabel('Epochs')
+    plt.legend();
 
 
 class ModelBuilderGUI:
@@ -816,6 +870,7 @@ class ModelBuilderGUI:
                                   progress_bar_widget=training_progress_bar)
             
             # TODO: Create metrics visualizations.
+            
             
             # TODO: save the trained model, visualizations, and the model and data settings as a yaml or json file.
             # inform the user about where the model is gonna be saved
