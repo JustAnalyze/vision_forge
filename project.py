@@ -115,7 +115,7 @@ def build_model(pretrained_model: str,
     
     # Recreate the classifier layer and seed it to the target device
     model.classifier = torch.nn.Sequential(torch.nn.Dropout(p=0.2, inplace=True),
-                                           torch.nn.Linear(in_features=model.fc.in_features, 
+                                           torch.nn.Linear(in_features=model.classifier[1].in_features, 
                                                            out_features=num_hidden_units,  # use the length of class_names (one output unit for each class)
                                                            bias=True),
                                            torch.nn.Linear(in_features=num_hidden_units,
@@ -707,9 +707,6 @@ class ModelBuilderGUI:
             if self._validate_settings_dict():
                 # Start the training process
                 self._train_and_save_model() 
-                # TODO: Create metrics visualizations.
-                
-                # TODO: save the trained model, visualizations, and the model and data settings as a yaml or json file.
         
         self.train_button = customtkinter.CTkButton(master=self.root, text="Train", command=train_button_event)
         self.train_button.pack(pady=10)
@@ -779,7 +776,7 @@ class ModelBuilderGUI:
         # Function to perform model building, load data, and train model (SEPARATE THREAD) 
         def train_save_model():
             # Build model
-            model, transforms, input_shape = build_model(pretrained_model=model_settings['pretrained_model'],
+            model, transforms = build_model(pretrained_model=model_settings['pretrained_model'],
                                                         num_hidden_units=model_settings['num_hidden_units'],
                                                         output_shape=data_settings['num_classes'],
                                                         device=device)
@@ -795,7 +792,7 @@ class ModelBuilderGUI:
                                                                                        lr=model_settings['learning_rate'])
             
             # Setup a variable for the accuracy function
-            accuracy_fn = MulticlassAccuracy(num_classes=data_settings['num_classes'])
+            accuracy_fn = MulticlassAccuracy(num_classes=data_settings['num_classes']).to(device)
             
             # Use torch summary to examine the model architecture
             # exclude the batch_size in the input shape tuple
@@ -805,6 +802,8 @@ class ModelBuilderGUI:
             # Debugging
             ic(classes)
             ic(transforms)
+            
+            print(f'Device: {device}')
             
             # Your existing training code here
             train_results = train(model=model,
@@ -816,6 +815,9 @@ class ModelBuilderGUI:
                                   epochs=model_settings['epochs'],
                                   progress_bar_widget=training_progress_bar)
             
+            # TODO: Create metrics visualizations.
+            
+            # TODO: save the trained model, visualizations, and the model and data settings as a yaml or json file.
             # inform the user about where the model is gonna be saved
             print(f"\nThe model has been saved to path")
             
