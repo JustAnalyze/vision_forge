@@ -762,7 +762,7 @@ class ModelBuilderGUI:
             # if settings are valid continue to training
             if self._validate_settings_dict():
                 # Start the training process
-                self._load_data_start_training() 
+                self._train_and_save_model() 
                 # TODO: Create metrics visualizations.
                 
                 # TODO: save the trained model, visualizations, and the model and data settings as a yaml or json file.
@@ -770,7 +770,7 @@ class ModelBuilderGUI:
         self.train_button = customtkinter.CTkButton(master=self.root, text="Train", command=train_button_event)
         self.train_button.pack(pady=10)
     
-    def _load_data_start_training(self):
+    def _train_and_save_model(self):
         """
         Load the data and start the training process.
         """
@@ -783,40 +783,11 @@ class ModelBuilderGUI:
         model_settings = self._settings_dict['model_settings']
         data_settings = self._settings_dict['data_settings']
         
-        # Build model
-        model, transforms, input_shape = build_model(pretrained_model=model_settings['pretrained_model'],
-                                                     num_hidden_units=model_settings['num_hidden_units'],
-                                                     output_shape=data_settings['num_classes'],
-                                                     device=device)
-
-        # Use torch summary to examine the model architecture
-        # exclude the batch_size in the input shape tuple
-        # TODO: Add a way for the user to easily see the architecture of the model.
-        # ic(summary(model, input_shape[1:], 1))
-        
-        # Load and preprocess the training and testing datasets.
-        train_dataloader, test_dataloader, classes = data_setup(data_path=data_settings['data_path'],
-                                                                batch_size=data_settings['batch_size'],
-                                                                device='cpu',
-                                                                transform=transforms)  # use transforms used from training the pretrained model
-        
         # Create a dictionary of the available optimizers
         optimizers: dict[str, torch.optim.Optimizer] = {'SGD': torch.optim.SGD,
                                                         'Adam': torch.optim.Adam,
                                                         'AdamW': torch.optim.AdamW,
                                                         'RMSProp': torch.optim.RMSprop}
-        
-        # Setup a variable for the selected optimizer
-        optimizer: torch.optim.Optimizer = optimizers[model_settings['optimizer']](params=model.parameters(),
-                                                                                   lr=model_settings['learning_rate'])
-        
-        # Setup a variable for the accuracy function
-        
-        accuracy_fn = MulticlassAccuracy(num_classes=data_settings['num_classes'])
-        
-        # Debugging
-        ic(classes)
-        ic(transforms)
         
         # Output training performance metrics in a pop up window    
         # Create a pop up window that can take up the text and has a progress bar
@@ -861,8 +832,36 @@ class ModelBuilderGUI:
         # Show training progress
         training_progress_bar = show_training_progress()
         
-        # Function to perform training (SEPARATE THREAD) 
-        def train_model():
+        # Function to perform model building, load data, and train model (SEPARATE THREAD) 
+        def train_save_model():
+            # Build model
+            model, transforms, input_shape = build_model(pretrained_model=model_settings['pretrained_model'],
+                                                        num_hidden_units=model_settings['num_hidden_units'],
+                                                        output_shape=data_settings['num_classes'],
+                                                        device=device)
+            
+            # Load and preprocess the training and testing datasets.
+            train_dataloader, test_dataloader, classes = data_setup(data_path=data_settings['data_path'],
+                                                                    batch_size=data_settings['batch_size'],
+                                                                    device='cpu',
+                                                                    transform=transforms)  # use transforms used from training the pretrained model
+            
+            # Setup a variable for the selected optimizer
+            optimizer: torch.optim.Optimizer = optimizers[model_settings['optimizer']](params=model.parameters(),
+                                                                                       lr=model_settings['learning_rate'])
+            
+            # Setup a variable for the accuracy function
+            accuracy_fn = MulticlassAccuracy(num_classes=data_settings['num_classes'])
+            
+            # Use torch summary to examine the model architecture
+            # exclude the batch_size in the input shape tuple
+            # TODO: Add a way for the user to easily see the architecture of the model.
+            # ic(summary(model, input_shape[1:], 1))
+            
+            # Debugging
+            ic(classes)
+            ic(transforms)
+            
             # Your existing training code here
             train_results = train(model=model,
                                   train_dataloader=train_dataloader,
@@ -877,7 +876,7 @@ class ModelBuilderGUI:
             print(f"\nThe model has been saved to path")
             
         # Thread for training
-        train_thread = Thread(target=train_model)
+        train_thread = Thread(target=train_save_model)
         train_thread.start()
         
         
