@@ -349,7 +349,11 @@ def plot_loss_curves(results: dict[str, list[float]],
     plt.legend()
     
     # set save path
-    model_save_path = (save_path+'/loss_accuracy_plot.jpg')
+    if save_path is not None:
+        model_save_path = (save_path+'/loss_accuracy_plot.jpg')
+    else:
+        model_save_path = 'loss_accuracy_plot.jpg'
+        
     # Save the plot as a JPG file
     plt.savefig(model_save_path, format='jpg')
     plt.close()
