@@ -296,7 +296,8 @@ def train(model: torch.nn.Module,
 
 
 def plot_loss_curves(results: dict[str, list[float]],
-                     device):
+                     device,
+                     file_name: str = 'loss_accuracy_plot.jpg',):
     """Plots training curves of a results dictionary.
 
     Args:
@@ -345,7 +346,11 @@ def plot_loss_curves(results: dict[str, list[float]],
     plt.plot(epochs, test_accuracy, label='test_accuracy')
     plt.title('Accuracy')
     plt.xlabel('Epochs')
-    plt.legend();
+    plt.legend()
+    
+    # Save the plot as a JPG file
+    plt.savefig(file_name, format='jpg')
+    plt.close()
 
 
 class ModelBuilderGUI:
@@ -869,8 +874,9 @@ class ModelBuilderGUI:
                                   epochs=model_settings['epochs'],
                                   progress_bar_widget=training_progress_bar)
             
-            # TODO: Create metrics visualizations.
-            
+            # Plot loss curves and save the visualization in the current directory
+            plot_loss_curves(train_results,
+                             device=device,)
             
             # TODO: save the trained model, visualizations, and the model and data settings as a yaml or json file.
             # inform the user about where the model is gonna be saved
