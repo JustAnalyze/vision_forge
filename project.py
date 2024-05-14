@@ -69,59 +69,6 @@ def data_setup(data_path: str,
     return train_dataloader, test_dataloader, train_data.classes
 
 
-def get_convnet_input_output(model: torch.nn.Module,
-                             weights: torchvision.models.Weights) -> Tuple[torch.Size, int]:
-    """
-    Retrieves the input shape and output feature shape of a convolutional neural network (CNN).
-
-    Args:
-    - model (torch.nn.Module): Pretrained CNN model instance.
-    - weights (torchvision.models.Weights): Predefined weights for the model.
-
-    Returns:
-    - input_shape (tuple): The shape of the input tensor to the CNN.
-    - output_feature_shape (int): The dimensionality of the output features of the CNN.
-    """
-
-    def hook(module, input, output):
-        """
-        Hook function to store the output shape of a specific layer in the CNN.
-        """
-        global feature_shape
-        feature_shape = output.shape
-
-    # get the transforms from the pretrained model
-    transforms = weights.transforms
-
-    # Extract the crop_size from transforms using regex
-    string = str(transforms)
-    pattern = r"crop_size=(\d+)"
-    match = re.search(pattern, string)
-    if match:
-        crop_value = int(match.group(1))
-    else:
-        crop_value = None
-
-    # Set the model to evaluation mode
-    model.eval()
-
-    # Define input shape based on crop_size
-    input_shape = (1, 3, crop_value, crop_value) if crop_value is not None else None
-
-    # Register hook to get output shape
-    hook_handle = model.avgpool.register_forward_hook(hook)
-
-    # Forward pass the input through the model
-    with torch.no_grad():
-        features = model(torch.randn(input_shape))
-
-    # Remove the hook
-    hook_handle.remove()
-
-    # Return input shape and output feature shape
-    return input_shape, feature_shape[1]
-
-
 def build_model(pretrained_model: str,
                 num_hidden_units: int,
                 output_shape: int,
@@ -157,7 +104,7 @@ def build_model(pretrained_model: str,
     
     # Setup the model with pretrained weights and send it to the target device
     model = pretrained_models[pretrained_model]['model'](weights=weights).to(device)
-
+    
     # Uncomment the line below to output the model (it's very long)
     # print(model)
     
@@ -166,19 +113,16 @@ def build_model(pretrained_model: str,
     for param in model.features.parameters():
         param.requires_grad = False
     
-    # get the output vector of the CNN
-    input_shape, feature_vector = get_convnet_input_output(model=model, weights=weights)
-    
     # Recreate the classifier layer and seed it to the target device
     model.classifier = torch.nn.Sequential(torch.nn.Dropout(p=0.2, inplace=True),
-                                           torch.nn.Linear(in_features=feature_vector, 
+                                           torch.nn.Linear(in_features=model.fc.in_features, 
                                                            out_features=num_hidden_units,  # use the length of class_names (one output unit for each class)
                                                            bias=True),
                                            torch.nn.Linear(in_features=num_hidden_units,
                                                            out_features=output_shape,  
                                                            bias=True)).to(device)
     
-    return  model, transforms, input_shape
+    return  model, transforms
 
 
 # train step function
@@ -844,7 +788,7 @@ class ModelBuilderGUI:
             train_dataloader, test_dataloader, classes = data_setup(data_path=data_settings['data_path'],
                                                                     batch_size=data_settings['batch_size'],
                                                                     device='cpu',
-                                                                    transform=transforms)  # use transforms used from training the pretrained model
+                                                                    transform=transforms)  # use transforms used in training the pretrained model
             
             # Setup a variable for the selected optimizer
             optimizer: torch.optim.Optimizer = optimizers[model_settings['optimizer']](params=model.parameters(),
