@@ -444,10 +444,10 @@ class ModelBuilderGUI:
             self.predict_frame.pack(fill='both', expand=True)
             self.predict_button.pack(pady=10)
 
-        predict_button = customtkinter.CTkButton(self.sidebar_frame, text="Predict", command=switch_to_predict_frame)
-        predict_button.pack(padx=5, pady=5)
+        predict_button = customtkinter.CTkButton(self.sidebar_frame, text="Predict Using Model", command=switch_to_predict_frame)
+        predict_button.pack(padx=5, pady=10)
 
-        train_button = customtkinter.CTkButton(self.sidebar_frame, text="Train", command=switch_to_train_frame)
+        train_button = customtkinter.CTkButton(self.sidebar_frame, text="Train Model", command=switch_to_train_frame)
         train_button.pack(padx=5,pady=5)
 
     def _create_predict_frame(self):
@@ -496,7 +496,7 @@ class ModelBuilderGUI:
                                                            command=browse_input_data_path)
 
         # Grid management
-        predict_label.grid(row=0, column=0, columnspan=3)  # Move the widget 10 pixels down from the top
+        predict_label.grid(row=0, column=0, columnspan=3)
         model_path_entry.grid(row=1, column=0, columnspan=2, padx=15, pady=20)
         browse_model_button.grid(row=1, column=2, padx=5, pady=20)
         input_data_path_entry.grid(row=2, column=0, columnspan=2, padx=15, pady=20)
