@@ -1,3 +1,4 @@
+from PIL import Image
 from datetime import datetime
 import json
 import sys
@@ -403,6 +404,7 @@ class ModelBuilderGUI:
         # Set up the dictionary of model and data settings
         self._settings_dict: dict[str, dict[str, Union[str, int, float]]] = {'model_settings': {},
                                                                              'data_settings': {}}
+        
         # Create sidebar with options for training and predicting
         self._create_sidebar()
         
@@ -454,6 +456,9 @@ class ModelBuilderGUI:
         """
         Create predict frame with entry boxes for model path and input data path.
         """
+        self._predict_inputs: dict[str, Union[str, list]] = {'model_path': None,
+                                                             'input_data_path': None}
+        
         self.predict_frame = customtkinter.CTkFrame(self.root)
         
         predict_label = customtkinter.CTkLabel(self.predict_frame,
@@ -468,8 +473,16 @@ class ModelBuilderGUI:
 
         def browse_model_path():
             model_path = filedialog.askopenfilename()
+            
             if model_path:
-                model_path_var.set(model_path)
+                # Check if the selected file is a valid model
+                if model_path.endswith(".pth") or model_path.endswith(".pt"):
+                    model_path_var.set(model_path)
+                    self._predict_inputs['model_path'] = model_path_var.get()
+                    ic(self._predict_inputs)
+                else:
+                    # inform the user that the file is not a valid model
+                    CTkMessagebox(title="Error", message="Selected file is not a valid Model", icon="cancel")
 
         browse_model_button = customtkinter.CTkButton(self.predict_frame,
                                                       width=105,
@@ -484,18 +497,27 @@ class ModelBuilderGUI:
                                                        justify='center',
                                                        textvariable=input_data_path_var)
 
-        def browse_input_data_path():
+        def input_data_path():
             input_data_path = filedialog.askopenfilename()
             if input_data_path:
-                input_data_path_var.set(input_data_path)
+                # Check if the selected file is a valid image
+                try:
+                    with Image.open(input_data_path) as img:
+                        # If opening the image succeeds, set the input_data_path_var
+                        input_data_path_var.set(input_data_path)
+                        self._predict_inputs['input_data_path'] = input_data_path_var.get()
+                        ic(self._predict_inputs)
+                except:
+                    # If opening the image fails, inform the user that the file is not a valid image
+                    CTkMessagebox(title="Error", message="Selected file is not a valid image.", icon="cancel")
 
         browse_input_data_button = customtkinter.CTkButton(self.predict_frame,
                                                            width=105,
                                                            height=28,
                                                            text="Browse Image",
-                                                           command=browse_input_data_path)
+                                                           command=input_data_path)
 
-        # Grid management
+        # Widget Grid management
         predict_label.grid(row=0, column=0, columnspan=3)
         model_path_entry.grid(row=1, column=0, columnspan=2, padx=15, pady=20)
         browse_model_button.grid(row=1, column=2, padx=5, pady=20)
