@@ -1,5 +1,9 @@
+from PIL import Image
+from datetime import datetime
+import json
 import sys
 from threading import Thread
+from matplotlib import pyplot as plt
 import torch
 import torchvision
 import torch.nn as nn
@@ -69,59 +73,6 @@ def data_setup(data_path: str,
     return train_dataloader, test_dataloader, train_data.classes
 
 
-def get_convnet_input_output(model: torch.nn.Module,
-                             weights: torchvision.models.Weights) -> Tuple[torch.Size, int]:
-    """
-    Retrieves the input shape and output feature shape of a convolutional neural network (CNN).
-
-    Args:
-    - model (torch.nn.Module): Pretrained CNN model instance.
-    - weights (torchvision.models.Weights): Predefined weights for the model.
-
-    Returns:
-    - input_shape (tuple): The shape of the input tensor to the CNN.
-    - output_feature_shape (int): The dimensionality of the output features of the CNN.
-    """
-
-    def hook(module, input, output):
-        """
-        Hook function to store the output shape of a specific layer in the CNN.
-        """
-        global feature_shape
-        feature_shape = output.shape
-
-    # get the transforms from the pretrained model
-    transforms = weights.transforms
-
-    # Extract the crop_size from transforms using regex
-    string = str(transforms)
-    pattern = r"crop_size=(\d+)"
-    match = re.search(pattern, string)
-    if match:
-        crop_value = int(match.group(1))
-    else:
-        crop_value = None
-
-    # Set the model to evaluation mode
-    model.eval()
-
-    # Define input shape based on crop_size
-    input_shape = (1, 3, crop_value, crop_value) if crop_value is not None else None
-
-    # Register hook to get output shape
-    hook_handle = model.avgpool.register_forward_hook(hook)
-
-    # Forward pass the input through the model
-    with torch.no_grad():
-        features = model(torch.randn(input_shape))
-
-    # Remove the hook
-    hook_handle.remove()
-
-    # Return input shape and output feature shape
-    return input_shape, feature_shape[1]
-
-
 def build_model(pretrained_model: str,
                 num_hidden_units: int,
                 output_shape: int,
@@ -157,7 +108,7 @@ def build_model(pretrained_model: str,
     
     # Setup the model with pretrained weights and send it to the target device
     model = pretrained_models[pretrained_model]['model'](weights=weights).to(device)
-
+    
     # Uncomment the line below to output the model (it's very long)
     # print(model)
     
@@ -166,19 +117,16 @@ def build_model(pretrained_model: str,
     for param in model.features.parameters():
         param.requires_grad = False
     
-    # get the output vector of the CNN
-    input_shape, feature_vector = get_convnet_input_output(model=model, weights=weights)
-    
     # Recreate the classifier layer and seed it to the target device
     model.classifier = torch.nn.Sequential(torch.nn.Dropout(p=0.2, inplace=True),
-                                           torch.nn.Linear(in_features=feature_vector, 
+                                           torch.nn.Linear(in_features=model.classifier[1].in_features, 
                                                            out_features=num_hidden_units,  # use the length of class_names (one output unit for each class)
                                                            bias=True),
                                            torch.nn.Linear(in_features=num_hidden_units,
                                                            out_features=output_shape,  
                                                            bias=True)).to(device)
     
-    return  model, transforms, input_shape
+    return  model, transforms
 
 
 # train step function
@@ -350,6 +298,93 @@ def train(model: torch.nn.Module,
     return results
 
 
+def plot_loss_curves(results: dict[str, list[float]],
+                     device,
+                     save_path: str = None):
+    """Plots training curves of a results dictionary.
+
+    Args:
+        results (dict): dictionary containing list of values, e.g.
+            {"train_loss": [...],
+             "train_acc": [...],
+             "test_loss": [...],
+             "test_acc": [...]}
+    """
+    # if Tensors are in cuda transfer them to cpu
+    if device == 'cuda':
+      def to_cpu(x):
+        return torch.Tensor.cpu(x)
+
+      # Get the loss values of the results dictionary (training and test)
+      loss = list(map(to_cpu, results['train_loss']))
+      test_loss = list(map(to_cpu, results['test_loss']))
+
+      # Get the accuracy values of the results dictionary (training and test)
+      accuracy = list(map(to_cpu, results['train_acc']))
+      test_accuracy = list(map(to_cpu, results['test_acc']))
+
+    else:
+      loss = results['train_loss']
+      test_loss = results['test_loss']
+      accuracy = results['train_acc']
+      test_accuracy = results['test_acc']
+
+    # Figure out how many epochs there were
+    epochs = range(len(results['train_loss']))
+
+    # Setup a plot
+    plt.figure(figsize=(15, 7))
+
+    # Plot loss
+    plt.subplot(1, 2, 1)
+    plt.plot(epochs, loss, label='train_loss')
+    plt.plot(epochs, test_loss, label='test_loss')
+    plt.title('Loss')
+    plt.xlabel('Epochs')
+    plt.legend()
+
+    # Plot accuracy
+    plt.subplot(1, 2, 2)
+    plt.plot(epochs, accuracy, label='train_accuracy')
+    plt.plot(epochs, test_accuracy, label='test_accuracy')
+    plt.title('Accuracy')
+    plt.xlabel('Epochs')
+    plt.legend()
+    
+    # set save path
+    if save_path is not None:
+        model_save_path = (save_path / 'loss_accuracy_plot.jpg')
+    else:
+        model_save_path = 'loss_accuracy_plot.jpg'
+        
+    # Save the plot as a JPG file
+    plt.savefig(model_save_path, format='jpg')
+    plt.close()
+
+
+def save_outputs(model, train_results, settings_dict, device):
+    """
+    Save trained model, visualizations, and settings.
+    """
+    # Create a directory with current timestamp to store outputs
+    output_dir = Path(f"training_output_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Save trained model weights
+    model_path = output_dir / "model.pth"
+    torch.save(obj=model, f=model_path)
+    
+    # Save loss curves plot
+    plot_loss_curves(train_results, device=device, save_path=output_dir)
+    
+    # Save model and data settings as JSON file
+    settings_path = output_dir / "settings.json"
+    with open(settings_path, 'w') as f:
+        json.dump(settings_dict, f, indent=4)
+
+    print(f"\nAll outputs saved in: {output_dir}")
+
+
 class ModelBuilderGUI:
     """
     A class representing the GUI for training and predicting using an image classifier model.
@@ -364,14 +399,20 @@ class ModelBuilderGUI:
         
         self.root = customtkinter.CTk()
         self.root.title("Vision Forge")
-        self.root.geometry("550x370")
+        self.root.geometry("700x370")
         
         # Set up the dictionary of model and data settings
         self._settings_dict: dict[str, dict[str, Union[str, int, float]]] = {'model_settings': {},
                                                                              'data_settings': {}}
-        # TODO: Add side bar where train and predict button is located so users can choose to train a new model or use a existing model to do some inferences/predictions
+        
+        # Create sidebar with options for training and predicting
+        self._create_sidebar()
+        
+        # Create predict frame
+        self._create_predict_frame()
+        
         # Create tabs widgets for customizing the model and the data
-        self._create_tabs()
+        self._create_train_frame_tabs()
         
         # Create model tab widgets
         self._create_model_tab_widgets()
@@ -380,9 +421,110 @@ class ModelBuilderGUI:
         self._create_data_tab_widgets()
         
         # Create Train Button for starting training
+        self._create_predict_button()
+        
+        # Create Train Button for starting training
         self._create_train_button()
 
-    def _create_tabs(self) -> None:
+    def _create_sidebar(self):
+        """
+        Create sidebar with options for training and predicting.
+        """
+        self.sidebar_frame = customtkinter.CTkFrame(self.root, width=100)
+        self.sidebar_frame.pack(side='left', fill='y')
+
+        # Define functions to handle frame switching
+        def switch_to_train_frame():
+            self.predict_button.pack_forget()
+            self.predict_frame.pack_forget()
+            self.tabview.pack(fill=customtkinter.BOTH, expand=True)
+            self.train_button.pack(pady=10)
+
+        def switch_to_predict_frame():
+            self.train_button.pack_forget()
+            self.tabview.pack_forget()
+            self.predict_frame.pack(fill='both', expand=True)
+            self.predict_button.pack(pady=10)
+
+        predict_button = customtkinter.CTkButton(self.sidebar_frame, text="Predict Using Model", command=switch_to_predict_frame)
+        predict_button.pack(padx=5, pady=10)
+
+        train_button = customtkinter.CTkButton(self.sidebar_frame, text="Train Model", command=switch_to_train_frame)
+        train_button.pack(padx=5,pady=5)
+
+    def _create_predict_frame(self):
+        """
+        Create predict frame with entry boxes for model path and input data path.
+        """
+        self._predict_inputs: dict[str, Union[str, list]] = {'model_path': None,
+                                                             'input_data_path': None}
+        
+        self.predict_frame = customtkinter.CTkFrame(self.root)
+        
+        predict_label = customtkinter.CTkLabel(self.predict_frame,
+                                               text="Predict Using Trained Model")
+
+        # Entry box and browse button for trained model path
+        model_path_var = customtkinter.StringVar()
+        model_path_entry = customtkinter.CTkEntry(self.predict_frame,
+                                                  width=383, 
+                                                  justify='center',
+                                                  textvariable=model_path_var)
+
+        def browse_model_path():
+            model_path = filedialog.askopenfilename()
+            
+            if model_path:
+                # Check if the selected file is a valid model
+                if model_path.endswith(".pth") or model_path.endswith(".pt"):
+                    model_path_var.set(model_path)
+                    self._predict_inputs['model_path'] = model_path_var.get()
+                    ic(self._predict_inputs)
+                else:
+                    # inform the user that the file is not a valid model
+                    CTkMessagebox(title="Error", message="Selected file is not a valid Model", icon="cancel")
+
+        browse_model_button = customtkinter.CTkButton(self.predict_frame,
+                                                      width=105,
+                                                      height=28,
+                                                      text="Browse Model",
+                                                      command=browse_model_path)
+
+        # Entry box and browse button for input data path
+        input_data_path_var = customtkinter.StringVar()
+        input_data_path_entry = customtkinter.CTkEntry(self.predict_frame,
+                                                       width=383, 
+                                                       justify='center',
+                                                       textvariable=input_data_path_var)
+
+        def input_data_path():
+            input_data_path = filedialog.askopenfilename()
+            if input_data_path:
+                # Check if the selected file is a valid image
+                try:
+                    with Image.open(input_data_path) as img:
+                        # If opening the image succeeds, set the input_data_path_var
+                        input_data_path_var.set(input_data_path)
+                        self._predict_inputs['input_data_path'] = input_data_path_var.get()
+                        ic(self._predict_inputs)
+                except:
+                    # If opening the image fails, inform the user that the file is not a valid image
+                    CTkMessagebox(title="Error", message="Selected file is not a valid image.", icon="cancel")
+
+        browse_input_data_button = customtkinter.CTkButton(self.predict_frame,
+                                                           width=105,
+                                                           height=28,
+                                                           text="Browse Image",
+                                                           command=input_data_path)
+
+        # Widget Grid management
+        predict_label.grid(row=0, column=0, columnspan=3)
+        model_path_entry.grid(row=1, column=0, columnspan=2, padx=15, pady=20)
+        browse_model_button.grid(row=1, column=2, padx=5, pady=20)
+        input_data_path_entry.grid(row=2, column=0, columnspan=2, padx=15, pady=20)
+        browse_input_data_button.grid(row=2, column=2, padx=5, pady=20)
+
+    def _create_train_frame_tabs(self) -> None:
         """
         Create tabs for customizing the model and the data.
         """
@@ -752,6 +894,18 @@ class ModelBuilderGUI:
         # If all settings are valid return True
         return True
     
+ 
+    def _create_predict_button(self):
+        """
+        Create a button for starting the training.
+        """
+        # TODO: Create function for using a existing model for Prediction.
+        def predict_button_event():
+            print("Predict button Pressed")
+        
+        self.predict_button = customtkinter.CTkButton(master=self.root, text="Predict", command=predict_button_event)
+        
+    
     # Create method for creating Train button widget.
     def _create_train_button(self):
         """
@@ -762,15 +916,12 @@ class ModelBuilderGUI:
             # if settings are valid continue to training
             if self._validate_settings_dict():
                 # Start the training process
-                self._load_data_start_training() 
-                # TODO: Create metrics visualizations.
-                
-                # TODO: save the trained model, visualizations, and the model and data settings as a yaml or json file.
+                self._train_and_save_model() 
         
         self.train_button = customtkinter.CTkButton(master=self.root, text="Train", command=train_button_event)
         self.train_button.pack(pady=10)
     
-    def _load_data_start_training(self):
+    def _train_and_save_model(self):
         """
         Load the data and start the training process.
         """
@@ -783,40 +934,11 @@ class ModelBuilderGUI:
         model_settings = self._settings_dict['model_settings']
         data_settings = self._settings_dict['data_settings']
         
-        # Build model
-        model, transforms, input_shape = build_model(pretrained_model=model_settings['pretrained_model'],
-                                                     num_hidden_units=model_settings['num_hidden_units'],
-                                                     output_shape=data_settings['num_classes'],
-                                                     device=device)
-
-        # Use torch summary to examine the model architecture
-        # exclude the batch_size in the input shape tuple
-        # TODO: Add a way for the user to easily see the architecture of the model.
-        # ic(summary(model, input_shape[1:], 1))
-        
-        # Load and preprocess the training and testing datasets.
-        train_dataloader, test_dataloader, classes = data_setup(data_path=data_settings['data_path'],
-                                                                batch_size=data_settings['batch_size'],
-                                                                device='cpu',
-                                                                transform=transforms)  # use transforms used from training the pretrained model
-        
         # Create a dictionary of the available optimizers
         optimizers: dict[str, torch.optim.Optimizer] = {'SGD': torch.optim.SGD,
                                                         'Adam': torch.optim.Adam,
                                                         'AdamW': torch.optim.AdamW,
                                                         'RMSProp': torch.optim.RMSprop}
-        
-        # Setup a variable for the selected optimizer
-        optimizer: torch.optim.Optimizer = optimizers[model_settings['optimizer']](params=model.parameters(),
-                                                                                   lr=model_settings['learning_rate'])
-        
-        # Setup a variable for the accuracy function
-        
-        accuracy_fn = MulticlassAccuracy(num_classes=data_settings['num_classes'])
-        
-        # Debugging
-        ic(classes)
-        ic(transforms)
         
         # Output training performance metrics in a pop up window    
         # Create a pop up window that can take up the text and has a progress bar
@@ -861,9 +983,34 @@ class ModelBuilderGUI:
         # Show training progress
         training_progress_bar = show_training_progress()
         
-        # Function to perform training (SEPARATE THREAD) 
-        def train_model():
-            # train model
+        # Function to perform model building, load data, and train model (SEPARATE THREAD) 
+        def train_save_model():
+            # Build model
+            model, transforms = build_model(pretrained_model=model_settings['pretrained_model'],
+                                                        num_hidden_units=model_settings['num_hidden_units'],
+                                                        output_shape=data_settings['num_classes'],
+                                                        device=device)
+            
+            # Load and preprocess the training and testing datasets.
+            train_dataloader, test_dataloader, classes = data_setup(data_path=data_settings['data_path'],
+                                                                    batch_size=data_settings['batch_size'],
+                                                                    device='cpu',
+                                                                    transform=transforms)  # use transforms used in training the pretrained model
+            
+            # Setup a variable for the selected optimizer
+            optimizer: torch.optim.Optimizer = optimizers[model_settings['optimizer']](params=model.parameters(),
+                                                                                       lr=model_settings['learning_rate'])
+            
+            # Setup a variable for the accuracy function
+            accuracy_fn = MulticlassAccuracy(num_classes=data_settings['num_classes']).to(device)
+            
+            # Debugging
+            ic(classes)
+            ic(transforms)
+            
+            print(f'Device: {device}')
+            
+            # Your existing training code here
             train_results = train(model=model,
                                   train_dataloader=train_dataloader,
                                   test_dataloader=test_dataloader,
@@ -873,11 +1020,14 @@ class ModelBuilderGUI:
                                   epochs=model_settings['epochs'],
                                   progress_bar_widget=training_progress_bar)
             
-            # inform the user about where the model is gonna be saved
-            print(f"\nThe model has been saved to path")
+            # save the trained model, visualizations, and the model and data settings as a json file.
+            save_outputs(model=model,
+                         train_results=train_results,
+                         settings_dict=self._settings_dict,
+                         device=device)
             
         # Thread for training
-        train_thread = Thread(target=train_model)
+        train_thread = Thread(target=train_save_model)
         train_thread.start()
         
         
