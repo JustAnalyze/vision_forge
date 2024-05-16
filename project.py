@@ -905,15 +905,11 @@ class ModelBuilderGUI:
                                   epochs=model_settings['epochs'],
                                   progress_bar_widget=training_progress_bar)
             
-            # Plot loss curves and save the visualization in the current directory
-            plot_loss_curves(train_results,
-                             device=device,)
-            
-            # Save the model weights
-            
-            # TODO: save the trained model, visualizations, and the model and data settings as a yaml or json file.
-            # inform the user about where the model is gonna be saved
-            print(f"\nThe model has been saved to path")
+            # save the trained model, visualizations, and the model and data settings as a json file.
+            save_outputs(model=model,
+                         train_results=train_results,
+                         settings_dict=self._settings_dict,
+                         device=device)
             
         # Thread for training
         train_thread = Thread(target=train_save_model)
