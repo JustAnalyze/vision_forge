@@ -462,6 +462,8 @@ class ModelBuilderGUI:
         # Entry box and browse button for trained model path
         model_path_var = customtkinter.StringVar()
         model_path_entry = customtkinter.CTkEntry(self.predict_frame,
+                                                  width=383, 
+                                                  justify='center',
                                                   textvariable=model_path_var)
 
         def browse_model_path():
@@ -470,28 +472,35 @@ class ModelBuilderGUI:
                 model_path_var.set(model_path)
 
         browse_model_button = customtkinter.CTkButton(self.predict_frame,
+                                                      width=105,
+                                                      height=28,
                                                       text="Browse Model",
                                                       command=browse_model_path)
 
         # Entry box and browse button for input data path
         input_data_path_var = customtkinter.StringVar()
         input_data_path_entry = customtkinter.CTkEntry(self.predict_frame,
+                                                       width=383, 
+                                                       justify='center',
                                                        textvariable=input_data_path_var)
 
         def browse_input_data_path():
-            input_data_path = filedialog.askdirectory()
+            input_data_path = filedialog.askopenfilename()
             if input_data_path:
                 input_data_path_var.set(input_data_path)
 
         browse_input_data_button = customtkinter.CTkButton(self.predict_frame,
-                                                           text="Browse Input Data",
+                                                           width=105,
+                                                           height=28,
+                                                           text="Browse Input",
                                                            command=browse_input_data_path)
 
-        predict_label.pack(pady=10)
-        model_path_entry.pack(pady=5, padx=10, fill='x', expand=True)
-        browse_model_button.pack(pady=5)
-        input_data_path_entry.pack(pady=5, padx=10, fill='x', expand=True)
-        browse_input_data_button.pack(pady=5)
+        # Grid management
+        predict_label.grid(row=0, column=0, columnspan=3)  # Move the widget 10 pixels down from the top
+        model_path_entry.grid(row=1, column=0, columnspan=2, padx=15, pady=20)
+        browse_model_button.grid(row=1, column=2, padx=5, pady=20)
+        input_data_path_entry.grid(row=2, column=0, columnspan=2, padx=15, pady=20)
+        browse_input_data_button.grid(row=2, column=2, padx=5, pady=20)
 
     def _create_train_frame_tabs(self) -> None:
         """
@@ -863,14 +872,14 @@ class ModelBuilderGUI:
         # If all settings are valid return True
         return True
     
-    # TODO: Create method for creating Predict button widget.
+ 
     def _create_predict_button(self):
         """
         Create a button for starting the training.
         """
-        
+        # TODO: Create function for using a existing model for Prediction.
         def predict_button_event():
-            pass
+            print("Predict button Pressed")
         
         self.predict_button = customtkinter.CTkButton(master=self.root, text="Predict", command=predict_button_event)
         
