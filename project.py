@@ -1004,11 +1004,6 @@ class ModelBuilderGUI:
             # Setup a variable for the accuracy function
             accuracy_fn = MulticlassAccuracy(num_classes=data_settings['num_classes']).to(device)
             
-            # Use torch summary to examine the model architecture
-            # exclude the batch_size in the input shape tuple
-            # TODO: Add a way for the user to easily see the architecture of the model.
-            # ic(summary(model, input_shape[1:], 1))
-            
             # Debugging
             ic(classes)
             ic(transforms)
