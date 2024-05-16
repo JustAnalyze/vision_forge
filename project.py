@@ -1,3 +1,5 @@
+import datetime
+import json
 import sys
 from threading import Thread
 from matplotlib import pyplot as plt
@@ -350,7 +352,7 @@ def plot_loss_curves(results: dict[str, list[float]],
     
     # set save path
     if save_path is not None:
-        model_save_path = (save_path+'/loss_accuracy_plot.jpg')
+        model_save_path = (save_path + '/loss_accuracy_plot.jpg')
     else:
         model_save_path = 'loss_accuracy_plot.jpg'
         
@@ -359,33 +361,27 @@ def plot_loss_curves(results: dict[str, list[float]],
     plt.close()
 
 
-def save_model(model: torch.nn.Module, save_path: str, model_name: str):
+def save_outputs(model, train_results, settings_dict, device):
     """
-    Save the entire trained model to a specified directory.
-
-    Args:
-    model (torch.nn.Module): The trained model to save.
-    save_path (str): The directory path where the model will be saved.
-    model_name (str): The name of the model file to be saved.
-
-    Returns:
-    None
+    Save trained model, visualizations, and settings.
     """
-    # set save_path name
-    save_path = Path(save_path)
+    # Create a directory with current timestamp to store outputs
+    output_dir = Path(f"training_output_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Save trained model weights
+    model_path = output_dir / "model.pth"
+    torch.save(obj=model, f=model_path)
+    
+    # Save loss curves plot
+    plot_loss_curves(train_results, device=device, save_path=output_dir)
+    
+    # Save model and data settings as JSON file
+    settings_path = output_dir / "settings.json"
+    with open(settings_path, 'w') as f:
+        json.dump(settings_dict, f, indent=4)
 
-    # set save path
-    model_save_path = save_path / (model_name + '.pth')
-
-    # create directory if not yet created
-    if save_path.is_dir():
-        print(f'{save_path} Directory already exists')
-    else:
-        save_path.mkdir(parents=True, exist_ok=True)
-
-    # save the entire model
-    print(f"Saving model to: {model_save_path}")
-    torch.save(obj=model, f=model_save_path)
+    print(f"All outputs saved in: {output_dir}")
 
 
 class ModelBuilderGUI:
