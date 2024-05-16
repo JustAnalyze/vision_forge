@@ -1,10 +1,6 @@
-<<<<<<< HEAD
 from PIL import Image
 from datetime import datetime
 import json
-=======
-from queue import Queue
->>>>>>> c830568596be6a7717d27ccc2cbe7b2c3265f1a0
 import sys
 from threading import Thread
 from matplotlib import pyplot as plt
@@ -15,7 +11,6 @@ from torchvision.datasets import ImageFolder
 from torchvision.transforms import v2 as T
 from torch.utils.data import DataLoader
 from torchmetrics.classification import MulticlassAccuracy
-from torchsummary import summary
 from tqdm.auto import tqdm
 from typing import Tuple, List
 from pathlib import Path
