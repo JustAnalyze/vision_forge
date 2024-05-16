@@ -403,12 +403,10 @@ class ModelBuilderGUI:
         # Set up the dictionary of model and data settings
         self._settings_dict: dict[str, dict[str, Union[str, int, float]]] = {'model_settings': {},
                                                                              'data_settings': {}}
-        # TODO: Add side bar where train and predict button is located so users can choose to train a new model or use a existing model to do some inferences/predictions
         # Create sidebar with options for training and predicting
         self._create_sidebar()
         
         # Create predict frame
-        
         self._create_predict_frame()
         
         # Create tabs widgets for customizing the model and the data
@@ -419,6 +417,9 @@ class ModelBuilderGUI:
         
         # Create data tab widgets
         self._create_data_tab_widgets()
+        
+        # Create Train Button for starting training
+        self._create_predict_button()
         
         # Create Train Button for starting training
         self._create_train_button()
@@ -432,6 +433,7 @@ class ModelBuilderGUI:
 
         # Define functions to handle frame switching
         def switch_to_train_frame():
+            self.predict_button.pack_forget()
             self.predict_frame.pack_forget()
             self.tabview.pack(fill=customtkinter.BOTH, expand=True)
             self.train_button.pack(pady=10)
@@ -440,6 +442,7 @@ class ModelBuilderGUI:
             self.train_button.pack_forget()
             self.tabview.pack_forget()
             self.predict_frame.pack(fill='both', expand=True)
+            self.predict_button.pack(pady=10)
 
         predict_button = customtkinter.CTkButton(self.sidebar_frame, text="Predict", command=switch_to_predict_frame)
         predict_button.pack(padx=5, pady=5)
@@ -859,6 +862,18 @@ class ModelBuilderGUI:
         
         # If all settings are valid return True
         return True
+    
+    # TODO: Create method for creating Predict button widget.
+    def _create_predict_button(self):
+        """
+        Create a button for starting the training.
+        """
+        
+        def predict_button_event():
+            pass
+        
+        self.predict_button = customtkinter.CTkButton(master=self.root, text="Predict", command=predict_button_event)
+        
     
     # Create method for creating Train button widget.
     def _create_train_button(self):
