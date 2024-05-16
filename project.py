@@ -398,14 +398,21 @@ class ModelBuilderGUI:
         
         self.root = customtkinter.CTk()
         self.root.title("Vision Forge")
-        self.root.geometry("550x370")
+        self.root.geometry("700x370")
         
         # Set up the dictionary of model and data settings
         self._settings_dict: dict[str, dict[str, Union[str, int, float]]] = {'model_settings': {},
                                                                              'data_settings': {}}
         # TODO: Add side bar where train and predict button is located so users can choose to train a new model or use a existing model to do some inferences/predictions
+        # Create sidebar with options for training and predicting
+        self._create_sidebar()
+        
+        # Create predict frame
+        
+        self._create_predict_frame()
+        
         # Create tabs widgets for customizing the model and the data
-        self._create_tabs()
+        self._create_train_frame_tabs()
         
         # Create model tab widgets
         self._create_model_tab_widgets()
@@ -416,7 +423,64 @@ class ModelBuilderGUI:
         # Create Train Button for starting training
         self._create_train_button()
 
-    def _create_tabs(self) -> None:
+    def _create_sidebar(self):
+        """
+        Create sidebar with options for training and predicting.
+        """
+        self.sidebar_frame = customtkinter.CTkFrame(self.root, width=100)
+        self.sidebar_frame.pack(side='left', fill='y')
+
+        # Define functions to handle frame switching
+        def switch_to_train_frame():
+            self.predict_frame.pack_forget()
+            self.tabview.pack(fill=customtkinter.BOTH, expand=True)
+
+        def switch_to_predict_frame():
+            self.tabview.pack_forget()
+            self.predict_frame.pack(fill='both', expand=True)
+
+        predict_button = customtkinter.CTkButton(self.sidebar_frame, text="Predict", command=switch_to_predict_frame)
+        predict_button.pack(padx=5, pady=5)
+
+        train_button = customtkinter.CTkButton(self.sidebar_frame, text="Train", command=switch_to_train_frame)
+        train_button.pack(padx=5,pady=5)
+
+    def _create_predict_frame(self):
+        """
+        Create predict frame with entry boxes for model path and input data path.
+        """
+        self.predict_frame = customtkinter.CTkFrame(self.main_frame)
+        
+        predict_label = customtkinter.CTkLabel(self.predict_frame, text="Predict Using Trained Model")
+        predict_label.pack(pady=10)
+
+        # Entry box and browse button for trained model path
+        model_path_var = customtkinter.StringVar()
+        model_path_entry = customtkinter.CTkEntry(self.predict_frame, textvariable=model_path_var)
+        model_path_entry.pack(pady=5, padx=10, fill='x', expand=True)
+
+        def browse_model_path():
+            model_path = filedialog.askopenfilename()
+            if model_path:
+                model_path_var.set(model_path)
+
+        browse_model_button = customtkinter.CTkButton(self.predict_frame, text="Browse Model", command=browse_model_path)
+        browse_model_button.pack(pady=5)
+
+        # Entry box and browse button for input data path
+        input_data_path_var = customtkinter.StringVar()
+        input_data_path_entry = customtkinter.CTkEntry(self.predict_frame, textvariable=input_data_path_var)
+        input_data_path_entry.pack(pady=5, padx=10, fill='x', expand=True)
+
+        def browse_input_data_path():
+            input_data_path = filedialog.askdirectory()
+            if input_data_path:
+                input_data_path_var.set(input_data_path)
+
+        browse_input_data_button = customtkinter.CTkButton(self.predict_frame, text="Browse Input Data", command=browse_input_data_path)
+        browse_input_data_button.pack(pady=5)
+
+    def _create_train_frame_tabs(self) -> None:
         """
         Create tabs for customizing the model and the data.
         """
