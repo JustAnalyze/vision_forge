@@ -381,7 +381,7 @@ def save_outputs(model, train_results, settings_dict, device):
     with open(settings_path, 'w') as f:
         json.dump(settings_dict, f, indent=4)
 
-    print(f"All outputs saved in: {output_dir}")
+    print(f"\nAll outputs saved in: {output_dir}")
 
 
 class ModelBuilderGUI:
@@ -492,7 +492,7 @@ class ModelBuilderGUI:
         browse_input_data_button = customtkinter.CTkButton(self.predict_frame,
                                                            width=105,
                                                            height=28,
-                                                           text="Browse Input",
+                                                           text="Browse Image",
                                                            command=browse_input_data_path)
 
         # Grid management
