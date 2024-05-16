@@ -434,8 +434,10 @@ class ModelBuilderGUI:
         def switch_to_train_frame():
             self.predict_frame.pack_forget()
             self.tabview.pack(fill=customtkinter.BOTH, expand=True)
+            self.train_button.pack(pady=10)
 
         def switch_to_predict_frame():
+            self.train_button.pack_forget()
             self.tabview.pack_forget()
             self.predict_frame.pack(fill='both', expand=True)
 
@@ -449,35 +451,43 @@ class ModelBuilderGUI:
         """
         Create predict frame with entry boxes for model path and input data path.
         """
-        self.predict_frame = customtkinter.CTkFrame(self.main_frame)
+        self.predict_frame = customtkinter.CTkFrame(self.root)
         
-        predict_label = customtkinter.CTkLabel(self.predict_frame, text="Predict Using Trained Model")
-        predict_label.pack(pady=10)
+        predict_label = customtkinter.CTkLabel(self.predict_frame,
+                                               text="Predict Using Trained Model")
 
         # Entry box and browse button for trained model path
         model_path_var = customtkinter.StringVar()
-        model_path_entry = customtkinter.CTkEntry(self.predict_frame, textvariable=model_path_var)
-        model_path_entry.pack(pady=5, padx=10, fill='x', expand=True)
+        model_path_entry = customtkinter.CTkEntry(self.predict_frame,
+                                                  textvariable=model_path_var)
 
         def browse_model_path():
             model_path = filedialog.askopenfilename()
             if model_path:
                 model_path_var.set(model_path)
 
-        browse_model_button = customtkinter.CTkButton(self.predict_frame, text="Browse Model", command=browse_model_path)
-        browse_model_button.pack(pady=5)
+        browse_model_button = customtkinter.CTkButton(self.predict_frame,
+                                                      text="Browse Model",
+                                                      command=browse_model_path)
 
         # Entry box and browse button for input data path
         input_data_path_var = customtkinter.StringVar()
-        input_data_path_entry = customtkinter.CTkEntry(self.predict_frame, textvariable=input_data_path_var)
-        input_data_path_entry.pack(pady=5, padx=10, fill='x', expand=True)
+        input_data_path_entry = customtkinter.CTkEntry(self.predict_frame,
+                                                       textvariable=input_data_path_var)
 
         def browse_input_data_path():
             input_data_path = filedialog.askdirectory()
             if input_data_path:
                 input_data_path_var.set(input_data_path)
 
-        browse_input_data_button = customtkinter.CTkButton(self.predict_frame, text="Browse Input Data", command=browse_input_data_path)
+        browse_input_data_button = customtkinter.CTkButton(self.predict_frame,
+                                                           text="Browse Input Data",
+                                                           command=browse_input_data_path)
+
+        predict_label.pack(pady=10)
+        model_path_entry.pack(pady=5, padx=10, fill='x', expand=True)
+        browse_model_button.pack(pady=5)
+        input_data_path_entry.pack(pady=5, padx=10, fill='x', expand=True)
         browse_input_data_button.pack(pady=5)
 
     def _create_train_frame_tabs(self) -> None:
