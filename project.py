@@ -1012,7 +1012,7 @@ class ModelBuilderGUI:
                                                             image_path=self._predict_inputs['input_data_path'],
                                                             device=device)
                 ic(pred_label, probability)
-            # TODO: the prediction should also show the image we we are feeding the model
+            # TODO: the prediction button should also show the predicted label and the image we are feeding the model
 
         self.predict_button = customtkinter.CTkButton(master=self.root, text="Predict", command=predict_button_event)
         
