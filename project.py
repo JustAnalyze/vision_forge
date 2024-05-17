@@ -464,7 +464,7 @@ def save_outputs(model, train_results, settings_dict, device):
         runs_folder_dir.mkdir(parents=True, exist_ok=True)
     
     # Create a directory with current timestamp to store outputs
-    output_dir = Path(f"runs/train_{settings_dict['model_settings']["pretrained_model"]}_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}")
+    output_dir = Path(f"runs/train_{settings_dict['model_settings']['pretrained_model']}_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}")
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Save trained model weights
