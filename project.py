@@ -92,7 +92,6 @@ def build_model(pretrained_model: str,
     """
     
     # Dictionary mapping model names to their corresponding torchvision models and weights
-    # Add different sizes for the pretrained models for example: efficientnet_b0, efficientnet_b1 etc.
     pretrained_models: dict[str, dict] = {
         'mobilenet_v2': {
             'model': torchvision.models.mobilenet_v2,
@@ -398,9 +397,9 @@ def save_outputs(model, train_results, settings_dict, device):
     Save trained model, visualizations, and settings.
     """
     # Create a directory with current timestamp to store outputs
-    output_dir = Path(f"training_output_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}")
+    output_dir = Path(f"{model.__class__.__name__}_training_output_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}")
     output_dir.mkdir(parents=True, exist_ok=True)
-    
+    print(output_dir)
     # Save trained model weights
     model_path = output_dir / "model.pth"
     torch.save(obj=model, f=model_path)
@@ -604,7 +603,7 @@ class ModelBuilderGUI:
         # Add Combobox for choosing a pretrained model for transfer learning
         pretrained_model_label = customtkinter.CTkLabel(master=model_tab, text="Pretrained Model")
         pretrained_model_list = ["mobilenet_v2", "efficientnet_b0", "efficientnet_b1", "efficientnet_b2", "efficientnet_b3",
-                                 "efficientnet_b4", "efficientnet_b5", "efficientnet_b6", "efficientnet_b7",] # TODO: add more pre-trained model choices "EfficientNetV2",,"MobileNet V2","MobileNet V3","ResNet","Inception V3"
+                                 "efficientnet_b4", "efficientnet_b5", "efficientnet_b6", "efficientnet_b7",] # TODO: add more pre-trained model choices "EfficientNetV2","MobileNet V3","ResNet","Inception V3"
         pretrained_model_var = customtkinter.StringVar()
         pretrained_model = customtkinter.CTkComboBox(master=model_tab, 
                                                      values=pretrained_model_list, 
