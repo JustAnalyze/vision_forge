@@ -1,10 +1,11 @@
+from pathlib import Path
 import torch
 import torchvision
 from PIL import Image
 import json
 
 
-def predict_with_model(image_path, model_path, settings_path, pretrained_models):
+def predict_with_model(image_path, model_path):
     # Dictionary of pretrained models
     pretrained_models: dict[str, dict] = {
         'mobilenet_v2': {
@@ -44,9 +45,15 @@ def predict_with_model(image_path, model_path, settings_path, pretrained_models)
             'weights': torchvision.models.EfficientNet_B7_Weights.DEFAULT
         },
     }
-        
+    
+    # convert model_path from str to Path
+    model_path = Path(model_path)
+    
     # Load the trained model
     model = torch.load(model_path)
+    
+    # Get settings path from model_path
+    settings_path = model_path.parent / 'settings.json'
     
     # Load settings from the JSON file
     with open(settings_path, 'r') as f:
@@ -63,12 +70,21 @@ def predict_with_model(image_path, model_path, settings_path, pretrained_models)
     input_image = transformation_fn(Image.open(image_path))
     
     # Perform inference
-    with torch.no_grad():
-        model.eval()
-        output = model(input_image.unsqueeze(0))
+    with torch.inference_mode():
+        pred_logits = model(input_image.unsqueeze(0))
+
+    # get the probabilities of the prediction.
+    pred_probs = torch.softmax(pred_logits, dim=1)
+
+    # get the predicted label
+    pred_label = torch.argmax(pred_probs, dim=1)
     
-    return output
+    print(f'Predicted Label: {int(pred_label)} | Predicted Probability: {pred_probs.max() * 100}')
+    
+    return pred_label
 
 # Sample use
-image_path = 
-output = predict_with_model()
+image_path = r'dataset\pizza_steak_sushi\test\pizza\194643.jpg'
+model_path = r'MobileNetV2_training_output_2024-05-17_17-33-45\model.pth'
+output = predict_with_model(image_path, model_path)
+print(output)
