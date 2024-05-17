@@ -456,8 +456,16 @@ def save_outputs(model, train_results, settings_dict, device):
     """
     Save trained model, visualizations, and settings.
     """
+    
+    # create a folder for storing all training results
+    runs_folder_dir = Path('runs')
+    
+    # if the folder does not exist, create it
+    if not runs_folder_dir.is_dir():
+        runs_folder_dir.mkdir(parents=True, exist_ok=True)
+    
     # Create a directory with current timestamp to store outputs
-    output_dir = Path(f"train_{model.__class__.__name__}_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}")
+    output_dir = Path(f"runs/train_{model.__class__.__name__}_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}")
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Save trained model weights
@@ -472,7 +480,10 @@ def save_outputs(model, train_results, settings_dict, device):
     with open(settings_path, 'w') as f:
         json.dump(settings_dict, f, indent=4)
 
-    print(f"\nAll outputs saved in: runs/{output_dir}")
+    # Get the absolute path and Convert the absolute path back to a string
+    absolute_path = str(output_dir.resolve())
+    
+    print(f"\nAll outputs saved in: {absolute_path}")
 
 
 class ModelBuilderGUI:
