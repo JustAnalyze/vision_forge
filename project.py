@@ -411,7 +411,7 @@ def save_outputs(model, train_results, settings_dict, device):
     Save trained model, visualizations, and settings.
     """
     # Create a directory with current timestamp to store outputs
-    output_dir = Path(f"{model.__class__.__name__}_training_output_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}")
+    output_dir = Path(f"train_{model.__class__.__name__}_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}")
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Save trained model weights
@@ -426,7 +426,7 @@ def save_outputs(model, train_results, settings_dict, device):
     with open(settings_path, 'w') as f:
         json.dump(settings_dict, f, indent=4)
 
-    print(f"\nAll outputs saved in: {output_dir}")
+    print(f"\nAll outputs saved in: runs/{output_dir}")
 
 
 class ModelBuilderGUI:
