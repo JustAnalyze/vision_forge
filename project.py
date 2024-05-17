@@ -197,6 +197,7 @@ def build_model(pretrained_model: str,
         param.requires_grad = False
     
     # Recreate the classifier layer and seed it to the target device
+    # TODO: make a widget for editing the dropout probability.
     model.classifier = torch.nn.Sequential(torch.nn.Dropout(p=0.3, inplace=True),
                                            torch.nn.Linear(in_features=model.classifier[1].in_features, 
                                                            out_features=num_hidden_units,  # use the length of class_names (one output unit for each class)
@@ -1102,6 +1103,7 @@ class ModelBuilderGUI:
                                                         output_shape=data_settings['num_classes'],
                                                         device=device)
             
+            # TODO: Show data informations for user to see add print statements in the data_setup function.
             # Load and preprocess the training and testing datasets.
             train_dataloader, test_dataloader, classes = data_setup(data_path=data_settings['data_path'],
                                                                     batch_size=data_settings['batch_size'],
