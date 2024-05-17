@@ -1,3 +1,4 @@
+import time
 from PIL import Image
 from datetime import datetime
 import json
@@ -283,7 +284,7 @@ def train(model: torch.nn.Module,
     """
 
     # Inform the user that the Training is starting
-    print(f"Starting training for {epochs} epochs...")
+    print(f"Starting training for {epochs} epochs...\n")
     
     # Create results dictionary
     results = {"train_loss": [],
@@ -293,6 +294,10 @@ def train(model: torch.nn.Module,
 
     # Loop through the training and testing steps for a number of epochs
     for epoch in tqdm(range(epochs)):
+        
+        # Record start time of epoch
+        start_time = time.time()
+        
         # Train step
         train_loss, train_acc = train_step(model=model,
                                         dataloader=train_dataloader,
@@ -306,10 +311,16 @@ def train(model: torch.nn.Module,
                                         accuracy_fn=accuracy_fn,
                                         loss_fn=loss_fn,
                                         device=device)
-
-        # Print out training results
-        print(f"Epoch: {epoch+1} | train_loss: {train_loss:.4f} | train_acc: {train_acc:.4f} | test_loss: {test_loss:.4f} | test_acc: {test_acc:.4f}")
-
+        
+        # Calculate epoch duration
+        epoch_duration = time.time() - start_time
+        
+        # Print out training results with epoch duration and learning rate
+        print(f"Epoch [{epoch+1}/{epochs}]: \n"
+              f"Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.4f} | "
+              f"Test Loss: {test_loss:.4f} | Test Acc: {test_acc:.4f} | \n"
+              f"Time: {epoch_duration:.2f}s\n"
+              f"===================================================================")
         # TODO: Add a label in the progress bar representing the percentage (50% or 5/10)
         if progress_bar_widget:
             progress_bar_percentage: float = (epoch + 1) / epochs
@@ -399,7 +410,7 @@ def save_outputs(model, train_results, settings_dict, device):
     # Create a directory with current timestamp to store outputs
     output_dir = Path(f"{model.__class__.__name__}_training_output_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}")
     output_dir.mkdir(parents=True, exist_ok=True)
-    print(output_dir)
+
     # Save trained model weights
     model_path = output_dir / "model.pth"
     torch.save(obj=model, f=model_path)
