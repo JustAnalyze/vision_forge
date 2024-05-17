@@ -23,6 +23,49 @@ from icecream import ic
 import re
 
 
+# TODO: add more pre-trained model choices "EfficientNetV2","MobileNet V3","ResNet","Inception V3"
+# Global dictionary for pretrained models
+pretrained_models: dict[str, dict] = {
+    'mobilenet_v2': {
+        'model': torchvision.models.mobilenet_v2,
+        'weights': torchvision.models.MobileNet_V2_Weights.DEFAULT
+    },
+    'efficientnet_b0': {
+        'model': torchvision.models.efficientnet_b0,
+        'weights': torchvision.models.EfficientNet_B0_Weights.DEFAULT
+    },
+    'efficientnet_b1': {
+        'model': torchvision.models.efficientnet_b1,
+        'weights': torchvision.models.EfficientNet_B1_Weights.DEFAULT
+    },
+    'efficientnet_b2': {
+        'model': torchvision.models.efficientnet_b2,
+        'weights': torchvision.models.EfficientNet_B2_Weights.DEFAULT
+    },
+    'efficientnet_b3': {
+        'model': torchvision.models.efficientnet_b3,
+        'weights': torchvision.models.EfficientNet_B3_Weights.DEFAULT
+    },
+    'efficientnet_b4': {
+        'model': torchvision.models.efficientnet_b4,
+        'weights': torchvision.models.EfficientNet_B4_Weights.DEFAULT
+    },
+    'efficientnet_b5': {
+        'model': torchvision.models.efficientnet_b5,
+        'weights': torchvision.models.EfficientNet_B5_Weights.DEFAULT
+    },
+    'efficientnet_b6': {
+        'model': torchvision.models.efficientnet_b6,
+        'weights': torchvision.models.EfficientNet_B6_Weights.DEFAULT
+    },
+    'efficientnet_b7': {
+        'model': torchvision.models.efficientnet_b7,
+        'weights': torchvision.models.EfficientNet_B7_Weights.DEFAULT
+    },
+}
+
+
+
 def main():
     """
     Main function to instantiate and run the GUI.
@@ -91,46 +134,6 @@ def build_model(pretrained_model: str,
         transforms: A callable transformation function that preprocesses input data.
         input_shape: Shape of the input in the convolution neural network.
     """
-    
-    # Dictionary mapping model names to their corresponding torchvision models and weights
-    pretrained_models: dict[str, dict] = {
-        'mobilenet_v2': {
-            'model': torchvision.models.mobilenet_v2,
-            'weights': torchvision.models.MobileNet_V2_Weights.DEFAULT
-        },
-        'efficientnet_b0': {
-            'model': torchvision.models.efficientnet_b0,
-            'weights': torchvision.models.EfficientNet_B0_Weights.DEFAULT
-        },
-        'efficientnet_b1': {
-            'model': torchvision.models.efficientnet_b1,
-            'weights': torchvision.models.EfficientNet_B1_Weights.DEFAULT
-        },
-        'efficientnet_b2': {
-            'model': torchvision.models.efficientnet_b2,
-            'weights': torchvision.models.EfficientNet_B2_Weights.DEFAULT
-        },
-        'efficientnet_b3': {
-            'model': torchvision.models.efficientnet_b3,
-            'weights': torchvision.models.EfficientNet_B3_Weights.DEFAULT
-        },
-        'efficientnet_b4': {
-            'model': torchvision.models.efficientnet_b4,
-            'weights': torchvision.models.EfficientNet_B4_Weights.DEFAULT
-        },
-        'efficientnet_b5': {
-            'model': torchvision.models.efficientnet_b5,
-            'weights': torchvision.models.EfficientNet_B5_Weights.DEFAULT
-        },
-        'efficientnet_b6': {
-            'model': torchvision.models.efficientnet_b6,
-            'weights': torchvision.models.EfficientNet_B6_Weights.DEFAULT
-        },
-        'efficientnet_b7': {
-            'model': torchvision.models.efficientnet_b7,
-            'weights': torchvision.models.EfficientNet_B7_Weights.DEFAULT
-        },
-    }
     
     # Get the weights and transformation function for the specified pretrained model
     weights = pretrained_models[pretrained_model]['weights']
@@ -613,8 +616,7 @@ class ModelBuilderGUI:
         
         # Add Combobox for choosing a pretrained model for transfer learning
         pretrained_model_label = customtkinter.CTkLabel(master=model_tab, text="Pretrained Model")
-        pretrained_model_list = ["mobilenet_v2", "efficientnet_b0", "efficientnet_b1", "efficientnet_b2", "efficientnet_b3",
-                                 "efficientnet_b4", "efficientnet_b5", "efficientnet_b6", "efficientnet_b7",] # TODO: add more pre-trained model choices "EfficientNetV2","MobileNet V3","ResNet","Inception V3"
+        pretrained_model_list = pretrained_models.keys()
         pretrained_model_var = customtkinter.StringVar()
         pretrained_model = customtkinter.CTkComboBox(master=model_tab, 
                                                      values=pretrained_model_list, 
@@ -887,8 +889,7 @@ class ModelBuilderGUI:
         """
         # These are the valid values in the settings dictionary for the mean time.
         valid_values_dict = {'task_type':['Multiclass Classification'],
-                             'pretrained_model':["mobilenet_v2", "efficientnet_b0", "efficientnet_b1", "efficientnet_b2", "efficientnet_b3",
-                                                 "efficientnet_b4", "efficientnet_b5", "efficientnet_b6", "efficientnet_b7",],
+                             'pretrained_model':pretrained_models.keys(),
                              'optimizer':['SGD', 'Adam', 'AdamW', 'RMSProp'],}
         
         model_setttings = self._settings_dict['model_settings']
