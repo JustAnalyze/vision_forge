@@ -20,7 +20,6 @@ from CTkMessagebox import CTkMessagebox
 from typing import Union
 import customtkinter
 from icecream import ic
-import re
 
 
 # TODO: add more pre-trained model choices "EfficientNetV2","MobileNet V3","ResNet","Inception V3"
