@@ -197,7 +197,7 @@ def build_model(pretrained_model: str,
         param.requires_grad = False
     
     # Recreate the classifier layer and seed it to the target device
-    model.classifier = torch.nn.Sequential(torch.nn.Dropout(p=0.2, inplace=True),
+    model.classifier = torch.nn.Sequential(torch.nn.Dropout(p=0.3, inplace=True),
                                            torch.nn.Linear(in_features=model.classifier[1].in_features, 
                                                            out_features=num_hidden_units,  # use the length of class_names (one output unit for each class)
                                                            bias=True),
