@@ -74,6 +74,52 @@ def main():
     gui.run()
 
 
+def predict_with_model(image_path: str, model_path: str, device: torch.device):
+    """
+    Loads a pre-trained model and settings, performs inference on an input image, and returns the predicted class label and probability.
+
+    Args:
+        image_path (str): Path to the input image file.
+        model_path (str): Path to the saved model file.
+        device (torch.device): The device to perform inference on (e.g., 'cuda' or 'cpu').
+
+    Returns:
+        tuple: A tuple containing:
+            - str: The predicted class label.
+            - float: The probability of the predicted class (as a percentage).
+    """
+    
+    model_path = Path(model_path)
+    
+    # Load the trained model
+    model = torch.load(model_path)
+    
+    # Load settings from JSON file
+    settings_path = model_path.parent / 'settings.json'
+    with open(settings_path, 'r') as f:
+        settings = json.load(f)
+    
+    # Extract settings
+    pretrained_model_name = settings['model_settings']['pretrained_model']
+    classes = settings['data_settings']['classes']
+    weights = pretrained_models[pretrained_model_name]['weights']
+    transformation_fn = weights.transforms()
+    
+    # Load and transform the input image
+    input_image = transformation_fn(Image.open(image_path)).unsqueeze(0).to(device)
+    
+    # Perform inference
+    with torch.inference_mode():
+        pred_logits = model(input_image)
+        pred_probs = torch.softmax(pred_logits, dim=1)
+        pred_label = torch.argmax(pred_probs, dim=1).item()
+    
+    predicted_class = classes[pred_label]
+    probability = pred_probs[0, pred_label].item() * 100
+    
+    return predicted_class, probability
+
+
 def data_setup(data_path: str,
                batch_size: int,
                device: torch.device,
@@ -943,10 +989,21 @@ class ModelBuilderGUI:
         """
         Create a button for starting the training.
         """
-        # TODO: Create function for using a existing model for Prediction.
-        def predict_button_event():
-            print("Predict button Pressed")
         
+        def predict_button_event():
+            # get defualt device
+            device = 'cuda' if torch.cuda.is_available() else 'cpu'
+            torch.set_default_device(device)
+            
+            # if there are user inputs proceed to prediction
+            if self._predict_inputs['model_path'] is not None and self._predict_inputs['input_data_path'] is not None:
+                # use trained model for prediction.
+                pred_label, probability = predict_with_model(model_path=self._predict_inputs['model_path'],
+                                                            image_path=self._predict_inputs['input_data_path'],
+                                                            device=device)
+                ic(pred_label, probability)
+            # TODO: the prediction should also show the image we we are feeding the model
+
         self.predict_button = customtkinter.CTkButton(master=self.root, text="Predict", command=predict_button_event)
         
     
