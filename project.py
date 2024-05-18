@@ -7,7 +7,6 @@ from threading import Thread
 import matplotlib.pyplot as plt
 import torch
 import torchvision
-import torch.nn as nn
 from torchvision.datasets import ImageFolder
 from torchvision.transforms import v2 as T
 from torch.utils.data import DataLoader
@@ -22,7 +21,7 @@ import customtkinter
 from icecream import ic
 
 
-# TODO: add more pre-trained model choices "MobileNet V3","ResNet","Inception V3"
+# TODO: add more pre-trained model choices "ResNet","Inception V3"
 # Global dictionary for pretrained models
 pretrained_models: dict[str, dict] = {
     'mobilenet_v3_large': {
@@ -232,7 +231,7 @@ def build_model(pretrained_model: str,
     elif pretrained_model.startswith('mobilenet_v3'):
         in_features = model.classifier[0].in_features
         middle_layers = [torch.nn.Linear(in_features=in_features, out_features=num_hidden_units),
-                         nn.Hardswish(),
+                         torch.nn.Hardswish(),
                          torch.nn.Dropout(p=0.25, inplace=True)]
 
     
@@ -351,7 +350,7 @@ def train(model: torch.nn.Module,
           optimizer: torch.optim.Optimizer,
           accuracy_fn,
           device,
-          loss_fn: torch.nn.Module = nn.CrossEntropyLoss(),  # default loss function for multiclass classification
+          loss_fn: torch.nn.Module = torch.nn.CrossEntropyLoss(),  # default loss function for multiclass classification
           epochs: int = 5):
 
     """
