@@ -387,6 +387,7 @@ def train(model: torch.nn.Module,
 
     # Initialize variable to keep track of the best test accuracy
     best_test_acc = 0.0
+    best_model_state = None
 
     # Loop through the training and testing steps for a number of epochs
     for epoch in tqdm(range(epochs)):
@@ -427,13 +428,23 @@ def train(model: torch.nn.Module,
         # Check if the current test accuracy is the best we've seen so far
         if test_acc > best_test_acc:
             best_test_acc = test_acc
-            best_model_acc = model
-            
+            best_model_state = model.state_dict()
+        
+        # Get the final model state
+        final_model_state = model.state_dict()
+        
     # Inform user that the training is done.
     print("Training is done.")
     
+    # Create copies of the model for final and best accuracy states
+    final_model = type(model)()  # Instantiate a new model of the same class
+    best_acc_model = type(model)()   # Instantiate another new model of the same class
+
+    final_model.load_state_dict(final_model_state)
+    best_acc_model.load_state_dict(best_model_state)
+
     # Return the results dictionary
-    return results, best_model_acc
+    return results, final_model, best_acc_model
 
 
 def plot_loss_curves(results: dict[str, list[float]], device, save_path: str = None):
@@ -532,8 +543,8 @@ def save_outputs(models, train_results, settings_dict, device):
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Save trained models
-    model_path = output_dir / "model.pth"
-    torch.save(obj=models[0], f=model_path)
+    final_model_path = output_dir / "final_model.pth"
+    torch.save(obj=models[0], f=final_model_path)
     # Save trained model weights
     best_model_acc_path = output_dir / "best_model_acc.pth"
     torch.save(obj=models[1], f=best_model_acc_path)
@@ -1214,16 +1225,16 @@ class ModelBuilderGUI:
             print(f'Device: {device}')
             
             # Your existing training code here
-            train_results, best_model_acc = train(model=model,
-                                                  train_dataloader=train_dataloader,
-                                                  test_dataloader=test_dataloader,
-                                                  optimizer=optimizer,
-                                                  accuracy_fn=accuracy_fn,
-                                                  device=device,
-                                                  epochs=model_settings['epochs'])
+            train_results, final_model, best_model_acc = train(model=model,
+                                                               train_dataloader=train_dataloader,
+                                                               test_dataloader=test_dataloader,
+                                                               optimizer=optimizer,
+                                                               accuracy_fn=accuracy_fn,
+                                                               device=device,
+                                                               epochs=model_settings['epochs'])
             
             # save the trained model, visualizations, and the model and data settings as a json file.
-            save_outputs(models=(model, best_model_acc),
+            save_outputs(models=(final_model, best_model_acc),
                          train_results=train_results,
                          settings_dict=self._settings_dict,
                          device=device)
