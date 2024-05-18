@@ -1022,7 +1022,8 @@ class ModelBuilderGUI:
                 # show the image and the prediction of the model.
                 self._show_prediction_and_image(image_path=self._predict_inputs['input_data_path'],
                                                 predicted_class=pred_label,
-                                                probability=probability)
+                                                probability=probability,
+                                                inference_duration=inference_duration)
                 
         self.predict_button = customtkinter.CTkButton(master=self.root, text="Predict", command=predict_button_event)
         
