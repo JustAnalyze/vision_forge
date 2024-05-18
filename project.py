@@ -1,3 +1,4 @@
+from copy import deepcopy
 import time
 from PIL import Image
 from datetime import datetime
@@ -249,7 +250,7 @@ def build_model(pretrained_model: str,
     print(f'Model Classifier Layers:\n{model.classifier}\n')
     
     # Uncomment the line below to output the model (it's very long)
-    print(model)
+    # print(model)
     
     return  model, transforms
 
@@ -374,6 +375,8 @@ def train(model: torch.nn.Module,
                 - "train_acc": List of training accuracies for each epoch.
                 - "test_loss": List of testing losses for each epoch.
                 - "test_acc": List of testing accuracies for each epoch.
+        torch.nn.Module: The final model.
+        torch.nn.Module: The model with the best test accuracy.
     """
 
     # Inform the user that the Training is starting
@@ -428,23 +431,14 @@ def train(model: torch.nn.Module,
         # Check if the current test accuracy is the best we've seen so far
         if test_acc > best_test_acc:
             best_test_acc = test_acc
-            best_model_state = model.state_dict()
-        
-        # Get the final model state
-        final_model_state = model.state_dict()
+            best_acc_model = deepcopy(model)
         
     # Inform user that the training is done.
     print("Training is done.")
     
-    # Create copies of the model for final and best accuracy states
-    final_model = type(model)()  # Instantiate a new model of the same class
-    best_acc_model = type(model)()   # Instantiate another new model of the same class
 
-    final_model.load_state_dict(final_model_state)
-    best_acc_model.load_state_dict(best_model_state)
-
-    # Return the results dictionary
-    return results, final_model, best_acc_model
+    # Return the results dictionary, the final model, and the best model
+    return results, deepcopy(model), best_acc_model
 
 
 def plot_loss_curves(results: dict[str, list[float]], device, save_path: str = None):
