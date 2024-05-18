@@ -390,8 +390,10 @@ def train(model: torch.nn.Module,
 
     # Initialize variable to keep track of the best test accuracy
     best_test_acc = 0.0
-    best_model_state = None
 
+    # Initialize variable to keep track of total training time
+    total_training_time = 0.0
+    
     # Loop through the training and testing steps for a number of epochs
     for epoch in tqdm(range(epochs)):
         
@@ -415,6 +417,9 @@ def train(model: torch.nn.Module,
         # Calculate epoch duration
         epoch_duration = time.time() - start_time
         
+        # Get the total training time
+        total_training_time += epoch_duration
+        
         # Print out training results with epoch duration and learning rate
         print(f"Epoch [{epoch+1}/{epochs}]: \n"
               f"Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.4f} | "
@@ -434,6 +439,7 @@ def train(model: torch.nn.Module,
             best_acc_model = deepcopy(model)
         
     # Inform user that the training is done.
+    print(f"Total training time: {total_training_time} secs")
     print("Training is done.")
     
 
