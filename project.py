@@ -1013,20 +1013,20 @@ class ModelBuilderGUI:
             # if there are user inputs proceed to prediction
             if self._predict_inputs['model_path'] is not None and self._predict_inputs['input_data_path'] is not None:
                 # use trained model for prediction.
-                pred_label, probability = predict_with_model(model_path=self._predict_inputs['model_path'],
-                                                            image_path=self._predict_inputs['input_data_path'],
-                                                            device=device)
+                pred_label, probability, inference_duration = predict_with_model(model_path=self._predict_inputs['model_path'],
+                                                                             image_path=self._predict_inputs['input_data_path'],
+                                                                             device=device)
                 #debugging
-                ic(pred_label, probability)
+                ic(pred_label, probability, inference_duration)
                 
                 # show the image and the prediction of the model.
                 self._show_prediction_and_image(image_path=self._predict_inputs['input_data_path'],
-                                          predicted_class=pred_label,
-                                          probability=probability)
+                                                predicted_class=pred_label,
+                                                probability=probability)
                 
         self.predict_button = customtkinter.CTkButton(master=self.root, text="Predict", command=predict_button_event)
         
-    def _show_prediction_and_image(image_path, predicted_class, probability):
+    def _show_prediction_and_image(image_path, predicted_class, probability, inference_duration):
         # Create a new Toplevel window
         popup = customtkinter.CTkToplevel()
         popup.title("Prediction Result")
@@ -1043,7 +1043,7 @@ class ModelBuilderGUI:
         image_label._image = my_image  # Keep a reference to avoid garbage collection
 
         # Create a label to display the predicted result
-        result_label = customtkinter.CTkLabel(popup, text=f'Predicted: {predicted_class} | Probability: {probability:.2f}%')
+        result_label = customtkinter.CTkLabel(popup, text=f'Predicted: {predicted_class} | Probability: {probability:.2f}% | Inference Duration: {inference_duration}')
         result_label.pack()
     
     # Create method for creating Train button widget.
