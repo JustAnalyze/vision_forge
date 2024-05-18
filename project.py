@@ -1027,7 +1027,7 @@ class ModelBuilderGUI:
                 
         self.predict_button = customtkinter.CTkButton(master=self.root, text="Predict", command=predict_button_event)
         
-    def _show_prediction_and_image(image_path, predicted_class, probability, inference_duration):
+    def _show_prediction_and_image(self, image_path, predicted_class, probability, inference_duration):
         # Create a new Toplevel window
         popup = customtkinter.CTkToplevel()
         popup.title("Prediction Result")
@@ -1044,7 +1044,7 @@ class ModelBuilderGUI:
         image_label._image = my_image  # Keep a reference to avoid garbage collection
 
         # Create a label to display the predicted result
-        result_label = customtkinter.CTkLabel(popup, text=f'Predicted: {predicted_class} | Probability: {probability:.2f}% | Inference Duration: {inference_duration}')
+        result_label = customtkinter.CTkLabel(popup, text=f'Predicted: {predicted_class} | Probability: {probability:.2f}% | Inference Duration: {inference_duration:.4f}')
         result_label.pack()
     
     # Create method for creating Train button widget.
@@ -1062,7 +1062,7 @@ class ModelBuilderGUI:
         self.train_button = customtkinter.CTkButton(master=self.root, text="Train", command=train_button_event)
         self.train_button.pack(pady=10)
     
-    def _show_training_progress(event=None):
+    def _show_training_progress(self):
         """Display a popup window showing training progress."""
         
         popup_window = customtkinter.CTkToplevel()
