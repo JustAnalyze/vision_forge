@@ -1057,7 +1057,7 @@ class ModelBuilderGUI:
         def show_training_progress():
             """Display a popup window showing training progress."""
             
-            popup_window = customtkinter.CTkToplevel(self.root)
+            popup_window = customtkinter.CTkToplevel()
             popup_window.title("Training Performance")
 
             # widget for storing the performance of the training
