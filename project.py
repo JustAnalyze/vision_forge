@@ -213,7 +213,7 @@ def build_model(pretrained_model: str,
     
     # Setup the model with pretrained weights and send it to the target device
     model = pretrained_models[pretrained_model]['model'](weights=weights).to(device)
-    print(f'Pre-trained Model:\n{pretrained_models[pretrained_model]}\n')
+    print(f'Pre-trained Model:\n{pretrained_model}\n')
     
     # Uncomment the line below to output the model (it's very long)
     # print(model)
