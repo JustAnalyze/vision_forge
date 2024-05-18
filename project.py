@@ -77,7 +77,7 @@ def main():
 
 def predict_with_model(image_path: str, model_path: str, device: torch.device):
     """
-    Loads a pre-trained model and settings, performs inference on an input image, and returns the predicted class label and probability.
+    Perform inference on an input image using a pre-trained model.
 
     Args:
         image_path (str): Path to the input image file.
@@ -85,11 +85,12 @@ def predict_with_model(image_path: str, model_path: str, device: torch.device):
         device (torch.device): The device to perform inference on (e.g., 'cuda' or 'cpu').
 
     Returns:
-        tuple: A tuple containing:
-            - str: The predicted class label.
-            - float: The probability of the predicted class (as a percentage).
+        tuple:
+            predicted_class (str): The predicted class label.
+            probability (float): The confidence score for the predicted class (as a percentage).
+            inference_duration (float): The time taken to perform inference (in seconds).
     """
-    
+    # set model path
     model_path = Path(model_path)
     
     # Load the trained model
@@ -106,6 +107,9 @@ def predict_with_model(image_path: str, model_path: str, device: torch.device):
     weights = pretrained_models[pretrained_model_name]['weights']
     transformation_fn = weights.transforms()
     
+    # Record start time of inference
+    start_time = time.time()
+    
     # Load and transform the input image
     input_image = transformation_fn(Image.open(image_path)).unsqueeze(0).to(device)
     
@@ -115,10 +119,13 @@ def predict_with_model(image_path: str, model_path: str, device: torch.device):
         pred_probs = torch.softmax(pred_logits, dim=1)
         pred_label = torch.argmax(pred_probs, dim=1).item()
     
+    # Calculate inference duration
+    inference_duration = time.time() - start_time
+    
     predicted_class = classes[pred_label]
     probability = pred_probs[0, pred_label].item() * 100
     
-    return predicted_class, probability
+    return predicted_class, probability, inference_duration
 
 
 def data_setup(data_path: str,
@@ -1054,7 +1061,7 @@ class ModelBuilderGUI:
         self.train_button = customtkinter.CTkButton(master=self.root, text="Train", command=train_button_event)
         self.train_button.pack(pady=10)
     
-    def _show_training_progress():
+    def _show_training_progress(event=None):
         """Display a popup window showing training progress."""
         
         popup_window = customtkinter.CTkToplevel()
@@ -1144,8 +1151,7 @@ class ModelBuilderGUI:
                                   optimizer=optimizer,
                                   accuracy_fn=accuracy_fn,
                                   device=device,
-                                  epochs=model_settings['epochs'],
-                                  progress_bar_widget=training_progress_bar)
+                                  epochs=model_settings['epochs'])
             
             # save the trained model, visualizations, and the model and data settings as a json file.
             save_outputs(model=model,
