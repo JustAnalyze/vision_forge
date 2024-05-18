@@ -1,12 +1,10 @@
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
 import time
 from PIL import Image
 from datetime import datetime
 import json
 import sys
 from threading import Thread
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
 import torch
 import torchvision
 import torch.nn as nn
@@ -24,12 +22,32 @@ import customtkinter
 from icecream import ic
 
 
-# TODO: add more pre-trained model choices "EfficientNetV2","MobileNet V3","ResNet","Inception V3"
+# TODO: add more pre-trained model choices "MobileNet V3","ResNet","Inception V3"
 # Global dictionary for pretrained models
 pretrained_models: dict[str, dict] = {
+    'mobilenet_v3_large': {
+        'model': torchvision.models.mobilenet_v3_large,
+        'weights': torchvision.models.MobileNet_V3_Large_Weights.DEFAULT
+    },
+    'mobilenet_v3_small': {
+        'model': torchvision.models.mobilenet_v3_small,
+        'weights': torchvision.models.MobileNet_V3_Small_Weights.DEFAULT
+    },
     'mobilenet_v2': {
         'model': torchvision.models.mobilenet_v2,
         'weights': torchvision.models.MobileNet_V2_Weights.DEFAULT
+    },
+    'efficientnet_v2_s': {
+        'model': torchvision.models.efficientnet_v2_s,
+        'weights': torchvision.models.EfficientNet_V2_S_Weights.DEFAULT
+    },
+    'efficientnet_v2_m': {
+        'model': torchvision.models.efficientnet_v2_m,
+        'weights': torchvision.models.EfficientNet_V2_M_Weights.DEFAULT
+    },
+    'efficientnet_v2_l': {
+        'model': torchvision.models.efficientnet_v2_l,
+        'weights': torchvision.models.EfficientNet_V2_L_Weights.DEFAULT
     },
     'efficientnet_b0': {
         'model': torchvision.models.efficientnet_b0,
@@ -205,15 +223,33 @@ def build_model(pretrained_model: str,
     for param in model.features.parameters():
         param.requires_grad = False
     
-    # Recreate the classifier layer and seed it to the target device
+    # handle different ways of accessing classifier in_features and layers
+    if pretrained_model.startswith(('efficientnet_v2', 'mobilenet_v2', 'efficientnet_b')):
+        in_features = model.classifier[1].in_features
+        middle_layers = [torch.nn.Dropout(p=0.25, inplace=True),
+                         torch.nn.Linear(in_features=in_features, out_features=num_hidden_units)]
+        
+    elif pretrained_model.startswith('mobilenet_v3'):
+        in_features = model.classifier[0].in_features
+        middle_layers = [torch.nn.Linear(in_features=in_features, out_features=num_hidden_units),
+                         nn.Hardswish(),
+                         torch.nn.Dropout(p=0.25, inplace=True)]
+
+    
+    # TODO: Changed this based on user input (add more hidden layer, dropout, etc)
+    extra_layers = []
+    
+    # output layer will stay the same.
+    output_layer = torch.nn.Linear(in_features=num_hidden_units, out_features=output_shape)
+    
+    # Recreate the classifier layer and send it to the target device
     # TODO: make a widget for editing the dropout probability.
-    model.classifier = torch.nn.Sequential(torch.nn.Dropout(p=0.3, inplace=True),
-                                           torch.nn.Linear(in_features=model.classifier[1].in_features, 
-                                                           out_features=num_hidden_units,  # use the length of class_names (one output unit for each class)
-                                                           bias=True),
-                                           torch.nn.Linear(in_features=num_hidden_units,
-                                                           out_features=output_shape,  
-                                                           bias=True)).to(device)
+    model.classifier = torch.nn.Sequential(#input_layer {flatten}
+                                           *middle_layers,
+                                           *extra_layers,
+                                            output_layer).to(device)
+    
+    print(f'Model Classifier Layers:\n{model.classifier}\n')
     
     return  model, transforms
 
