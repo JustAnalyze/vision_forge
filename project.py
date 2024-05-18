@@ -213,6 +213,7 @@ def build_model(pretrained_model: str,
     
     # Setup the model with pretrained weights and send it to the target device
     model = pretrained_models[pretrained_model]['model'](weights=weights).to(device)
+    print(f'Pre-trained Model:\n{pretrained_models[pretrained_model]}\n')
     
     # Uncomment the line below to output the model (it's very long)
     # print(model)
@@ -427,10 +428,8 @@ def train(model: torch.nn.Module,
     return results
 
 
-def plot_loss_curves(results: dict[str, list[float]],
-                     device,
-                     save_path: str = None):
-    """Plots training curves of a results dictionary.
+def plot_loss_curves(results: dict[str, list[float]], device, save_path: str = None):
+    """Plots training curves of a results dictionary and highlights the highest and final accuracy.
 
     Args:
         results (dict): dictionary containing list of values, e.g.
@@ -438,28 +437,35 @@ def plot_loss_curves(results: dict[str, list[float]],
              "train_acc": [...],
              "test_loss": [...],
              "test_acc": [...]}
+        device: The device where tensors are located.
+        save_path (str, optional): Path to save the plot. Defaults to None.
     """
     # if Tensors are in cuda transfer them to cpu
     if device == 'cuda':
-      def to_cpu(x):
-        return torch.Tensor.cpu(x)
+        def to_cpu(x):
+            return torch.Tensor.cpu(x)
 
-      # Get the loss values of the results dictionary (training and test)
-      loss = list(map(to_cpu, results['train_loss']))
-      test_loss = list(map(to_cpu, results['test_loss']))
+        # Get the loss values of the results dictionary (training and test)
+        loss = list(map(to_cpu, results['train_loss']))
+        test_loss = list(map(to_cpu, results['test_loss']))
 
-      # Get the accuracy values of the results dictionary (training and test)
-      accuracy = list(map(to_cpu, results['train_acc']))
-      test_accuracy = list(map(to_cpu, results['test_acc']))
-
+        # Get the accuracy values of the results dictionary (training and test)
+        accuracy = list(map(to_cpu, results['train_acc']))
+        test_accuracy = list(map(to_cpu, results['test_acc']))
     else:
-      loss = results['train_loss']
-      test_loss = results['test_loss']
-      accuracy = results['train_acc']
-      test_accuracy = results['test_acc']
+        loss = results['train_loss']
+        test_loss = results['test_loss']
+        accuracy = results['train_acc']
+        test_accuracy = results['test_acc']
 
     # Figure out how many epochs there were
     epochs = range(len(results['train_loss']))
+
+    # Find the highest and final accuracies
+    max_train_acc = max(accuracy)
+    max_test_acc = max(test_accuracy)
+    final_train_acc = accuracy[-1]
+    final_test_acc = test_accuracy[-1]
 
     # Setup a plot
     plt.figure(figsize=(15, 7))
@@ -479,13 +485,23 @@ def plot_loss_curves(results: dict[str, list[float]],
     plt.title('Accuracy')
     plt.xlabel('Epochs')
     plt.legend()
-    
-    # set save path
+
+    # Highlight the highest and final training accuracy
+    plt.scatter(epochs[accuracy.index(max_train_acc)], max_train_acc, s=50, c='red', label=f'Max Train Acc: {max_train_acc:.2f}')
+    plt.scatter(epochs[-1], final_train_acc, s=50, c='blue', label=f'Final Train Acc: {final_train_acc:.2f}')
+
+    # Highlight the highest and final test accuracy
+    plt.scatter(epochs[test_accuracy.index(max_test_acc)], max_test_acc, s=50, c='orange', label=f'Max Test Acc: {max_test_acc:.2f}')
+    plt.scatter(epochs[-1], final_test_acc, s=50, c='green', label=f'Final Test Acc: {final_test_acc:.2f}')
+
+    plt.legend(loc='upper center')
+
+    # Set save path
     if save_path is not None:
-        model_save_path = (save_path / 'loss_accuracy_plot.jpg')
+        model_save_path = save_path / 'loss_accuracy_plot.jpg'
     else:
         model_save_path = 'loss_accuracy_plot.jpg'
-        
+
     # Save the plot as a JPG file
     plt.savefig(model_save_path, format='jpg')
     plt.close()
