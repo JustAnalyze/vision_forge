@@ -1103,12 +1103,19 @@ class ModelBuilderGUI:
                                                         output_shape=data_settings['num_classes'],
                                                         device=device)
             
-            # TODO: Show data informations for user to see add print statements in the data_setup function.
             # Load and preprocess the training and testing datasets.
+            print('Loading Data...')
             train_dataloader, test_dataloader, classes = data_setup(data_path=data_settings['data_path'],
                                                                     batch_size=data_settings['batch_size'],
                                                                     device='cpu',
                                                                     transform=transforms)  # use transforms used in training the pretrained model
+
+            # print data info
+            print(f'classes: {classes}')
+            print(f'number of classes: {len(classes)}')
+            ic(transforms)
+            print(f'Number of training samples: {len(train_dataloader.dataset)}')
+            print(f'Number of test samples: {len(test_dataloader.dataset)}\n')
             
             # Setup a variable for the selected optimizer
             optimizer: torch.optim.Optimizer = optimizers[model_settings['optimizer']](params=model.parameters(),
@@ -1119,10 +1126,6 @@ class ModelBuilderGUI:
             
             # add list of the name of classes in our dictionary
             self._settings_dict['data_settings']['classes'] = classes
-            
-            # Debugging
-            ic(classes)
-            ic(transforms)
             
             print(f'Device: {device}')
             
