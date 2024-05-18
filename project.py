@@ -309,8 +309,7 @@ def train(model: torch.nn.Module,
           accuracy_fn,
           device,
           loss_fn: torch.nn.Module = nn.CrossEntropyLoss(),  # default loss function for multiclass classification
-          epochs: int = 5,
-          progress_bar_widget: customtkinter.CTkProgressBar = None):
+          epochs: int = 5):
 
     """
     Trains the given model using the provided data loaders.
@@ -372,10 +371,6 @@ def train(model: torch.nn.Module,
               f"Test Loss: {test_loss:.4f} | Test Acc: {test_acc:.4f} | \n"
               f"Time: {epoch_duration:.2f}s\n"
               f"===================================================================")
-        
-        if progress_bar_widget:
-            progress_bar_percentage: float = (epoch + 1) / epochs
-            progress_bar_widget.set(progress_bar_percentage)
 
         # Update the results dictionary
         results["train_loss"].append(train_loss.detach() if device == 'cpu' else torch.Tensor.cpu(train_loss.detach()))
@@ -1017,7 +1012,7 @@ class ModelBuilderGUI:
                 #debugging
                 ic(pred_label, probability)
                 
-            # TODO: the prediction button should also show the predicted label and the image we are feeding the model
+                # show the image and the prediction of the model.
                 self._show_prediction_and_image(image_path=self._predict_inputs['input_data_path'],
                                           predicted_class=pred_label,
                                           probability=probability)
@@ -1059,6 +1054,33 @@ class ModelBuilderGUI:
         self.train_button = customtkinter.CTkButton(master=self.root, text="Train", command=train_button_event)
         self.train_button.pack(pady=10)
     
+    def _show_training_progress():
+        """Display a popup window showing training progress."""
+        
+        popup_window = customtkinter.CTkToplevel()
+        popup_window.title("Training Performance")
+
+        # widget for storing the performance of the training
+        output_text = customtkinter.CTkTextbox(popup_window,
+                                                wrap='word',
+                                                height=370, width=550)
+        
+        output_text.pack(expand=True, fill='both')
+        
+        # Create a class for redirecting the output to the Text widget.
+        class StdoutRedirector(object):
+            def __init__(self, text_widget):
+                self.text_space = text_widget
+
+            def write(self, message):
+                self.text_space.insert(customtkinter.END, message)
+                
+            def flush(self):
+                pass
+        
+        # Redirect stdout to the Text widget
+        sys.stdout = StdoutRedirector(output_text)
+    
     def _train_and_save_model(self):
         """
         Load the data and start the training process.
@@ -1078,48 +1100,8 @@ class ModelBuilderGUI:
                                                         'AdamW': torch.optim.AdamW,
                                                         'RMSProp': torch.optim.RMSprop}
         
-        # Output training performance metrics in a pop up window    
-        # Create a pop up window that can take up the text and has a progress bar
-        def show_training_progress():
-            """Display a popup window showing training progress."""
-            
-            popup_window = customtkinter.CTkToplevel()
-            popup_window.title("Training Performance")
-
-            # widget for storing the performance of the training
-            output_text = customtkinter.CTkTextbox(popup_window,
-                                                    wrap='word',
-                                                    height=370, width=550)
-            
-            output_text.pack(expand=True, fill='both')
-            
-            # Create a progress bar to visualize the progress of training3
-            training_progress_bar = customtkinter.CTkProgressBar(popup_window,
-                                                                    width=520, 
-                                                                    height=20, 
-                                                                    determinate_speed=model_settings['epochs'])
-            training_progress_bar.set(0)
-            training_progress_bar.pack(side="bottom", anchor="s", padx=20, pady=10)
-            
-            # Create a class for redirecting the output to the Text widget.
-            class StdoutRedirector(object):
-                def __init__(self, text_widget):
-                    self.text_space = text_widget
-
-                def write(self, message):
-                    self.text_space.insert(customtkinter.END, message)
-                    
-                def flush(self):
-                    pass
-            
-            # Redirect stdout to the Text widget
-            sys.stdout = StdoutRedirector(output_text)
-
-            # return the trainig_progress_bar to be configured inside the train function
-            return training_progress_bar
-        
-        # Show training progress
-        training_progress_bar = show_training_progress()
+        # Output training performance metrics in a pop up window
+        self._show_training_progress()
         
         # Function to perform model building, load data, and train model (SEPARATE THREAD) 
         def train_save_model():
