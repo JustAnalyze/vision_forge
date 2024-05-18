@@ -1069,6 +1069,9 @@ class ModelBuilderGUI:
         popup.title("Prediction Result")
         popup.geometry('400x370')
 
+        # Make the window appear on top
+        popup.attributes("-topmost", True)
+        
         # Load the image using PIL
         img = Image.open(image_path)
         img = img.resize((300, 300))  # Resize for better display
@@ -1103,7 +1106,10 @@ class ModelBuilderGUI:
         
         popup_window = customtkinter.CTkToplevel()
         popup_window.title("Training Performance")
-
+        
+        # Make the window appear on top
+        popup_window.attributes("-topmost", True)
+        
         # widget for storing the performance of the training
         output_text = customtkinter.CTkTextbox(popup_window,
                                                 wrap='word',
