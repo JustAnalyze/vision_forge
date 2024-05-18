@@ -420,11 +420,16 @@ def train(model: torch.nn.Module,
         # Get the total training time
         total_training_time += epoch_duration
         
+        # average time per epoch
+        avg_epoch_time = total_training_time / (epoch + 1)
+        
+        
         # Print out training results with epoch duration and learning rate
         print(f"Epoch [{epoch+1}/{epochs}]: \n"
               f"Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.4f} | "
               f"Test Loss: {test_loss:.4f} | Test Acc: {test_acc:.4f} | \n"
-              f"Time: {epoch_duration:.2f}s\n"
+              f"Epoch Time: {epoch_duration:.2f}s | Avg Time/Epoch: {float(avg_epoch_time):.2f}s\n"
+              f"Estimated Remaing Time: {float(avg_epoch_time* (epochs - (epoch + 1))):.2f}s\n"
               f"===================================================================")
 
         # Update the results dictionary
@@ -439,7 +444,7 @@ def train(model: torch.nn.Module,
             best_acc_model = deepcopy(model)
         
     # Inform user that the training is done.
-    print(f"Total training time: {total_training_time} secs")
+    print(f"Total training time: {float(total_training_time):.2f}s")
     print("Training is done.")
     
 
