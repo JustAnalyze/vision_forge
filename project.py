@@ -215,9 +215,6 @@ def build_model(pretrained_model: str,
     model = pretrained_models[pretrained_model]['model'](weights=weights).to(device)
     print(f'Pre-trained Model:\n{pretrained_model}\n')
     
-    # Uncomment the line below to output the model (it's very long)
-    # print(model)
-    
     # Freeze all base layers in the "features" section of the model (the feature extractor)
     # by setting requires_grad=False
     for param in model.features.parameters():
@@ -250,6 +247,9 @@ def build_model(pretrained_model: str,
                                             output_layer).to(device)
     
     print(f'Model Classifier Layers:\n{model.classifier}\n')
+    
+    # Uncomment the line below to output the model (it's very long)
+    print(model)
     
     return  model, transforms
 
@@ -385,6 +385,9 @@ def train(model: torch.nn.Module,
                 "test_loss": [],
                 "test_acc": []}
 
+    # Initialize variable to keep track of the best test accuracy
+    best_test_acc = 0.0
+
     # Loop through the training and testing steps for a number of epochs
     for epoch in tqdm(range(epochs)):
         
@@ -421,11 +424,16 @@ def train(model: torch.nn.Module,
         results["test_loss"].append(test_loss if device == 'cpu' else torch.Tensor.cpu(test_loss))
         results["test_acc"].append(test_acc if device == 'cpu' else torch.Tensor.cpu(test_acc))
 
+        # Check if the current test accuracy is the best we've seen so far
+        if test_acc > best_test_acc:
+            best_test_acc = test_acc
+            best_model_acc = model
+            
     # Inform user that the training is done.
     print("Training is done.")
     
     # Return the results dictionary
-    return results
+    return results, best_model_acc
 
 
 def plot_loss_curves(results: dict[str, list[float]], device, save_path: str = None):
@@ -494,7 +502,7 @@ def plot_loss_curves(results: dict[str, list[float]], device, save_path: str = N
     plt.scatter(epochs[test_accuracy.index(max_test_acc)], max_test_acc, s=50, c='orange', label=f'Max Test Acc: {max_test_acc:.2f}')
     plt.scatter(epochs[-1], final_test_acc, s=50, c='green', label=f'Final Test Acc: {final_test_acc:.2f}')
 
-    plt.legend(loc='upper center')
+    plt.legend(loc='best')
 
     # Set save path
     if save_path is not None:
@@ -507,7 +515,7 @@ def plot_loss_curves(results: dict[str, list[float]], device, save_path: str = N
     plt.close()
 
 
-def save_outputs(model, train_results, settings_dict, device):
+def save_outputs(models, train_results, settings_dict, device):
     """
     Save trained model, visualizations, and settings.
     """
@@ -523,9 +531,12 @@ def save_outputs(model, train_results, settings_dict, device):
     output_dir = Path(f"runs/train_{settings_dict['model_settings']['pretrained_model']}_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}")
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Save trained model weights
+    # Save trained models
     model_path = output_dir / "model.pth"
-    torch.save(obj=model, f=model_path)
+    torch.save(obj=models[0], f=model_path)
+    # Save trained model weights
+    best_model_acc_path = output_dir / "best_model_acc.pth"
+    torch.save(obj=models[1], f=best_model_acc_path)
     
     # Save loss curves plot
     plot_loss_curves(train_results, device=device, save_path=output_dir)
@@ -1203,16 +1214,16 @@ class ModelBuilderGUI:
             print(f'Device: {device}')
             
             # Your existing training code here
-            train_results = train(model=model,
-                                  train_dataloader=train_dataloader,
-                                  test_dataloader=test_dataloader,
-                                  optimizer=optimizer,
-                                  accuracy_fn=accuracy_fn,
-                                  device=device,
-                                  epochs=model_settings['epochs'])
+            train_results, best_model_acc = train(model=model,
+                                                  train_dataloader=train_dataloader,
+                                                  test_dataloader=test_dataloader,
+                                                  optimizer=optimizer,
+                                                  accuracy_fn=accuracy_fn,
+                                                  device=device,
+                                                  epochs=model_settings['epochs'])
             
             # save the trained model, visualizations, and the model and data settings as a json file.
-            save_outputs(model=model,
+            save_outputs(models=(model, best_model_acc),
                          train_results=train_results,
                          settings_dict=self._settings_dict,
                          device=device)
