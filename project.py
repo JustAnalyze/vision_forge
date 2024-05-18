@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 import time
 from PIL import Image
 from datetime import datetime
@@ -617,7 +619,7 @@ class ModelBuilderGUI:
                                                            height=28,
                                                            text="Browse Image",
                                                            command=input_data_path)
-
+        
         # Widget Grid management
         predict_label.grid(row=0, column=0, columnspan=3)
         model_path_entry.grid(row=1, column=0, columnspan=2, padx=15, pady=20)
@@ -1012,11 +1014,35 @@ class ModelBuilderGUI:
                 pred_label, probability = predict_with_model(model_path=self._predict_inputs['model_path'],
                                                             image_path=self._predict_inputs['input_data_path'],
                                                             device=device)
+                #debugging
                 ic(pred_label, probability)
+                
             # TODO: the prediction button should also show the predicted label and the image we are feeding the model
-
+                self._show_prediction_and_image(image_path=self._predict_inputs['input_data_path'],
+                                          predicted_class=pred_label,
+                                          probability=probability)
+                
         self.predict_button = customtkinter.CTkButton(master=self.root, text="Predict", command=predict_button_event)
         
+    def _show_prediction_and_image(image_path, predicted_class, probability):
+        # Create a new Toplevel window
+        popup = customtkinter.CTkToplevel()
+        popup.title("Prediction Result")
+        popup.geometry('400x370')
+
+        # Load the image using PIL
+        img = Image.open(image_path)
+        img = img.resize((300, 300))  # Resize for better display
+        my_image = customtkinter.CTkImage(light_image=img, dark_image=img, size=(300, 300))
+        
+        # Create a label to display the image
+        image_label = customtkinter.CTkLabel(popup, text="", image=my_image)
+        image_label.pack(pady=10)
+        image_label._image = my_image  # Keep a reference to avoid garbage collection
+
+        # Create a label to display the predicted result
+        result_label = customtkinter.CTkLabel(popup, text=f'Predicted: {predicted_class} | Probability: {probability:.2f}%')
+        result_label.pack()
     
     # Create method for creating Train button widget.
     def _create_train_button(self):
