@@ -1199,9 +1199,9 @@ class ModelBuilderGUI:
         def train_save_model():
             # Build model
             model, transforms = build_model(pretrained_model=model_settings['pretrained_model'],
-                                                        num_hidden_units=model_settings['num_hidden_units'],
-                                                        output_shape=data_settings['num_classes'],
-                                                        device=device)
+                                                            num_hidden_units=model_settings['num_hidden_units'],
+                                                            output_shape=data_settings['num_classes'],
+                                                            device=device)
             
             # Load and preprocess the training and testing datasets.
             print('Loading Data...')
