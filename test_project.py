@@ -4,7 +4,11 @@ import torchvision.transforms.v2 as T
 from torchmetrics.classification import MulticlassAccuracy
 import json
 from pathlib import Path
-from project import plot_loss_curves, predict_with_model, data_setup, build_model, pretrained_models, train_step
+from project import (plot_loss_curves,
+                     predict_with_model,
+                     data_setup, build_model,
+                     pretrained_models,
+                     train_step, validation_step)
 
 
 def test_predict_with_model():
@@ -145,6 +149,40 @@ def test_train_step():
     assert isinstance(train_acc, torch.Tensor)
     assert train_loss >= 0
     assert 0 <= train_acc <= 1
+
+
+def test_validation_step():
+    # Define parameters for the build_model and data_setup functions
+    pretrained_model = 'mobilenet_v3_small'
+    num_hidden_units = 8
+    output_shape = 3
+    batch_size = 1
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    
+    # Build the model and get transformation using the build_model function
+    model, transform = build_model(pretrained_model, num_hidden_units, output_shape, device)
+    
+    # Set up data_path
+    data_path = 'unit_test_files/test_data'
+    
+    # Set up data loaders using the data_setup function
+    _, test_dataloader, classes = data_setup(data_path, batch_size, 'cpu', transform)
+    
+    # Define loss function
+    loss_fn = torch.nn.CrossEntropyLoss().to(device)
+
+    # Define accuracy function using MulticlassAccuracy
+    num_classes = len(classes)
+    accuracy_fn = MulticlassAccuracy(num_classes=num_classes).to(device)
+
+    # Run the test_step function
+    test_loss, test_acc = validation_step(model, test_dataloader, loss_fn, accuracy_fn, device)
+
+    # Assertions
+    assert isinstance(test_loss, torch.Tensor)
+    assert isinstance(test_acc, torch.Tensor)
+    assert test_loss >= 0
+    assert 0 <= test_acc <= 1
 
 
 def test_plot_loss_curves():
