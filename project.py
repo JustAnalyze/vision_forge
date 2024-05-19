@@ -305,11 +305,11 @@ def train_step(model: torch.nn.Module,
 
 
 # test step function
-def test_step(model: torch.nn.Module,
-              dataloader: torch.utils.data.DataLoader,
-              loss_fn: torch.nn.Module,
-              accuracy_fn,
-              device):
+def validation_step(model: torch.nn.Module,
+                    dataloader: torch.utils.data.DataLoader,
+                    loss_fn: torch.nn.Module,
+                    accuracy_fn,
+                    device):
 
   # Put model in eval mode
   model.eval()
@@ -408,7 +408,7 @@ def train(model: torch.nn.Module,
                                         optimizer=optimizer,
                                         device=device)
         # Test step
-        test_loss, test_acc = test_step(model=model,
+        test_loss, test_acc = validation_step(model=model,
                                         dataloader=test_dataloader,
                                         accuracy_fn=accuracy_fn,
                                         loss_fn=loss_fn,
