@@ -10,7 +10,7 @@ def test_predict_with_model():
     # Define paths
     image_path = Path('unit_test_files/test_image.jpg')
     model_path = Path('unit_test_files/test_model.pth')
-    settings_path = Path('unit_test_files/testsettings.json')
+    settings_path = Path('unit_test_files/settings.json')
     
     # Load settings to get the classes and model name for assertions
     with open(settings_path, 'r') as f:
