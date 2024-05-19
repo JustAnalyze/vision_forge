@@ -1,10 +1,9 @@
-
 import pytest
 import torch
-from torchvision.transforms import v2 as T
+import torchvision.transforms.v2 as T
 import json
 from pathlib import Path
-from project import plot_loss_curves, predict_with_model, data_setup
+from project import plot_loss_curves, predict_with_model, data_setup, build_model, pretrained_models
 
 
 def test_predict_with_model():
@@ -74,29 +73,31 @@ def test_plot_loss_curves():
 
 def test_data_setup():
     # Define paths and parameters
-    data_path = Path('unit_test_files/test_data')
+    data_path = 'unit_test_files/test_data'
     batch_size = 2
     device = torch.device('cpu')
-    transform = T.Compose([torch.T.Resize((128, 128)), T.ToTensor()])
+    transform = T.Compose([T.Resize((128, 128)), T.ToTensor()])
 
     # Run the function
     train_dataloader, test_dataloader, classes = data_setup(data_path, batch_size, device, transform)
 
     # Assertions
-    assert len(classes) > 3
-    assert len(train_dataloader) > 0
-    assert len(test_dataloader) > 0
+    assert len(classes) == 3 
+    assert len(train_dataloader.dataset) == 6 
+    assert len(test_dataloader.dataset) == 6 
+    assert classes == ['pizza', 'steak', 'sushi'] 
+
     for batch in train_dataloader:
         inputs, labels = batch
         assert inputs.shape[0] == batch_size
         assert inputs.shape[1:] == torch.Size([3, 128, 128])
         break  # We just need to test the first batch
+
     for batch in test_dataloader:
         inputs, labels = batch
         assert inputs.shape[0] == batch_size
         assert inputs.shape[1:] == torch.Size([3, 128, 128])
         break  # We just need to test the first batch
-
 
 # Run the test
 if __name__ == "__main__":
