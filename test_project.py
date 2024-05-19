@@ -118,7 +118,7 @@ def test_train_step():
     num_hidden_units = 8
     output_shape = 3
     batch_size = 1
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
     
     # Build the model using the build_model function
     model, transform = build_model(pretrained_model, num_hidden_units, output_shape, device)
@@ -127,10 +127,10 @@ def test_train_step():
     data_path = 'unit_test_files/test_data'
     
     # Set up data loaders using the data_setup function
-    train_dataloader, _, classes = data_setup(data_path, batch_size, device, transform)
+    train_dataloader, _, classes = data_setup(data_path, batch_size, 'cpu', transform)
     
     # Define loss function and optimizer
-    loss_fn = torch.nn.CrossEntropyLoss()
+    loss_fn = torch.nn.CrossEntropyLoss().to(device)
     optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
 
     # Define accuracy function using MulticlassAccuracy
