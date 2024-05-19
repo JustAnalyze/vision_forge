@@ -1,0 +1,21 @@
+{
+    "model_settings": {
+        "task_type": "Multiclass Classification",
+        "pretrained_model": "mobilenet_v3_small",
+        "optimizer": "Adam",
+        "epochs": 60,
+        "num_hidden_units": 128,
+        "learning_rate": 0.0009
+    },
+    "data_settings": {
+        "data_path": "D:/CS50P/vision_forge/data/pizza_steak_sushi_20_percent",
+        "batch_size": 4,
+        "num_classes": 3,
+        "data_split": "75.0/25.0",
+        "classes": [
+            "pizza",
+            "steak",
+            "sushi"
+        ]
+    }
+}

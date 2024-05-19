@@ -112,7 +112,7 @@ def predict_with_model(image_path: str, model_path: str, device: torch.device):
     model_path = Path(model_path)
     
     # Load the trained model
-    model = torch.load(model_path)
+    model = torch.load(model_path).to(device)
     
     # Load settings from JSON file
     settings_path = model_path.parent / 'settings.json'
@@ -423,7 +423,6 @@ def train(model: torch.nn.Module,
         # average time per epoch
         avg_epoch_time = total_training_time / (epoch + 1)
         
-        
         # Print out training results with epoch duration and learning rate
         print(f"Epoch [{epoch+1}/{epochs}]: \n"
               f"Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.4f} | "
@@ -522,7 +521,7 @@ def plot_loss_curves(results: dict[str, list[float]], device, save_path: str = N
 
     # Set save path
     if save_path is not None:
-        model_save_path = save_path / 'loss_accuracy_plot.jpg'
+        model_save_path = str(save_path)
     else:
         model_save_path = 'loss_accuracy_plot.jpg'
 
@@ -555,7 +554,8 @@ def save_outputs(models, train_results, settings_dict, device):
     torch.save(obj=models[1], f=best_model_acc_path)
     
     # Save loss curves plot
-    plot_loss_curves(train_results, device=device, save_path=output_dir)
+    plot_loss_curves_path = output_dir / "loss_accuracy_plot.jpg"
+    plot_loss_curves(train_results, device=device, save_path=plot_loss_curves_path)
     
     # Save model and data settings as JSON file
     settings_path = output_dir / "settings.json"
