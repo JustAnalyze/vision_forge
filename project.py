@@ -937,7 +937,7 @@ class ModelBuilderGUI:
         browse_data_button = customtkinter.CTkButton(data_tab,
                                                      width=105,
                                                      height=28,
-                                                     text="Browse",
+                                                     text="Browse Data",
                                                      command=browse_data)
         
         # Entry box for setting value of Batch Size
