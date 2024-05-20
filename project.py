@@ -662,7 +662,6 @@ class ModelBuilderGUI:
                 if model_path.endswith(".pth") or model_path.endswith(".pt"):
                     model_path_var.set(model_path)
                     self._predict_inputs['model_path'] = model_path_var.get()
-                    ic(self._predict_inputs)
                 else:
                     # inform the user that the file is not a valid model
                     CTkMessagebox(title="Error", message="Selected file is not a valid Model", icon="cancel")
@@ -689,7 +688,6 @@ class ModelBuilderGUI:
                         # If opening the image succeeds, set the input_data_path_var
                         input_data_path_var.set(input_data_path)
                         self._predict_inputs['input_data_path'] = input_data_path_var.get()
-                        ic(self._predict_inputs)
                 except:
                     # If opening the image fails, inform the user that the file is not a valid image
                     CTkMessagebox(title="Error", message="Selected file is not a valid image.", icon="cancel")
@@ -802,8 +800,6 @@ class ModelBuilderGUI:
                 # show a label when the inputs are valid
                 show_info(message='Model settings successfully saved',
                           text_color='green')
-                
-                ic(self._settings_dict)
                 
             else:
                 # show a label about the blank input error
@@ -982,7 +978,6 @@ class ModelBuilderGUI:
                                                         'data_split': data_split_var.get(),}
                 # show a label when the inputs are valid
                 show_info('Data settings successfully saved', text_color='green')
-                ic(self._settings_dict)
                 
             else:
                 # show a label about the blank input error
@@ -1094,8 +1089,6 @@ class ModelBuilderGUI:
                 pred_label, probability, inference_duration = predict_with_model(model_path=self._predict_inputs['model_path'],
                                                                              image_path=self._predict_inputs['input_data_path'],
                                                                              device=device)
-                #debugging
-                ic(pred_label, probability, inference_duration)
                 
                 # show the image and the prediction of the model.
                 self._show_prediction_and_image(image_path=self._predict_inputs['input_data_path'],
@@ -1213,7 +1206,6 @@ class ModelBuilderGUI:
             # print data info
             print(f'classes: {classes}')
             print(f'number of classes: {len(classes)}')
-            ic(transforms)
             print(f'Number of training samples: {len(train_dataloader.dataset)}')
             print(f'Number of test samples: {len(test_dataloader.dataset)}\n')
             
