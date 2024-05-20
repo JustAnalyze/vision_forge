@@ -8,8 +8,35 @@ from project import (plot_loss_curves,
                      predict_with_model,
                      data_setup, build_model,
                      pretrained_models,
-                     train_step, validation_step)
+                     train_step, 
+                     validation_step,
+                     train)
 
+def setup(pretrained_model, 
+          num_hidden_units,
+          output_shape, 
+          batch_size, device):
+    """
+    Setup the model, data loaders, loss function, optimizer, and accuracy function for testing.
+    """
+    # Build the model
+    model, transform = build_model(pretrained_model, num_hidden_units, output_shape, device)
+    
+    # Set up data_path
+    data_path = 'unit_test_files/test_data'
+    
+    # Set up data loaders using the data_setup function
+    train_dataloader, test_dataloader, classes = data_setup(data_path, batch_size, 'cpu', transform)
+    
+    # Define loss function and optimizer
+    loss_fn = torch.nn.CrossEntropyLoss().to(device)
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
+    
+    # Define accuracy function using MulticlassAccuracy
+    num_classes = len(classes)
+    accuracy_fn = MulticlassAccuracy(num_classes=num_classes).to(device)
+    
+    return model, train_dataloader, test_dataloader, classes, loss_fn, optimizer, accuracy_fn
 
 def test_predict_with_model():
     # Define paths
@@ -124,22 +151,12 @@ def test_train_step():
     batch_size = 1
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     
-    # Build the model using the build_model function
-    model, transform = build_model(pretrained_model, num_hidden_units, output_shape, device)
-    
-    # Set up data_path and transformation
-    data_path = 'unit_test_files/test_data'
-    
-    # Set up data loaders using the data_setup function
-    train_dataloader, _, classes = data_setup(data_path, batch_size, 'cpu', transform)
-    
-    # Define loss function and optimizer
-    loss_fn = torch.nn.CrossEntropyLoss().to(device)
-    optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
-
-    # Define accuracy function using MulticlassAccuracy
-    num_classes = len(classes)
-    accuracy_fn = MulticlassAccuracy(num_classes=num_classes).to(device)
+   # setup
+    model, _, train_dataloader, _, loss_fn, optimizer, accuracy_fn = setup(pretrained_model,
+                                                                           num_hidden_units,
+                                                                           output_shape,
+                                                                           batch_size, 
+                                                                           device)   
 
     # Run the train_step function
     train_loss, train_acc = train_step(model, train_dataloader, loss_fn, accuracy_fn, optimizer, device)
@@ -152,29 +169,22 @@ def test_train_step():
 
 
 def test_validation_step():
+    """
+    Test the validation_step function to ensure it returns the expected types and values.
+    """
     # Define parameters for the build_model and data_setup functions
     pretrained_model = 'mobilenet_v3_small'
     num_hidden_units = 8
     output_shape = 3
     batch_size = 1
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    
-    # Build the model and get transformation using the build_model function
-    model, transform = build_model(pretrained_model, num_hidden_units, output_shape, device)
-    
-    # Set up data_path
-    data_path = 'unit_test_files/test_data'
-    
-    # Set up data loaders using the data_setup function
-    _, test_dataloader, classes = data_setup(data_path, batch_size, 'cpu', transform)
-    
-    # Define loss function
-    loss_fn = torch.nn.CrossEntropyLoss().to(device)
-
-    # Define accuracy function using MulticlassAccuracy
-    num_classes = len(classes)
-    accuracy_fn = MulticlassAccuracy(num_classes=num_classes).to(device)
-
+   
+   # Setup the model and data loaders
+    model, _, test_dataloader, _, loss_fn, _, accuracy_fn = setup(pretrained_model,
+                                                                  num_hidden_units,
+                                                                  output_shape,
+                                                                  batch_size, 
+                                                                  device)   
     # Run the test_step function
     test_loss, test_acc = validation_step(model, test_dataloader, loss_fn, accuracy_fn, device)
 
