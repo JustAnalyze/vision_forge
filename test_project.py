@@ -15,7 +15,8 @@ from project import (plot_loss_curves,
 def setup(pretrained_model, 
           num_hidden_units,
           output_shape, 
-          batch_size, device):
+          batch_size, 
+          device):
     """
     Setup the model, data loaders, loss function, optimizer, and accuracy function for testing.
     """
@@ -149,23 +150,28 @@ def test_train_step():
     num_hidden_units = 8
     output_shape = 3
     batch_size = 1
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
     
-   # setup
-    model, _, train_dataloader, _, loss_fn, optimizer, accuracy_fn = setup(pretrained_model,
-                                                                           num_hidden_units,
-                                                                           output_shape,
-                                                                           batch_size, 
-                                                                           device)   
+    # test conducting train_step in both cpu and cuda if cuda is available
+    devices = ['cpu']
+    if torch.cuda.is_available():
+        devices.append('cuda')
 
-    # Run the train_step function
-    train_loss, train_acc = train_step(model, train_dataloader, loss_fn, accuracy_fn, optimizer, device)
+    for device in devices:
+        # Setup the model and data loaders
+        model, _, train_dataloader, _, loss_fn, optimizer, accuracy_fn = setup(pretrained_model,
+                                                                                num_hidden_units,
+                                                                                output_shape,
+                                                                                batch_size, 
+                                                                                device)   
 
-    # Assertions
-    assert isinstance(train_loss, torch.Tensor)
-    assert isinstance(train_acc, torch.Tensor)
-    assert train_loss >= 0
-    assert 0 <= train_acc <= 1
+        # Run the train_step function
+        train_loss, train_acc = train_step(model, train_dataloader, loss_fn, accuracy_fn, optimizer, device)
+
+        # Assertions
+        assert isinstance(train_loss, torch.Tensor)
+        assert isinstance(train_acc, torch.Tensor)
+        assert train_loss >= 0
+        assert 0 <= train_acc <= 1
 
 
 def test_validation_step():
@@ -177,22 +183,86 @@ def test_validation_step():
     num_hidden_units = 8
     output_shape = 3
     batch_size = 1
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
-   
-   # Setup the model and data loaders
-    model, _, test_dataloader, _, loss_fn, _, accuracy_fn = setup(pretrained_model,
-                                                                  num_hidden_units,
-                                                                  output_shape,
-                                                                  batch_size, 
-                                                                  device)   
-    # Run the test_step function
-    test_loss, test_acc = validation_step(model, test_dataloader, loss_fn, accuracy_fn, device)
+    
+    # test conducting train_step in both cpu and cuda if cuda is available
+    devices = ['cpu']
+    if torch.cuda.is_available():
+        devices.append('cuda')
 
-    # Assertions
-    assert isinstance(test_loss, torch.Tensor)
-    assert isinstance(test_acc, torch.Tensor)
-    assert test_loss >= 0
-    assert 0 <= test_acc <= 1
+    for device in devices:
+        # Setup the model and data loaders
+        model, _, test_dataloader, _, loss_fn, _, accuracy_fn = setup(pretrained_model,
+                                                                    num_hidden_units,
+                                                                    output_shape,
+                                                                    batch_size, 
+                                                                    device)   
+        # Run the test_step function
+        test_loss, test_acc = validation_step(model, test_dataloader, loss_fn, accuracy_fn, device)
+
+        # Assertions
+        assert isinstance(test_loss, torch.Tensor)
+        assert isinstance(test_acc, torch.Tensor)
+        assert test_loss >= 0
+        assert 0 <= test_acc <= 1
+
+
+def test_train():
+    """
+    Test the train function to ensure it returns the expected results and types.
+    """
+    # Define parameters for the build_model and data_setup functions
+    pretrained_model = 'mobilenet_v3_small'
+    num_hidden_units = 8
+    output_shape = 3
+    batch_size = 1
+    # test conducting train_step in both cpu and cuda if cuda is available
+    devices = ['cpu']
+    if torch.cuda.is_available():
+        devices.append('cuda')
+
+    for device in devices:
+        model, train_dataloader, test_dataloader, _, loss_fn, optimizer, accuracy_fn = setup(pretrained_model,
+                                                                                            num_hidden_units,
+                                                                                            output_shape,
+                                                                                            batch_size, 
+                                                                                            device)
+
+        results, final_model, best_acc_model = train(model,
+                                                    train_dataloader,
+                                                    test_dataloader,
+                                                    optimizer,
+                                                    accuracy_fn,
+                                                    device,
+                                                    loss_fn,
+                                                    epochs=2)
+
+        # Assertions to check the keys in the results dictionary
+        assert "train_loss" in results
+        assert "train_acc" in results
+        assert "test_loss" in results
+        assert "test_acc" in results
+
+        # Assertions to check the length of the lists in the results dictionary
+        assert len(results["train_loss"]) == 2
+        assert len(results["train_acc"]) == 2
+        assert len(results["test_loss"]) == 2
+        assert len(results["test_acc"]) == 2
+        
+        # Assertions to check the types of the returned the results dictionary values
+        assert isinstance(results["train_loss"][0], torch.Tensor)
+        assert isinstance(results["train_acc"][0], torch.Tensor)
+        assert isinstance(results["test_loss"][0], torch.Tensor)
+        assert isinstance(results["test_acc"][0], torch.Tensor)
+
+        # Assertions to check the types of the returned models
+        assert isinstance(final_model, torch.nn.Module)
+        assert isinstance(best_acc_model, torch.nn.Module)
+
+        # Assertions to check the values in the results dictionary
+        assert results["train_loss"][0] >= 0
+        assert 0 <= results["train_acc"][0] <= 1 
+        assert results["test_loss"][0] >= 0
+        assert 0 <= results["test_acc"][0] <= 1 
 
 
 def test_plot_loss_curves():

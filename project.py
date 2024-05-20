@@ -402,17 +402,17 @@ def train(model: torch.nn.Module,
         
         # Train step
         train_loss, train_acc = train_step(model=model,
-                                        dataloader=train_dataloader,
-                                        loss_fn=loss_fn,
-                                        accuracy_fn=accuracy_fn,
-                                        optimizer=optimizer,
-                                        device=device)
+                                           dataloader=train_dataloader,
+                                           loss_fn=loss_fn,
+                                           accuracy_fn=accuracy_fn,
+                                           optimizer=optimizer,
+                                           device=device)
         # Test step
         test_loss, test_acc = validation_step(model=model,
-                                        dataloader=test_dataloader,
-                                        accuracy_fn=accuracy_fn,
-                                        loss_fn=loss_fn,
-                                        device=device)
+                                              dataloader=test_dataloader,
+                                              accuracy_fn=accuracy_fn,
+                                              loss_fn=loss_fn,
+                                              device=device)
         
         # Calculate epoch duration
         epoch_duration = time.time() - start_time
@@ -549,7 +549,7 @@ def save_outputs(models, train_results, settings_dict, device):
     # Save trained models
     final_model_path = output_dir / "final_model.pth"
     torch.save(obj=models[0], f=final_model_path)
-    # Save trained model weights
+    # best accuracy model
     best_model_acc_path = output_dir / "best_model_acc.pth"
     torch.save(obj=models[1], f=best_model_acc_path)
     
