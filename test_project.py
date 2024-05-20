@@ -1,3 +1,5 @@
+import os
+from tempfile import TemporaryDirectory
 import pytest
 import torch
 import torchvision.transforms.v2 as T
@@ -10,7 +12,8 @@ from project import (plot_loss_curves,
                      pretrained_models,
                      train_step, 
                      validation_step,
-                     train)
+                     train,
+                     save_outputs)
 
 def setup(pretrained_model, 
           num_hidden_units,
@@ -292,6 +295,71 @@ def test_plot_loss_curves():
     # Cleanup: remove the generated plot
     save_path.unlink()
     
+
+# Pytest test case
+def test_save_outputs():
+    # Set up a temporary directory to avoid cluttering the filesystem
+    with TemporaryDirectory(dir = r'D:\CS50P\vision_forge\unit_test_files') as temp_dir:
+        # Change to the temporary directory
+        os.chdir(temp_dir)
+        
+        # Define dummy models
+        model_1 = torch.nn.Linear(10, 2)
+        model_2 = torch.nn.Linear(10, 2)
+        models = [model_1, model_2]
+
+        # Define dummy train results
+        train_results = {
+            "train_loss": [0.1, 0.05],
+            "train_acc": [0.9, 0.95],
+            "test_loss": [0.15, 0.1],
+            "test_acc": [0.85, 0.9]
+        }
+
+        # Define dummy settings
+        settings_dict = {"model_settings": {
+                            "task_type": "Multiclass Classification",
+                            "pretrained_model": "mobilenet_v3_small",
+                            "optimizer": "Adam",
+                            "epochs": 60,
+                            "num_hidden_units": 128,
+                            "learning_rate": 0.0009
+                        },
+                        "data_settings": {
+                            "data_path": "D:/CS50P/vision_forge/data/pizza_steak_sushi_20_percent",
+                            "batch_size": 4,
+                            "num_classes": 3,
+                            "data_split": "75.0/25.0",
+                            "classes": ["pizza", "steak" ,"sushi"]
+                        }}
+        # Define device
+        device = 'cpu'
+
+        # Call the save_outputs function
+        save_outputs(models, train_results, settings_dict, device)
+
+        # Check if the 'runs' directory exists
+        runs_folder_dir = Path('runs')
+        assert runs_folder_dir.is_dir()
+
+        # Get the output directory name
+        output_dir = next(runs_folder_dir.iterdir())
+        assert output_dir.is_dir()
+
+        # Check if the expected files are created
+        assert (output_dir / "final_model.pth").is_file()
+        assert (output_dir / "best_model_acc.pth").is_file()
+        assert (output_dir / "loss_accuracy_plot.jpg").is_file()
+        assert (output_dir / "settings.json").is_file()
+
+        # Validate the contents of the settings.json file
+        with open(output_dir / "settings.json", 'r') as f:
+            saved_settings = json.load(f)
+        assert saved_settings == settings_dict
+
+        # Cleanup: Change back to the original directory
+        os.chdir("..")
+
     
 # Run the test
 if __name__ == "__main__":
