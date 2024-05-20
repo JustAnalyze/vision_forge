@@ -1,5 +1,7 @@
 import os
 from tempfile import TemporaryDirectory
+from unittest.mock import patch
+import customtkinter
 import pytest
 import torch
 import torchvision.transforms.v2 as T
@@ -13,7 +15,8 @@ from project import (plot_loss_curves,
                      train_step, 
                      validation_step,
                      train,
-                     save_outputs)
+                     save_outputs,
+                     ModelBuilderGUI)
 
 def setup(pretrained_model, 
           num_hidden_units,
@@ -299,7 +302,7 @@ def test_plot_loss_curves():
 # Pytest test case
 def test_save_outputs():
     # Set up a temporary directory to avoid cluttering the filesystem
-    with TemporaryDirectory(dir = r'D:\CS50P\vision_forge\unit_test_files') as temp_dir:
+    with TemporaryDirectory() as temp_dir:
         # Change to the temporary directory
         os.chdir(temp_dir)
         
@@ -360,7 +363,46 @@ def test_save_outputs():
         # Cleanup: Change back to the original directory
         os.chdir("..")
 
+#################################################################################################################
+#                                            GUI TESTING                                                        #
+#################################################################################################################
+@pytest.fixture
+def setup_gui():
+    """
+    Fixture to set up the ModelBuilderGUI object.
+    """
+    gui = ModelBuilderGUI()
+    return gui
+
+
+def test_initial_settings_dict(setup_gui):
+    """
+    Test the initial state of the settings dictionary.
+    """
+    gui = setup_gui
+    assert gui._settings_dict == {'model_settings': {}, 'data_settings': {}}
     
+
+@patch('tkinter.filedialog.askopenfilename')
+def test_browse_model_path(mock_askopenfilename, setup_gui):
+    """
+    Test the 'Browse Model' button functionality.
+    """
+    # Simulate selecting a valid model file
+    mock_askopenfilename.return_value = 'test_model.pth'
+
+    gui = setup_gui
+    gui._create_predict_frame()  # Ensure the predict frame is created
+
+    # Simulate clicking the "Browse Model" button
+    for widget in gui.predict_frame.winfo_children():
+        if isinstance(widget, customtkinter.CTkButton) and widget.cget('text') == 'Browse Model':
+            widget.invoke()
+
+    # Check if the model path is updated correctly
+    assert gui._predict_inputs['model_path'] == 'test_model.pth'
+
+
 # Run the test
 if __name__ == "__main__":
     pytest.main()
