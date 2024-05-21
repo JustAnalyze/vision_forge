@@ -448,6 +448,11 @@ def train(model: torch.nn.Module,
             best_test_acc = test_acc
             best_acc_model = deepcopy(model)
         
+        # check if stop training button is pressed
+        if stop_training.is_set():
+            print(f'\nStopping Training...\n')
+            break
+        
     # Inform user that the training is done.
     print(f"Total training time: {float(total_training_time):.2f}s")
     print("Training is done.")
