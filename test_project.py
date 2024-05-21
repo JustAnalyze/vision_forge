@@ -1,5 +1,6 @@
 import os
 from tempfile import TemporaryDirectory
+from threading import Event
 from unittest.mock import patch
 import customtkinter
 import pytest
@@ -221,6 +222,8 @@ def test_train():
     num_hidden_units = 8
     output_shape = 3
     batch_size = 1
+    stop_training = Event()
+    
     # test conducting train_step in both cpu and cuda if cuda is available
     devices = ['cpu']
     if torch.cuda.is_available():
@@ -239,6 +242,7 @@ def test_train():
                                                     optimizer,
                                                     accuracy_fn,
                                                     device,
+                                                    stop_training,
                                                     loss_fn,
                                                     epochs=2)
 
@@ -268,8 +272,49 @@ def test_train():
         assert results["train_loss"][0] >= 0
         assert 0 <= results["train_acc"][0] <= 1 
         assert results["test_loss"][0] >= 0
-        assert 0 <= results["test_acc"][0] <= 1 
+        assert 0 <= results["test_acc"][0] <= 1
 
+
+def test_train_stop_training():
+    """
+    Test the train function to ensure it returns the expected results and types.
+    """
+    # Define parameters for the build_model and data_setup functions
+    pretrained_model = 'mobilenet_v3_small'
+    num_hidden_units = 8
+    output_shape = 3
+    batch_size = 1
+    stop_training = Event()
+    
+    # test conducting train_step in both cpu and cuda if cuda is available
+    devices = ['cpu']
+    if torch.cuda.is_available():
+        devices.append('cuda')
+
+    for device in devices:
+        model, train_dataloader, test_dataloader, _, loss_fn, optimizer, accuracy_fn = setup(pretrained_model,
+                                                                                            num_hidden_units,
+                                                                                            output_shape,
+                                                                                            batch_size, 
+                                                                                            device)
+
+        # Test the early stopping mechanism
+        stop_training.set()  # Trigger the early stop
+        results, final_model, best_acc_model = train(model,
+                                                    train_dataloader,
+                                                    test_dataloader,
+                                                    optimizer,
+                                                    accuracy_fn,
+                                                    device,
+                                                    stop_training,
+                                                    loss_fn,
+                                                    epochs=2)
+
+        # Check if early stopping was respected (results lists should be shorter than epochs)
+        assert len(results["train_loss"]) < 2
+        assert len(results["train_acc"]) < 2
+        assert len(results["test_loss"]) < 2
+        assert len(results["test_acc"]) < 2
 
 def test_plot_loss_curves():
     # Create a sample results dictionary
@@ -361,7 +406,7 @@ def test_save_outputs():
         assert saved_settings == settings_dict
 
         # Cleanup: Change back to the original directory
-        os.chdir("..")
+        os.chdir("D:/CS50P/vision_forge")
 
 #################################################################################################################
 #                                            GUI TESTING                                                        #
