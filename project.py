@@ -401,11 +401,6 @@ def train(model: torch.nn.Module,
         # Record start time of epoch
         start_time = time.time()
         
-        # check if stop training button is pressed
-        if stop_training.is_set():
-            print(f'\nStopping Training...\n')
-            break
-        
         # Train step
         train_loss, train_acc = train_step(model=model,
                                            dataloader=train_dataloader,
