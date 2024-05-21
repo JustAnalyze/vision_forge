@@ -148,7 +148,7 @@ def predict_with_model(image_path: str, model_path: str, device: torch.device):
 def data_setup(data_path: str,
                batch_size: int,
                device: torch.device,
-               transform: T.Compose = None) -> Tuple[DataLoader, DataLoader, List[str]]:
+               default_transform: T.Compose = None) -> Tuple[DataLoader, DataLoader, List[str]]:
     
     '''
     Set up the data using torchvision.transforms.Compose, torch.utils.data.DataLoader,
@@ -156,7 +156,7 @@ def data_setup(data_path: str,
 
     Args:
         data_path: Union[str, PosixPath], Path to the data directory with train and test folders.
-        transform: Compose, A composition of transformations to apply to the data.
+        default_transform: Compose, A composition of transformations from the pre-trained model to apply to the data.
         batch_size: int, Batch size for the data loaders.
         device: torch.device, Device to load the data onto.
 
@@ -165,14 +165,20 @@ def data_setup(data_path: str,
         test_dataloader: DataLoader, Data loader for the testing dataset.
         classes: List[str], List of class labels.
     '''
-        
+    # create a compose of the transforms from pretrained models and new transforms
+    full_transforms = T.Compose(T.RandomHorizontalFlip(p=0.5),
+                                T.RandomVerticalFlip(p=0.25),
+                                T.RandomRotation(degrees=30),
+                                T.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
+                                default_transform)
+    
     # set train data
     train_data = ImageFolder(root=data_path + '/train',
-                             transform=transform)
+                             transform=full_transforms)
 
     # set test data
     test_data = ImageFolder(root=data_path + '/test',
-                            transform=transform)
+                            transform=default_transform)
 
     # set train data loader
     train_dataloader = DataLoader(dataset=train_data,
@@ -1138,8 +1144,8 @@ class ModelBuilderGUI:
                 self._train_and_save_model() 
             
             # aftter training put the info_labels back to blank state
-            self.save_model_info_label().configure(text='')
-            self.save_data_info_label().configure(text='')
+            self.save_model_info_label.configure(text='')
+            self.save_data_info_label.configure(text='')
             
         self.train_button = customtkinter.CTkButton(master=self.root, text="Train", command=train_button_event)
         self.train_button.pack(pady=10)
@@ -1224,7 +1230,7 @@ class ModelBuilderGUI:
             train_dataloader, test_dataloader, classes = data_setup(data_path=data_settings['data_path'],
                                                                     batch_size=data_settings['batch_size'],
                                                                     device='cpu',
-                                                                    transform=transforms)  # use transforms used in training the pretrained model
+                                                                    default_transform=transforms)  # use transforms used in training the pretrained model
 
             # print data info
             print(f'classes: {classes}')
