@@ -637,7 +637,7 @@ class ModelBuilderGUI:
         predict_button = customtkinter.CTkButton(self.sidebar_frame, text="Predict Using Model", command=switch_to_predict_frame)
         predict_button.pack(padx=5, pady=10)
 
-        train_button = customtkinter.CTkButton(self.sidebar_frame, text="Train Model", command=switch_to_train_frame)
+        train_button = customtkinter.CTkButton(self.sidebar_frame, text="Train New Model", command=switch_to_train_frame)
         train_button.pack(padx=5,pady=5)
 
     def _create_predict_frame(self):
