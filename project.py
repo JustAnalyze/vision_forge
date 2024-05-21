@@ -814,13 +814,13 @@ class ModelBuilderGUI:
                 print(f"Please Fill all Fields.")
 
         def show_info(message: str, text_color: str) -> None:
-            save_info_label.configure(text=message,
+            self.save_model_info_label.configure(text=message,
                                       text_color=text_color,
                                       justify='center')
                 
-            save_info_label.place(x=0, y=200)
+            self.save_model_info_label.place(x=0, y=200)
                 
-        save_info_label = customtkinter.CTkLabel(master=model_tab, 
+        self.save_model_info_label = customtkinter.CTkLabel(master=model_tab, 
                                                  justify='center',
                                                  width=550)
         save_button = customtkinter.CTkButton(model_tab,
@@ -993,13 +993,13 @@ class ModelBuilderGUI:
             This function configures the 'save_info_label' with the provided message, text color, and justification,
             then places it at the specified coordinates.
             """
-            info_label.configure(text=message,
+            self.save_data_info_label.configure(text=message,
                                       text_color=text_color,
                                       justify='center')
                 
-            info_label.place(x=0, y=200)
+            self.save_data_info_label.place(x=0, y=200)
                 
-        info_label = customtkinter.CTkLabel(master=data_tab, text='', justify='center', width=550)
+        self.save_data_info_label = customtkinter.CTkLabel(master=data_tab, text='', justify='center', width=550)
         save_button = customtkinter.CTkButton(data_tab,
                                               text='Save',
                                               width=90,
@@ -1136,7 +1136,11 @@ class ModelBuilderGUI:
             if self._validate_settings_dict():
                 # Start the training process
                 self._train_and_save_model() 
-        
+            
+            # aftter training put the info_labels back to blank state
+            self.save_model_info_label().configure(text='')
+            self.save_data_info_label().configure(text='')
+            
         self.train_button = customtkinter.CTkButton(master=self.root, text="Train", command=train_button_event)
         self.train_button.pack(pady=10)
     
