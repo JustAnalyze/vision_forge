@@ -922,7 +922,6 @@ class ModelBuilderGUI:
                 else:
                     
                     print('[INFO] train and test folder not found!')
-                    
                     # Inform the user that the train and test folders are not found
                     show_info(message='Train and test folder not found!', text_color='red')
                     
@@ -1169,6 +1168,9 @@ class ModelBuilderGUI:
         stop_training_button = customtkinter.CTkButton(popup_window, text='Stop Training', width=140, height=28, command=early_stop)
         stop_training_button.pack(pady=8)
         
+        # Save the original stdout
+        self.original_stdout = sys.stdout
+        
         # Create a class for redirecting the output to the Text widget.
         class StdoutRedirector(object):
             def __init__(self, text_widget):
@@ -1182,7 +1184,7 @@ class ModelBuilderGUI:
         
         # Redirect stdout to the Text widget
         sys.stdout = StdoutRedirector(output_text)
-    
+
     def _train_and_save_model(self):
         """
         Load the data and start the training process.
@@ -1253,6 +1255,9 @@ class ModelBuilderGUI:
                          train_results=train_results,
                          settings_dict=self._settings_dict,
                          device=device)
+            
+            # set stdout to the default value after training
+            sys.stdout = self.original_stdout
             
         # Thread for training
         train_thread = Thread(target=train_save_model)
