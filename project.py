@@ -1163,6 +1163,7 @@ class ModelBuilderGUI:
         # widget for early stopping the training
         def early_stop():
             self.stop_training.set()
+            stop_training_button.configure(state='disabled')
             print(f'\nTraining will stop at the end of current epoch...\n')
         
         stop_training_button = customtkinter.CTkButton(popup_window, text='Stop Training', width=140, height=28, command=early_stop)
