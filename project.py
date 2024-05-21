@@ -4,7 +4,7 @@ from PIL import Image
 from datetime import datetime
 import json
 import sys
-from threading import Thread
+from threading import Event, Thread
 import matplotlib.pyplot as plt
 import torch
 import torchvision
@@ -352,8 +352,9 @@ def train(model: torch.nn.Module,
           optimizer: torch.optim.Optimizer,
           accuracy_fn,
           device,
+          stop_training: Event,
           loss_fn: torch.nn.Module = torch.nn.CrossEntropyLoss(),  # default loss function for multiclass classification
-          epochs: int = 5):
+          epochs: int = 5,):
 
     """
     Trains the given model using the provided data loaders.
@@ -393,7 +394,7 @@ def train(model: torch.nn.Module,
 
     # Initialize variable to keep track of total training time
     total_training_time = 0.0
-    
+            
     # Loop through the training and testing steps for a number of epochs
     for epoch in tqdm(range(epochs)):
         
@@ -441,6 +442,11 @@ def train(model: torch.nn.Module,
         if test_acc > best_test_acc:
             best_test_acc = test_acc
             best_acc_model = deepcopy(model)
+        
+        # check if stop training button is pressed
+        if stop_training.is_set():
+            print(f'\nStopping Training...\n')
+            break
         
     # Inform user that the training is done.
     print(f"Total training time: {float(total_training_time):.2f}s")
@@ -1152,6 +1158,17 @@ class ModelBuilderGUI:
         
         output_text.pack(expand=True, fill='both')
         
+        # add event for stop training
+        self.stop_training = Event()
+        
+        # widget for early stopping the training
+        def early_stop():
+            self.stop_training.set()
+            print(f'\nTraining will stop at the end of current epoch...\n')
+        
+        stop_training_button = customtkinter.CTkButton(popup_window, text='Stop Training', width=140, height=28, command=early_stop)
+        stop_training_button.pack(pady=8)
+        
         # Create a class for redirecting the output to the Text widget.
         class StdoutRedirector(object):
             def __init__(self, text_widget):
@@ -1228,7 +1245,8 @@ class ModelBuilderGUI:
                                                                optimizer=optimizer,
                                                                accuracy_fn=accuracy_fn,
                                                                device=device,
-                                                               epochs=model_settings['epochs'])
+                                                               epochs=model_settings['epochs'],
+                                                               stop_training=self.stop_training)
             
             # save the trained model, visualizations, and the model and data settings as a json file.
             save_outputs(models=(final_model, best_model_acc),
