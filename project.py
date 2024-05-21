@@ -19,7 +19,6 @@ from tkinter import filedialog
 from CTkMessagebox import CTkMessagebox
 from typing import Union
 import customtkinter
-from icecream import ic
 
 
 # TODO: add more pre-trained model choices "ResNet","Inception V3"
