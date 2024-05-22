@@ -25,7 +25,7 @@ Vision Forge is an intuitive application designed for creating, training, and ut
 - 
 ### Data Folder Structure
 The data folder should be structured in a specific way to ensure proper loading and training. For example, if you have a dataset named `cats_dogs`, the folder structure should look like this:
-    ```bash
+
     cats_dogs/
     ├── train/
     │   ├── cat/
@@ -33,7 +33,7 @@ The data folder should be structured in a specific way to ensure proper loading 
     ├── test/
     │   ├── cat/
     │   ├── dog/
-    ```
+
 
 ### GUI Overview
 Here is a preview of the GUI for your reference:
