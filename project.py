@@ -166,11 +166,11 @@ def data_setup(data_path: str,
         classes: List[str], List of class labels.
     '''
     # create a compose of the transforms from pretrained models and new transforms
-    full_transforms = T.Compose(T.RandomHorizontalFlip(p=0.5),
+    full_transforms = T.Compose([T.RandomHorizontalFlip(p=0.5),
                                 T.RandomVerticalFlip(p=0.25),
                                 T.RandomRotation(degrees=30),
                                 T.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
-                                default_transform)
+                                default_transform])
     
     # set train data
     train_data = ImageFolder(root=data_path + '/train',
@@ -774,7 +774,7 @@ class ModelBuilderGUI:
         
         # Add entry box for setting the value of learning rate
         learning_rate_label = customtkinter.CTkLabel(master=model_tab, text='Learning Rate')
-        learning_rate_var = customtkinter.Variable(value=0.001)
+        learning_rate_var = customtkinter.DoubleVar(value=0.001)
         learning_rate = customtkinter.CTkEntry(master=model_tab, 
                                                placeholder_text='0.001',
                                                width=200, 
@@ -783,7 +783,7 @@ class ModelBuilderGUI:
         
         # Add entry box for setting the number of epochs
         epochs_label = customtkinter.CTkLabel(master=model_tab, text='Epochs')
-        epochs_var = customtkinter.IntVar(value=16)
+        epochs_var = customtkinter.DoubleVar(value=16)
         epochs = customtkinter.CTkEntry(master=model_tab, 
                                           placeholder_text='16',
                                           width=200, 
