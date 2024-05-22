@@ -17,7 +17,7 @@ from project import (plot_loss_curves,
                      validation_step,
                      train,
                      save_outputs,
-                     ModelBuilderGUI)
+                     VisionForgeGUI)
 
 def setup(pretrained_model, 
           num_hidden_units,
@@ -416,7 +416,7 @@ def setup_gui():
     """
     Fixture to set up the ModelBuilderGUI object.
     """
-    gui = ModelBuilderGUI()
+    gui = VisionForgeGUI()
     return gui
 
 
