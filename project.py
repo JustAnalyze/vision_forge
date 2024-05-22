@@ -651,7 +651,8 @@ class VisionForgeGUI:
         Create predict frame with entry boxes for model path and input data path.
         """
         self._predict_inputs: dict[str, Union[str, list]] = {'model_path': None,
-                                                             'input_data_path': None}
+                                                             'input_data_path': None,
+                                                             'device': None} # TODO: Add support for choosing cpu or cuda during prediction
         
         self.predict_frame = customtkinter.CTkFrame(self.root)
         
@@ -1097,8 +1098,8 @@ class VisionForgeGUI:
             if self._predict_inputs['model_path'] is not None and self._predict_inputs['input_data_path'] is not None:
                 # use trained model for prediction.
                 pred_label, probability, inference_duration = predict_with_model(model_path=self._predict_inputs['model_path'],
-                                                                             image_path=self._predict_inputs['input_data_path'],
-                                                                             device=device)
+                                                                                 image_path=self._predict_inputs['input_data_path'],
+                                                                                 device=device)
                 
                 # show the image and the prediction of the model.
                 self._show_prediction_and_image(image_path=self._predict_inputs['input_data_path'],
