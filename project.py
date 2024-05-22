@@ -783,7 +783,7 @@ class ModelBuilderGUI:
         
         # Add entry box for setting the number of epochs
         epochs_label = customtkinter.CTkLabel(master=model_tab, text='Epochs')
-        epochs_var = customtkinter.DoubleVar(value=16)
+        epochs_var = customtkinter.IntVar(value=16)
         epochs = customtkinter.CTkEntry(master=model_tab, 
                                           placeholder_text='16',
                                           width=200, 
