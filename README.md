@@ -16,9 +16,20 @@ Here is a preview of the GUI for your reference:
 
 ![Vision Forge GUI](file_for_readme/train_new_model_tab.png)
 
-- **Model Tab:** Configure your model by selecting the task, pretrained model, optimizer, and other hyperparameters.
-- **Data Tab:** Load your data, and the app will auto-populate the number of classes and train/test split based on the data. You can manually adjust the batch size if needed.
-- **Prediction Tab:** Use a trained model to predict classes for new images.
+### Features:
+- **Custom Model Creation:** Customize your image classification models with options to select task type, pretrained models, optimizers, epochs, hidden units/neurons, and learning rate.
+- **Data Loading:** Easily load your dataset, and the app will automatically infer the number of classes and the train/test split based on the selected data folder. You can manually adjust the batch size if needed. The app manages data loading in minibatches for efficient training.
+- **Model Training:** Train your customized model with the click of a button.
+- **Prediction:** Use the trained model to make predictions on new images, all through the simple GUI.
+- **Data Augmentation:** Basic data augmentation transforms are included to improve model generalization. These transforms include:
+  ```python
+  torchvision.transforms.Compose([
+      T.RandomHorizontalFlip(p=0.5),
+      T.RandomVerticalFlip(p=0.25),
+      T.RandomRotation(degrees=30),
+      T.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1)
+  ])
+  ```
 
 ### Getting Started:
 1. **Clone the repository:**
