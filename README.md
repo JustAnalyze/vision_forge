@@ -50,6 +50,8 @@ Here is a preview of the GUI for your reference:
 - [Pytorch](https://pytorch.org/)
 - [tkinter](https://docs.python.org/3/library/tkinter.html)
 - [customtkinter](https://github.com/TomSchimansky/CustomTkinter)
+- [matplotlib](https://matplotlib.org/)
+- [Pillow](https://python-pillow.org/)
 - [CTkMessagebox](https://github.com/Akascape/CTkMessagebox)
 
 For any questions or support, please open an issue in the repository.
