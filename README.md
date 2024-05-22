@@ -23,7 +23,7 @@ Here is a preview of the GUI for your reference:
 ### Getting Started:
 1. **Clone the repository:**
     ```bash
-    git clone <repository-url>
+    git clone <https://github.com/JustAnalyze/vision_forge>
     cd vision-forge
     ```
 
