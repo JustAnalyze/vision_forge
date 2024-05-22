@@ -62,7 +62,7 @@ This project is licensed under the MIT License - see the LICENSE.md file for det
 - **[tkinter](https://docs.python.org/3/library/tkinter.html):** For the standard GUI toolkit used to create the application interface.
 - **[customtkinter](https://github.com/TomSchimansky/CustomTkinter):** For providing the enhanced tkinter widgets used to improve the GUI aesthetics and functionality.
 - **[CTkMessagebox](https://github.com/Akascape/CTkMessagebox):** For providing the customizable messagebox for tkinter.
-- **[matplotlib](https://matplotlib.org/):** For providing the plotting library used to visualize images and transformations.
+- **[matplotlib](https://matplotlib.org/):** For providing the plotting library used to visualize loss and accuracy plots.
 - **[Pillow](https://python-pillow.org/):** For providing the image processing capabilities used to handle image operations.
 
 For any questions or support, please open an issue in the repository.
