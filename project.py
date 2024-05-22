@@ -88,7 +88,7 @@ def main():
     """
     Main function to instantiate and run the GUI.
     """
-    gui = ModelBuilderGUI()
+    gui = VisionForgeGUI()
     gui.run()
 
 
@@ -579,7 +579,7 @@ def save_outputs(models, train_results, settings_dict, device):
     print(f"\nAll outputs saved in: {absolute_path}")
 
 
-class ModelBuilderGUI:
+class VisionForgeGUI:
     """
     A class representing the GUI for training and predicting using an image classifier model.
     """
