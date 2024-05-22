@@ -237,7 +237,6 @@ def build_model(pretrained_model: str,
         middle_layers = [torch.nn.Linear(in_features=in_features, out_features=num_hidden_units), #  hidden units
                          torch.nn.Hardswish(),
                          torch.nn.Dropout(p=0.25, inplace=True)]
-
     
     # TODO: Changed this based on user input (add more hidden layer, dropout, etc)
     extra_layers = []
@@ -349,7 +348,7 @@ def validation_step(model: torch.nn.Module,
 
   return test_loss, test_acc
 
-
+# TODO: Enable user customization of seeds for reproducible model training.
 # Train model for specified epoch using train step and evaluate using test step
 def train(model: torch.nn.Module,
           train_dataloader: torch.utils.data.DataLoader,
