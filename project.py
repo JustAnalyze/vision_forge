@@ -230,11 +230,11 @@ def build_model(pretrained_model: str,
     if pretrained_model.startswith(('efficientnet_v2', 'mobilenet_v2', 'efficientnet_b')):
         in_features = model.classifier[1].in_features
         middle_layers = [torch.nn.Dropout(p=0.25, inplace=True),
-                         torch.nn.Linear(in_features=in_features, out_features=num_hidden_units)]
+                         torch.nn.Linear(in_features=in_features, out_features=num_hidden_units)] #  hidden units
         
     elif pretrained_model.startswith('mobilenet_v3'):
         in_features = model.classifier[0].in_features
-        middle_layers = [torch.nn.Linear(in_features=in_features, out_features=num_hidden_units),
+        middle_layers = [torch.nn.Linear(in_features=in_features, out_features=num_hidden_units), #  hidden units
                          torch.nn.Hardswish(),
                          torch.nn.Dropout(p=0.25, inplace=True)]
 
