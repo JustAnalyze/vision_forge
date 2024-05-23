@@ -6,7 +6,7 @@
 Vision Forge is an intuitive application designed for creating, training, and utilizing image classification models through a user-friendly graphical user interface (GUI). This app eliminates the need for any coding, making it accessible to users of all skill levels.
 
 ### Features:
-- **Custom Model Creation:** Customize your image classification models with options to select task type, pretrained models, optimizers, epochs, hidden units/neurons, and learning rate.
+- **Custom Model Creation:** Customize your image classification models with options to select pretrained models, optimizers, epochs, hidden units/neurons, and learning rate.
 - **Data Loading:** Easily load your dataset, and the app will automatically infer the number of classes and the train/test split based on the selected data folder. You can manually adjust the batch size if needed. The app manages data loading in minibatches for efficient training.
 - **Data Augmentation:** Basic data augmentation transforms are included to improve model generalization. These transforms include:
     ```python
@@ -70,7 +70,7 @@ Here is a preview of the GUI for your reference:
 This project is licensed under the MIT License - see the `LICENSE.txt` file for details.
 
 ### Acknowledgments
-- **[PyTorch](https://pytorch.org/):** For providing the deep learning framework used in the model training and prediction.
+- **[PyTorch](https://pytorch.org/):** For providing the deep learning framework used in the model building, model training and prediction.
 - **[tkinter](https://docs.python.org/3/library/tkinter.html):** For the standard GUI toolkit used to create the application interface.
 - **[customtkinter](https://github.com/TomSchimansky/CustomTkinter):** For providing the enhanced tkinter widgets used to improve the GUI aesthetics and functionality.
 - **[CTkMessagebox](https://github.com/Akascape/CTkMessagebox):** For providing the customizable messagebox for tkinter.
