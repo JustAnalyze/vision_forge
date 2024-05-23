@@ -66,6 +66,9 @@ Here is a preview of the GUI for your reference:
 - Python 3.9+
 - Required Python packages (listed in `requirements.txt`)
 
+### License
+This project is licensed under the MIT License - see the `LICENSE.txt` file for details.
+
 ### Acknowledgments
 - **[PyTorch](https://pytorch.org/):** For providing the deep learning framework used in the model training and prediction.
 - **[tkinter](https://docs.python.org/3/library/tkinter.html):** For the standard GUI toolkit used to create the application interface.
