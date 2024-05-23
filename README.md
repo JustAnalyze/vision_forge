@@ -18,11 +18,11 @@ Vision Forge is an intuitive application designed for creating, training, and ut
     ])
     ```
 - **Model Training:** Train your customized model with the click of a button.
-- **Training Progress Window** When training starts, a window will pop up informing the user about the training progress and what's happening. Here is an example of the training progress window:
-    ![Training Progress Window](readme_files/training_progress_window.png)
+- **Training Progress Window:** When training starts, a window will pop up informing the user about the training progress and what's happening. Here is an example of the training progress window:
+![Training Progress Window](readme_files/training_progress_window.png)
 - **Prediction:** Use the trained model to make predictions on new images, all through the simple GUI.
-- **Automatic GPU Detection** The app automatically detects if the user's PC has a GPU and utilizes it to accelerate the training process. (Ensure that PyTorch is installed with CUDA support.)
-- 
+- **Automatic GPU Detection:** The app automatically detects if the user's PC has a GPU and utilizes it to accelerate the training process. (Ensure that PyTorch is installed with CUDA support.)
+
 ### Data Folder Structure
 The data folder should be structured in a specific way to ensure proper loading and training. For example, if you have a dataset named `cats_dogs`, the folder structure should look like this:
 
@@ -34,16 +34,25 @@ The data folder should be structured in a specific way to ensure proper loading 
     │   ├── cat/
     │   ├── dog/
 
-
 ### GUI Overview
 Here is a preview of the GUI for your reference:
 
 - **Model Tab:** Configure your model by selecting the task, pretrained model, optimizer, and other hyperparameters.
-    ![Vision Forge GUI](readme_files/train_new_model_model_tab.png)
+![Vision Forge GUI](readme_files/train_new_model_model_tab.png)
 - **Data Tab:** Load your data, and the app will auto-populate the number of classes and train/test split based on the data. You can manually adjust the batch size if needed.
-    ![Vision Forge GUI](readme_files/train_new_model_data_tab.png)
+![Vision Forge GUI](readme_files/train_new_model_data_tab.png)
 - **Prediction Tab:** Use a trained model to predict classes for new images.
-    ![Vision Forge GUI](readme_files/predict_tab.png)
+![Vision Forge GUI](readme_files/predict_tab.png)
+
+### Training Outputs
+The training outputs are stored in the `runs` folder. Each training session generates a dedicated subfolder named with the pre-trained model and the date and time when the training finished. The structure of these folders ensures that all relevant information and results from the training session are conveniently organized and accessible.
+
+#### Folder Structure
+Each subfolder within the `runs` directory contains the following files:
+- **Best Model with Highest Test Accuracy:** The model with the best test accuracy during the training session is saved as `best_model_acc.pth`.
+- **Final Model:** The final state of the model at the end of the training session is saved as `final_model.pth`.
+- **Loss and Accuracy Plot:** A plot showing the loss and accuracy over the training epochs is saved as `loss_accuracy_plot.jpg`.
+- **Settings:** The settings and configuration used for the training session are saved as `settings.json`.
 
 ### Getting Started
 1. **Clone the repository:**
