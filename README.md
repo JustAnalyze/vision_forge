@@ -3,9 +3,9 @@
   <img src="readme_files/vision_forge_logo.png">
 </p>
 
-#### Video Demo: (Coming Soon)
+### Video Demo: (Coming Soon)
 
-#### Description:
+### Description:
 Vision Forge is an intuitive application designed for creating, training, and utilizing image classification models through a user-friendly graphical user interface (GUI). This app eliminates the need for any coding, making it accessible to users of all skill levels.
 
 ### Features:
