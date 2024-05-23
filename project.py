@@ -665,7 +665,7 @@ class VisionForgeGUI:
                                                   textvariable=model_path_var)
 
         def browse_model_path():
-            model_path = filedialog.askopenfilename()
+            model_path = filedialog.askopenfilename(initialdir=Path.cwd())
             
             if model_path:
                 # Check if the selected file is a valid model
@@ -690,7 +690,7 @@ class VisionForgeGUI:
                                                        textvariable=input_data_path_var)
 
         def input_data_path():
-            input_data_path = filedialog.askopenfilename()
+            input_data_path = filedialog.askopenfilename(initialdir=Path.cwd())
             if input_data_path:
                 # Check if the selected file is a valid image
                 try:
