@@ -52,6 +52,7 @@ The training outputs are stored in the `runs` folder inside the vision_forge fol
 
 #### Folder Structure
 ![Training Outputs](readme_files/runs.png)
+
 Each subfolder within the `runs` directory contains the following files:
 - **Best Model with Highest Test Accuracy:** The model with the best test accuracy during the training session is saved as `best_model_acc.pth`.
 - **Final Model:** The final state of the model at the end of the training session is saved as `final_model.pth`.
