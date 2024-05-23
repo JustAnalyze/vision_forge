@@ -45,9 +45,10 @@ Here is a preview of the GUI for your reference:
 ![Vision Forge GUI](readme_files/predict_tab.png)
 
 ### Training Outputs
-The training outputs are stored in the `runs` folder. Each training session generates a dedicated subfolder named with the pre-trained model and the date and time when the training finished. The structure of these folders ensures that all relevant information and results from the training session are conveniently organized and accessible.
+The training outputs are stored in the `runs` folder inside the vision_forge folder. Each training session generates a dedicated subfolder named with the pre-trained model and the date and time when the training finished. The structure of these folders ensures that all relevant information and results from the training session are conveniently organized and accessible.
 
 #### Folder Structure
+![Training Outputs](readme_files/runs.png)
 Each subfolder within the `runs` directory contains the following files:
 - **Best Model with Highest Test Accuracy:** The model with the best test accuracy during the training session is saved as `best_model_acc.pth`.
 - **Final Model:** The final state of the model at the end of the training session is saved as `final_model.pth`.
