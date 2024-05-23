@@ -83,7 +83,6 @@ pretrained_models: dict[str, dict] = {
 }
 
 
-
 def main():
     """
     Main function to instantiate and run the GUI.
@@ -1082,7 +1081,6 @@ class VisionForgeGUI:
         # If all settings are valid return True
         return True
     
- 
     def _create_predict_button(self):
         """
         Create a button for starting the training.
@@ -1195,6 +1193,7 @@ class VisionForgeGUI:
         # Redirect stdout to the Text widget
         sys.stdout = StdoutRedirector(output_text)
 
+    # TODO: Create a feature that resumes the training for an existing model
     def _train_and_save_model(self):
         """
         Load the data and start the training process.
