@@ -1,4 +1,7 @@
 # Vision Forge
+<p align="center">
+  <img src="readme_files/vision_forge_logo.png">
+</p>
 
 #### Video Demo: (Coming Soon)
 
