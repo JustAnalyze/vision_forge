@@ -25,6 +25,7 @@ Vision Forge is an intuitive application designed for creating, training, and ut
 <p align="center">
     <img src="readme_files/training_progress_window.png">
 </p>
+
 - **Prediction:** Use the trained model to make predictions on new images, all through the simple GUI.
 - **Automatic GPU Detection:** The app automatically detects if the user's PC has a GPU and utilizes it to accelerate the training process. (Ensure that PyTorch is installed with CUDA support.)
 
