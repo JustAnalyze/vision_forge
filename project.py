@@ -183,11 +183,15 @@ def data_setup(data_path: str,
     train_dataloader = DataLoader(dataset=train_data,
                                   batch_size=batch_size,
                                   shuffle=True,
-                                  generator=torch.Generator(device))
+                                  generator=torch.Generator('cpu'),
+                                  pin_memory=True,
+                                  pin_memory_device=device)
 
     # set train data loader
     test_dataloader = DataLoader(dataset=test_data,
-                                 batch_size=batch_size)
+                                 batch_size=batch_size,
+                                 pin_memory=True,
+                                 pin_memory_device=device)
 
     return train_dataloader, test_dataloader, train_data.classes
 
@@ -266,45 +270,45 @@ def train_step(model: torch.nn.Module,
                optimizer: torch.optim.Optimizer,
                device):
 
-  # Put the model in train mode
-  model.train()
+    # Put the model in train mode
+    model.train()
 
-  # Setup train loss and train accuracy values
-  train_loss, train_acc = 0.0, 0.0
+    # Setup train loss and train accuracy values
+    train_loss, train_acc = 0.0, 0.0
 
-  # Loop through data loader and data batches
-  for batch, (X, y) in enumerate(dataloader):
-    # Send data to target device
-    X, y = X.to(device), y.to(device)
-    
-    # 1. Forward pass
-    preds_logits = model(X)
+    # Loop through data loader and data batches
+    for batch, (X, y) in enumerate(dataloader):
+        # Send data to target device
+        X, y = X.to(device), y.to(device)
 
-    # 2. Calculate and accumulate loss
-    loss = loss_fn(preds_logits, y)
-    train_loss += loss
+        # 1. Forward pass
+        preds_logits = model(X)
 
-    # 3. label predictions
-    preds_labels = torch.argmax(preds_logits, dim=1)
+        # 2. Calculate and accumulate loss
+        loss = loss_fn(preds_logits, y)
+        train_loss += loss
 
-    # 3.1 Calculate and accumualte accuracy metric across all batches
-    acc = accuracy_fn(preds_labels, y)
-    train_acc += acc
+        # 3. label predictions
+        preds_labels = torch.argmax(preds_logits, dim=1)
 
-    # 4. Optimizer zero grad
-    optimizer.zero_grad()
+        # 3.1 Calculate and accumualte accuracy metric across all batches
+        acc = accuracy_fn(preds_labels, y)
+        train_acc += acc
 
-    # 5. Loss backward
-    loss.backward()
+        # 4. Optimizer zero grad
+        optimizer.zero_grad()
 
-    # 6. Optimizer step
-    optimizer.step()
+        # 5. Loss backward
+        loss.backward()
 
-  # Adjust metrics to get average loss and average accuracy per batch
-  train_loss /= len(dataloader)
-  train_acc /= len(dataloader)
+        # 6. Optimizer step
+        optimizer.step()
 
-  return train_loss, train_acc
+    # Adjust metrics to get average loss and average accuracy per batch
+    train_loss /= len(dataloader)
+    train_acc /= len(dataloader)
+
+    return train_loss, train_acc
 
 
 # test step function
@@ -314,38 +318,38 @@ def validation_step(model: torch.nn.Module,
                     accuracy_fn,
                     device):
 
-  # Put model in eval mode
-  model.eval()
+    # Put model in eval mode
+    model.eval()
 
-  # Setup the test loss and test accuracy values
-  test_loss, test_acc = 0.0, 0.0
+    # Setup the test loss and test accuracy values
+    test_loss, test_acc = 0.0, 0.0
+    print('testing')
+    # Loop through DataLoader batches
+    for batch, (X, y) in enumerate(dataloader):
+        # Send data to target device
+        X, y = X.to(device), y.to(device)
 
-  # Loop through DataLoader batches
-  for batch, (X, y) in enumerate(dataloader):
-    # Send data to target device
-    X, y = X.to(device), y.to(device)
+        # 1. Forward pass
+        # Turn on inference context manager
+        with torch.inference_mode():
+            preds_logits = model(X)
 
-    # 1. Forward pass
-    # Turn on inference context manager
-    with torch.inference_mode():
-      preds_logits = model(X)
+        # 2. Calculuate and accumulate loss
+        loss = loss_fn(preds_logits, y)
+        test_loss += loss
 
-    # 2. Calculuate and accumulate loss
-    loss = loss_fn(preds_logits, y)
-    test_loss += loss
+        # 3. label predictions
+        preds_labels = torch.argmax(preds_logits, dim=1)
 
-    # 3. label predictions
-    preds_labels = torch.argmax(preds_logits, dim=1)
+        # Calculate and accumulate accuracy
+        acc = accuracy_fn(preds_labels, y)
+        test_acc += acc
 
-    # Calculate and accumulate accuracy
-    acc = accuracy_fn(preds_labels, y)
-    test_acc += acc
+    # Adjust metrics to get average loss and accuracy per batch
+    test_loss /= len(dataloader)
+    test_acc /= len(dataloader)
 
-  # Adjust metrics to get average loss and accuracy per batch
-  test_loss /= len(dataloader)
-  test_acc /= len(dataloader)
-
-  return test_loss, test_acc
+    return test_loss, test_acc
 
 # TODO: Enable user customization of seeds for reproducible model training.
 # Train model for specified epoch using train step and evaluate using test step
