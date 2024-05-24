@@ -1193,7 +1193,7 @@ class VisionForgeGUI:
         # Redirect stdout to the Text widget
         sys.stdout = StdoutRedirector(output_text)
 
-    # TODO: Create a feature that resumes the training for an existing model
+    # TODO: Create a feature that resumes the training for an existing models
     def _train_and_save_model(self):
         """
         Load the data and start the training process.
