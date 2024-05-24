@@ -184,14 +184,12 @@ def data_setup(data_path: str,
                                   batch_size=batch_size,
                                   shuffle=True,
                                   generator=torch.Generator('cpu'),
-                                  pin_memory=True,
-                                  pin_memory_device=device)
+                                  pin_memory=True,)
 
     # set train data loader
     test_dataloader = DataLoader(dataset=test_data,
                                  batch_size=batch_size,
-                                 pin_memory=True,
-                                 pin_memory_device=device)
+                                 pin_memory=True,)
 
     return train_dataloader, test_dataloader, train_data.classes
 
@@ -323,7 +321,7 @@ def validation_step(model: torch.nn.Module,
 
     # Setup the test loss and test accuracy values
     test_loss, test_acc = 0.0, 0.0
-    print('testing')
+
     # Loop through DataLoader batches
     for batch, (X, y) in enumerate(dataloader):
         # Send data to target device
