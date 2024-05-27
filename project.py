@@ -444,7 +444,7 @@ def train(model: torch.nn.Module,
         results["test_acc"].append(test_acc if device == 'cpu' else torch.Tensor.cpu(test_acc))
 
         # Check if the current test accuracy is the best we've seen so far
-        if test_acc > best_test_acc:
+        if test_acc >= best_test_acc:
             best_test_acc = test_acc
             best_acc_model = deepcopy(model)
         
