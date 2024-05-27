@@ -91,6 +91,19 @@ def main():
     gui.run()
 
 
+def convert_rgba_to_rgb(image_path):
+    # Open the image
+    image = Image.open(image_path)
+    
+    # Check if the image has an alpha channel (4 channels)
+    if image.mode == 'RGBA':
+        # Convert RGBA to RGB by discarding the alpha channel
+        rgb_image = image.convert('RGB')
+        return rgb_image
+    else:
+        return image
+
+
 def predict_with_model(image_path: str, model_path: str, device: torch.device):
     """
     Perform inference on an input image using a pre-trained model.
@@ -126,8 +139,11 @@ def predict_with_model(image_path: str, model_path: str, device: torch.device):
     # Record start time of inference
     start_time = time.time()
     
+    # convert image to rgb if its rgba format
+    rgb_image = convert_rgba_to_rgb(image_path)
+    
     # Load and transform the input image
-    input_image = transformation_fn(Image.open(image_path)).unsqueeze(0).to(device)
+    input_image = transformation_fn(rgb_image).unsqueeze(0).to(device)
     
     # Perform inference
     with torch.inference_mode():
